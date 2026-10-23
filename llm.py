@@ -1,0 +1,132 @@
+"""All model calls go through complete(). Provider is chosen by LLM_PROVIDER in .env."""
+
+import json
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TEMPERATURE = 0.1
+
+
+def provider() -> str:
+    return os.getenv("LLM_PROVIDER", "mock").strip().lower()
+
+
+def model_name() -> str:
+    p = provider()
+    if p == "gemini":
+        return os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+    if p == "openai":
+        return os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    return "mock (canned answers)"
+
+
+def complete(system: str, user: str, json_mode: bool = False) -> str:
+    """Send one system + user message to the configured model and return its text."""
+    p = provider()
+    if p == "gemini":
+        return _gemini(system, user, json_mode)
+    if p == "openai":
+        return _openai(system, user, json_mode)
+    if p == "mock":
+        return _mock(user, json_mode)
+    raise ValueError(f"Unknown LLM_PROVIDER '{p}'. Use gemini, openai or mock.")
+
+
+def _gemini(system: str, user: str, json_mode: bool) -> str:
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    config = types.GenerateContentConfig(
+        system_instruction=system,
+        temperature=TEMPERATURE,
+        response_mime_type="application/json" if json_mode else "text/plain",
+    )
+    response = client.models.generate_content(model=model_name(), contents=user, config=config)
+    return response.text or ""
+
+
+def _openai(system: str, user: str, json_mode: bool) -> str:
+    from openai import OpenAI
+
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    kwargs = {"response_format": {"type": "json_object"}} if json_mode else {}
+    response = client.chat.completions.create(
+        model=model_name(),
+        temperature=TEMPERATURE,
+        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+        **kwargs,
+    )
+    return response.choices[0].message.content or ""
+
+
+# --- mock provider: canned answers keyed on words in the question, for UI work ---
+
+_MOCK_ANSWERS = {
+    "viscous": {
+        "measurement_needs": ["viscosity vs. temperature and shear rate", "thermal transitions", "thermal degradation / moisture"],
+        "recommendations": [
+            {"instrument_id": "EQ19", "technique": "Rotational rheology (temperature and shear-rate sweeps)",
+             "why": "Shows how viscosity changes with temperature and shear rate.",
+             "accessories_to_confirm": ["Temperature-control accessory (e.g. Peltier or environmental test chamber)", "Parallel-plate or cone-and-plate geometry"]},
+            {"instrument_id": "EQ18", "technique": "Differential scanning calorimetry",
+             "why": "Identifies melting, glass transition or crystallization that affects flow.",
+             "accessories_to_confirm": ["Suitable pans and lids"]},
+            {"instrument_id": "EQ17", "technique": "Thermogravimetric analysis",
+             "why": "Checks for degradation, moisture or filler content.", "accessories_to_confirm": []},
+        ],
+        "not_available": [
+            {"technique": "Capillary rheometry / melt flow index", "why_useful": "Measures flow under extrusion-like conditions."},
+            {"technique": "Molecular-weight analysis (GPC/SEC)", "why_useful": "Molecular weight strongly controls melt viscosity."},
+        ],
+        "clarifying_question": None,
+        "summary": "Rheology, DSC and TGA together can explain unexpected viscosity. (Mock answer.)",
+    },
+    "compress": {
+        "measurement_needs": ["compressive modulus of a porous scaffold"],
+        "recommendations": [
+            {"instrument_id": "EQ15", "technique": "Uniaxial compression testing",
+             "why": "Measures the stress-strain response; stiffness is the slope of the linear region.",
+             "accessories_to_confirm": ["Load cell with a suitable (low) capacity", "Compression platens"]},
+            {"instrument_id": "EQ99", "technique": "Made-up instrument (tests the removal notice)",
+             "why": "This ID is not in the dataset.", "accessories_to_confirm": []},
+        ],
+        "not_available": [{"technique": "Micro-CT", "why_useful": "Quantifies porosity and pore structure."}],
+        "clarifying_question": None,
+        "summary": "Use the Instron 5967 in compression; confirm load cell and platens. (Mock answer.)",
+    },
+    "internal": {
+        "measurement_needs": ["non-destructive 3D imaging of internal pore structure"],
+        "recommendations": [
+            {"instrument_id": "EQ08", "technique": "Multiphoton microscopy (partial option)",
+             "why": "Can image some depth into transparent or fluorescent samples only.",
+             "accessories_to_confirm": ["Suitable objectives and laser lines"]},
+        ],
+        "not_available": [{"technique": "Micro-CT", "why_useful": "Standard non-destructive method for internal 3D structure."}],
+        "clarifying_question": None,
+        "summary": "No fully suitable instrument is available. Micro-CT is not in the dataset. (Mock answer.)",
+    },
+}
+
+_MOCK_CLARIFY = {
+    "measurement_needs": [],
+    "recommendations": [],
+    "not_available": [],
+    "clarifying_question": "What material is the sample, and what property do you want to measure? (Mock answer.)",
+    "summary": "The question needs more detail before equipment can be suggested.",
+}
+
+
+def _mock(user: str, json_mode: bool) -> str:
+    # The question is the last part of the user message; search only that part.
+    question = user.rsplit("Question:", 1)[-1].lower()
+    answer = next((a for key, a in _MOCK_ANSWERS.items() if key in question), _MOCK_CLARIFY)
+    if json_mode:
+        return json.dumps(answer, indent=2)
+    lines = [answer["summary"], ""]
+    for rec in answer["recommendations"]:
+        lines.append(f"- **{rec['instrument_id']}**: {rec['technique']}. {rec['why']}")
+    return "\n".join(lines)
