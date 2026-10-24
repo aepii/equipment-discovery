@@ -1,13 +1,15 @@
 """Load the dataset, build prompts, call the LLM, parse JSON and check answers against the dataset."""
 
+import hashlib
 import json
 import re
+import subprocess
 from functools import lru_cache
 from pathlib import Path
 
 import openpyxl
 
-from llm import complete
+from llm import complete_with_meta
 
 DATA_PATH = Path(__file__).parent / "data" / "dataset.xlsx"
 SHEET = "Equipment list"
@@ -43,6 +45,47 @@ def format_equipment_list() -> str:
             line += f" | Notes: {e['notes']}"
         lines.append(line)
     return "\n".join(lines)
+
+
+def instrument_ids_in_text(text: str) -> list[str]:
+    """IDs of instruments named in free text (naive answers): by ID, model, full name or abbreviation."""
+    return [eq_id for eq_id, pattern in _instrument_patterns().items() if pattern.search(text)]
+
+
+@lru_cache(maxsize=1)
+def _instrument_patterns() -> dict[str, re.Pattern]:
+    patterns = {}
+    for e in load_equipment():
+        names = [e["id"], e["model"], e["instrument"]]
+        names += re.findall(r"\(([A-Z]{2,})\)", e["instrument"])  # e.g. TGA, DSC, ESEM
+        alternatives = "|".join(re.escape(n) for n in names if n)
+        patterns[e["id"]] = re.compile(rf"\b(?:{alternatives})\b", re.IGNORECASE)
+    return patterns
+
+
+# --- versions, so logged answers can be traced to the prompt, data and code that produced them ---
+
+def _short_hash(data: bytes) -> str:
+    return hashlib.sha1(data).hexdigest()[:8]
+
+
+def prompt_version(mode: str) -> str:
+    return _short_hash({"structured": STRUCTURED_SYSTEM, "naive": NAIVE_SYSTEM}[mode].encode())
+
+
+@lru_cache(maxsize=1)
+def dataset_version() -> str:
+    return _short_hash(DATA_PATH.read_bytes())
+
+
+@lru_cache(maxsize=1)
+def git_commit() -> str:
+    try:
+        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=DATA_PATH.parent,
+                             capture_output=True, text=True, timeout=5)
+        return out.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return ""
 
 
 # --- prompts ---
@@ -127,16 +170,27 @@ def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]
 
 # --- run one question ---
 
+def _call(result: dict, system: str, question: str, json_mode: bool) -> None:
+    """Call the model and store its text and usage (tokens, seconds) on the result."""
+    meta = complete_with_meta(system, build_user_prompt(question), json_mode=json_mode)
+    result["raw"] = meta.pop("text")
+    result["usage"] = meta
+
+
 def run_structured(question: str) -> dict:
     """Structured mode: rules + JSON schema; code checks and fills in each recommendation."""
-    result = {"mode": "structured", "raw": "", "error": None, "recommendations": [], "removed": []}
+    result = {"mode": "structured", "raw": "", "error": None, "usage": {}, "json_ok": None,
+              "recommendations": [], "removed": [], "instrument_ids": []}
     try:
-        result["raw"] = complete(STRUCTURED_SYSTEM, build_user_prompt(question), json_mode=True)
+        _call(result, STRUCTURED_SYSTEM, question, json_mode=True)
         parsed = parse_json(result["raw"])
     except Exception as exc:  # API or parsing errors are shown in the page, not raised
         result["error"] = f"{type(exc).__name__}: {exc}"
+        result["json_ok"] = False if result["raw"] else None
         return result
+    result["json_ok"] = True
     result["recommendations"], result["removed"] = check_recommendations(parsed.get("recommendations"))
+    result["instrument_ids"] = [rec["id"] for rec in result["recommendations"]]
     result["measurement_needs"] = list(parsed.get("measurement_needs") or [])
     result["not_available"] = [n for n in parsed.get("not_available") or [] if isinstance(n, dict)]
     result["clarifying_question"] = parsed.get("clarifying_question")
@@ -146,9 +200,10 @@ def run_structured(question: str) -> dict:
 
 def run_naive(question: str) -> dict:
     """Naive mode: equipment list + question, no rules, free text answer."""
-    result = {"mode": "naive", "raw": "", "error": None}
+    result = {"mode": "naive", "raw": "", "error": None, "usage": {}, "instrument_ids": []}
     try:
-        result["raw"] = complete(NAIVE_SYSTEM, build_user_prompt(question))
+        _call(result, NAIVE_SYSTEM, question, json_mode=False)
     except Exception as exc:
         result["error"] = f"{type(exc).__name__}: {exc}"
+    result["instrument_ids"] = instrument_ids_in_text(result["raw"])
     return result

@@ -3,3 +3,4 @@ openpyxl>=3.1
 python-dotenv>=1.0
 google-genai>=1.0
 openai>=1.55.3
+gspread>=6.0
