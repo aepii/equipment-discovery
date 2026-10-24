@@ -2,6 +2,7 @@
 
 import json
 import os
+import time
 import urllib.error
 import urllib.request
 
@@ -29,19 +30,26 @@ def model_name() -> str:
 
 def complete(system: str, user: str, json_mode: bool = False) -> str:
     """Send one system + user message to the configured model and return its text."""
+    return complete_with_meta(system, user, json_mode)["text"]
+
+
+def complete_with_meta(system: str, user: str, json_mode: bool = False) -> dict:
+    """Like complete(), but also return usage for evaluation:
+    {"text", "input_tokens", "output_tokens", "thinking_tokens", "seconds"}. Unknown counts are None."""
+    calls = {"gemini": _gemini, "openai": _openai, "ollama": _ollama, "mock": _mock}
     p = provider()
-    if p == "gemini":
-        return _gemini(system, user, json_mode)
-    if p == "openai":
-        return _openai(system, user, json_mode)
-    if p == "ollama":
-        return _ollama(system, user, json_mode)
-    if p == "mock":
-        return _mock(user, json_mode)
-    raise ValueError(f"Unknown LLM_PROVIDER '{p}'. Use gemini, openai, ollama or mock.")
+    if p not in calls:
+        raise ValueError(f"Unknown LLM_PROVIDER '{p}'. Use gemini, openai, ollama or mock.")
+    start = time.perf_counter()
+    text, usage = calls[p](system, user, json_mode)
+    return {"text": text, **usage, "seconds": round(time.perf_counter() - start, 2)}
 
 
-def _gemini(system: str, user: str, json_mode: bool) -> str:
+def _usage(input_tokens=None, output_tokens=None, thinking_tokens=None) -> dict:
+    return {"input_tokens": input_tokens, "output_tokens": output_tokens, "thinking_tokens": thinking_tokens}
+
+
+def _gemini(system: str, user: str, json_mode: bool) -> tuple[str, dict]:
     from google import genai
     from google.genai import types
 
@@ -52,10 +60,12 @@ def _gemini(system: str, user: str, json_mode: bool) -> str:
         response_mime_type="application/json" if json_mode else "text/plain",
     )
     response = client.models.generate_content(model=model_name(), contents=user, config=config)
-    return response.text or ""
+    meta = response.usage_metadata
+    usage = _usage(meta.prompt_token_count, meta.candidates_token_count, meta.thoughts_token_count) if meta else _usage()
+    return response.text or "", usage
 
 
-def _openai(system: str, user: str, json_mode: bool) -> str:
+def _openai(system: str, user: str, json_mode: bool) -> tuple[str, dict]:
     from openai import OpenAI
 
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -66,10 +76,15 @@ def _openai(system: str, user: str, json_mode: bool) -> str:
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
         **kwargs,
     )
-    return response.choices[0].message.content or ""
+    usage = _usage()
+    if response.usage:
+        details = response.usage.completion_tokens_details
+        usage = _usage(response.usage.prompt_tokens, response.usage.completion_tokens,
+                       details.reasoning_tokens if details else None)
+    return response.choices[0].message.content or "", usage
 
 
-def _ollama(system: str, user: str, json_mode: bool) -> str:
+def _ollama(system: str, user: str, json_mode: bool) -> tuple[str, dict]:
     """Local model served by Ollama (https://ollama.com); works without internet."""
     host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
     body = {
@@ -86,11 +101,13 @@ def _ollama(system: str, user: str, json_mode: bool) -> str:
     )
     try:
         with urllib.request.urlopen(request, timeout=300) as response:
-            return json.loads(response.read())["message"]["content"] or ""
+            data = json.loads(response.read())
     except urllib.error.HTTPError as exc:
         raise RuntimeError(f"Ollama error {exc.code}: {exc.read().decode(errors='replace')}") from exc
     except urllib.error.URLError as exc:
         raise RuntimeError(f"Cannot reach Ollama at {host}. Is it running? ({exc.reason})") from exc
+    usage = _usage(data.get("prompt_eval_count"), data.get("eval_count"))
+    return data["message"]["content"] or "", usage
 
 
 # --- mock provider: canned answers keyed on words in the question, for UI work ---
@@ -150,13 +167,13 @@ _MOCK_CLARIFY = {
 }
 
 
-def _mock(user: str, json_mode: bool) -> str:
+def _mock(system: str, user: str, json_mode: bool) -> tuple[str, dict]:
     # The question is the last part of the user message; search only that part.
     question = user.rsplit("Question:", 1)[-1].lower()
     answer = next((a for key, a in _MOCK_ANSWERS.items() if key in question), _MOCK_CLARIFY)
     if json_mode:
-        return json.dumps(answer, indent=2)
+        return json.dumps(answer, indent=2), _usage()
     lines = [answer["summary"], ""]
     for rec in answer["recommendations"]:
         lines.append(f"- **{rec['instrument_id']}**: {rec['technique']}. {rec['why']}")
-    return "\n".join(lines)
+    return "\n".join(lines), _usage()
