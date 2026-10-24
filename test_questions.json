@@ -1,0 +1,23 @@
+[
+  {
+    "id": "Q1",
+    "question": "My polymer remains unexpectedly viscous during extrusion at elevated temperatures. What measurements could help me understand why?",
+    "expected_ids": ["EQ19", "EQ18", "EQ17"],
+    "expected_not_available": ["capillary rheomet|melt flow", "\\bGPC\\b|\\bSEC\\b|gel permeation|size.exclusion|molecular.weight"],
+    "notes": "Draft pending Stefan's review. Rheometer temperature accessory not confirmed. Distractor: EQ01 bioprinter extrudes but does not measure."
+  },
+  {
+    "id": "Q2",
+    "question": "I want to determine the compressive stiffness of a porous polymer scaffold. What equipment could I use?",
+    "expected_ids": ["EQ15"],
+    "expected_not_available": ["micro.?CT|µCT|computed tomography"],
+    "notes": "Draft pending Stefan's review. Should list load cell and compression platens to confirm."
+  },
+  {
+    "id": "Q3",
+    "question": "I need to examine the internal structure of a porous specimen without destroying it. What characterization methods are available?",
+    "expected_ids": [],
+    "expected_not_available": ["micro.?CT|µCT|computed tomography"],
+    "notes": "Draft pending Stefan's review. No fully suitable instrument. EQ07/EQ08 confocal/multiphoton only partial (transparent/fluorescent samples). EM and ultramicrotomy are destructive."
+  }
+]

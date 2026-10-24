@@ -2,6 +2,8 @@
 
 import json
 import os
+import urllib.error
+import urllib.request
 
 from dotenv import load_dotenv
 
@@ -20,6 +22,8 @@ def model_name() -> str:
         return os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
     if p == "openai":
         return os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    if p == "ollama":
+        return os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
     return "mock (canned answers)"
 
 
@@ -30,9 +34,11 @@ def complete(system: str, user: str, json_mode: bool = False) -> str:
         return _gemini(system, user, json_mode)
     if p == "openai":
         return _openai(system, user, json_mode)
+    if p == "ollama":
+        return _ollama(system, user, json_mode)
     if p == "mock":
         return _mock(user, json_mode)
-    raise ValueError(f"Unknown LLM_PROVIDER '{p}'. Use gemini, openai or mock.")
+    raise ValueError(f"Unknown LLM_PROVIDER '{p}'. Use gemini, openai, ollama or mock.")
 
 
 def _gemini(system: str, user: str, json_mode: bool) -> str:
@@ -61,6 +67,30 @@ def _openai(system: str, user: str, json_mode: bool) -> str:
         **kwargs,
     )
     return response.choices[0].message.content or ""
+
+
+def _ollama(system: str, user: str, json_mode: bool) -> str:
+    """Local model served by Ollama (https://ollama.com); works without internet."""
+    host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+    body = {
+        "model": model_name(),
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+        "stream": False,
+        # Ollama's default context window is small; the equipment list and rules need more room.
+        "options": {"temperature": TEMPERATURE, "num_ctx": int(os.getenv("OLLAMA_NUM_CTX", "8192"))},
+    }
+    if json_mode:
+        body["format"] = "json"
+    request = urllib.request.Request(
+        f"{host}/api/chat", data=json.dumps(body).encode(), headers={"Content-Type": "application/json"}
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=300) as response:
+            return json.loads(response.read())["message"]["content"] or ""
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError(f"Ollama error {exc.code}: {exc.read().decode(errors='replace')}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"Cannot reach Ollama at {host}. Is it running? ({exc.reason})") from exc
 
 
 # --- mock provider: canned answers keyed on words in the question, for UI work ---

@@ -1,9 +1,26 @@
 """Streamlit interface. Run with: streamlit run app.py"""
 
+import hmac
+import os
+
 import streamlit as st
 
-import core
-import llm
+
+def load_secrets() -> None:
+    """Copy Streamlit secrets (used when deployed) into the environment; locally .env is used instead."""
+    try:
+        secrets = dict(st.secrets)
+    except Exception:  # no secrets.toml: running locally with .env
+        return
+    for key, value in secrets.items():
+        if isinstance(value, (str, int, float)):
+            os.environ[key] = str(value)
+
+
+load_secrets()
+
+import core  # noqa: E402  (imported after secrets so llm sees the deployed settings)
+import llm  # noqa: E402
 
 EXAMPLES = {
     "Viscous polymer": "My polymer remains unexpectedly viscous during extrusion at elevated temperatures. "
@@ -18,6 +35,20 @@ MODES = ["Structured", "Naive", "Compare both"]
 
 def set_question(text: str) -> None:
     st.session_state["question"] = text
+
+
+def password_ok() -> bool:
+    """Shared-password gate so the public link does not spend API credits. Off when APP_PASSWORD is unset."""
+    expected = os.getenv("APP_PASSWORD", "")
+    if not expected or st.session_state.get("authenticated"):
+        return True
+    entered = st.text_input("Password", type="password")
+    if entered and hmac.compare_digest(entered, expected):
+        st.session_state["authenticated"] = True
+        st.rerun()
+    if entered:
+        st.error("Wrong password.")
+    return False
 
 
 def render_sidebar() -> str:
@@ -80,6 +111,8 @@ def render_naive(result: dict) -> None:
 
 def main() -> None:
     st.set_page_config(page_title="Equipment Discovery", layout="wide")
+    if not password_ok():
+        return
     mode = render_sidebar()
 
     st.title("UMKC Research Equipment Discovery")
