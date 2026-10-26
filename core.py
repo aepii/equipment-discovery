@@ -36,11 +36,17 @@ def equipment_by_id() -> dict[str, dict]:
     return {item["id"]: item for item in load_equipment()}
 
 
-def format_equipment_list() -> str:
-    """One line per instrument for the prompt. Contacts are left out: code adds them later."""
+def format_equipment_list(include_contacts: bool = False) -> str:
+    """One line per instrument for the prompt.
+
+    Structured mode leaves contacts out (code adds them from the ID); naive mode includes them
+    so the model has to copy them itself, like an informal ChatGPT test.
+    """
     lines = []
     for e in load_equipment():
         line = f"{e['id']} | {e['instrument']} | {e['manufacturer']} {e['model']} | {e['location']}"
+        if include_contacts:
+            line += f" | Contact: {e['contact']}"
         if e["notes"]:
             line += f" | Notes: {e['notes']}"
         lines.append(line)
@@ -70,7 +76,8 @@ def _short_hash(data: bytes) -> str:
 
 
 def prompt_version(mode: str) -> str:
-    return _short_hash({"structured": STRUCTURED_SYSTEM, "naive": NAIVE_SYSTEM}[mode].encode())
+    prompts = {"structured": STRUCTURED_SYSTEM, "naive": NAIVE_SYSTEM + NAIVE_REQUEST}
+    return _short_hash(prompts[mode].encode())
 
 
 @lru_cache(maxsize=1)
@@ -123,9 +130,17 @@ Return ONLY a JSON object with exactly this shape:
 
 NAIVE_SYSTEM = "You are a helpful assistant."
 
+# Naive mode asks for location and contact in plain words, so its answers are comparable with
+# structured mode (where code fills them in from the ID).
+NAIVE_REQUEST = "For each instrument you suggest, include its location and contact."
 
-def build_user_prompt(question: str) -> str:
-    return f"Equipment list:\n{format_equipment_list()}\n\nQuestion: {question.strip()}"
+
+def build_user_prompt(question: str, mode: str = "structured") -> str:
+    naive = mode == "naive"
+    prompt = f"Equipment list:\n{format_equipment_list(include_contacts=naive)}\n\nQuestion: {question.strip()}"
+    if naive:
+        prompt += f"\n\n{NAIVE_REQUEST}"
+    return prompt
 
 
 # --- parsing and checking ---
@@ -172,7 +187,8 @@ def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]
 
 def _call(result: dict, system: str, question: str, json_mode: bool) -> None:
     """Call the model and store its text and usage (tokens, seconds) on the result."""
-    meta = complete_with_meta(system, build_user_prompt(question), json_mode=json_mode)
+    user = build_user_prompt(question, result["mode"])
+    meta = complete_with_meta(system, user, json_mode=json_mode)
     result["raw"] = meta.pop("text")
     result["usage"] = meta
 
