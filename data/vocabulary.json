@@ -1,0 +1,101 @@
+{
+  "_about": "Controlled vocabulary for the knowledge layer. techniques.json and annotations.json may only use the ids and values defined here, so the same property or status always has the same name and connects in the graph. Add a term here first, then use it.",
+
+  "properties": {
+    "viscosity_vs_shear_rate": {"label": "viscosity vs. shear rate", "aliases": ["flow curve", "shear thinning", "shear thickening"]},
+    "viscosity_vs_temperature": {"label": "viscosity vs. temperature", "aliases": ["temperature sweep", "melt viscosity"]},
+    "processing_shear_viscosity": {"label": "viscosity at processing (extrusion) shear rates", "aliases": ["high shear rate viscosity", "extrusion viscosity"]},
+    "melt_flow_rate": {"label": "melt flow rate (MFR / MFI)", "aliases": ["melt flow index"]},
+    "viscoelastic_moduli": {"label": "viscoelastic moduli (G', G'')", "aliases": ["storage modulus", "loss modulus", "tan delta", "complex viscosity"]},
+    "yield_stress": {"label": "yield stress", "aliases": ["printability", "flow onset"]},
+    "gelation_and_curing_kinetics": {"label": "gelation and curing kinetics (gel point, cure time)", "aliases": ["crosslinking kinetics", "gel time"]},
+    "solid_viscoelastic_properties": {"label": "solid-state viscoelastic properties (E', E'', tan delta)", "aliases": ["dynamic mechanical properties", "damping"]},
+
+    "mass_loss_vs_temperature": {"label": "mass loss vs. temperature", "aliases": ["weight loss"]},
+    "thermal_stability": {"label": "thermal stability / decomposition temperature", "aliases": ["degradation temperature", "onset of degradation"]},
+    "moisture_and_volatile_content": {"label": "moisture and volatile content", "aliases": ["water content", "residual solvent"]},
+    "filler_content": {"label": "filler / inorganic residue content", "aliases": ["ash content", "residue"]},
+    "glass_transition_temperature": {"label": "glass-transition temperature (Tg)", "aliases": ["Tg"]},
+    "melting_temperature": {"label": "melting temperature (Tm)", "aliases": ["Tm", "melting point"]},
+    "crystallization_temperature": {"label": "crystallization temperature (Tc)", "aliases": ["Tc"]},
+    "degree_of_crystallinity": {"label": "degree of crystallinity", "aliases": ["crystallinity"]},
+    "reaction_enthalpy": {"label": "heat of reaction / curing enthalpy", "aliases": ["degree of cure", "exotherm"]},
+
+    "tensile_modulus": {"label": "tensile elastic modulus", "aliases": ["Young's modulus", "tensile stiffness"]},
+    "tensile_strength": {"label": "tensile strength", "aliases": ["ultimate tensile strength"]},
+    "elongation_at_break": {"label": "elongation at break", "aliases": ["strain at failure", "ductility"]},
+    "compressive_modulus": {"label": "compressive modulus (stiffness)", "aliases": ["compressive stiffness", "modulus in compression"]},
+    "compressive_strength": {"label": "compressive strength / yield", "aliases": ["crush strength"]},
+    "flexural_modulus": {"label": "flexural modulus", "aliases": ["bending stiffness"]},
+    "flexural_strength": {"label": "flexural strength", "aliases": ["bending strength"]},
+    "bond_strength": {"label": "bond / adhesion strength (shear or tensile)", "aliases": ["shear bond strength", "adhesion"]},
+    "hardness": {"label": "hardness", "aliases": ["microhardness", "Vickers", "Knoop", "Shore"]},
+
+    "surface_morphology": {"label": "surface morphology", "aliases": ["surface structure", "fracture surface", "topography (imaging)"]},
+    "surface_roughness": {"label": "surface roughness / topography (quantitative)", "aliases": ["Ra", "profilometry"]},
+    "wettability": {"label": "wettability (contact angle)", "aliases": ["contact angle", "hydrophilicity"]},
+    "internal_3d_structure": {"label": "internal 3D structure", "aliases": ["internal structure", "interior", "3D morphology"]},
+    "porosity_and_pore_size": {"label": "porosity and pore size", "aliases": ["porosity", "pore size", "pore interconnectivity"]},
+    "specific_surface_area": {"label": "specific surface area", "aliases": ["BET surface area"]},
+    "ultrastructure": {"label": "ultrastructure (nanometre-scale structure in thin sections)", "aliases": ["organelles", "nanostructure"]},
+    "nanoparticle_morphology": {"label": "nanoparticle size and shape (by imaging)", "aliases": ["particle shape"]},
+    "particle_size_distribution": {"label": "particle size distribution (nanometre to low micrometre, in suspension)", "aliases": ["hydrodynamic diameter", "polydispersity", "PDI"]},
+    "microparticle_size_distribution": {"label": "particle size distribution (micrometre to millimetre)", "aliases": ["bead size", "capsule size", "powder size"]},
+    "zeta_potential": {"label": "zeta potential", "aliases": ["surface charge", "colloidal stability"]},
+
+    "elemental_composition": {"label": "elemental composition", "aliases": ["element mapping"]},
+    "chemical_functional_groups": {"label": "chemical bonds / functional groups", "aliases": ["chemical composition", "spectrum"]},
+    "crystalline_phase": {"label": "crystalline phase identification", "aliases": ["crystal structure"]},
+    "molecular_weight_distribution": {"label": "molecular weight distribution", "aliases": ["molar mass", "Mw", "Mn"]},
+    "nucleic_acid_concentration": {"label": "DNA / RNA concentration", "aliases": ["DNA quantification", "RNA quantification"]},
+    "protein_concentration": {"label": "protein concentration", "aliases": ["protein quantification"]},
+
+    "fluorescence_localization": {"label": "location of fluorescent labels", "aliases": ["immunofluorescence", "colocalization", "fluorescent staining"]},
+    "fluorescence_intensity": {"label": "fluorescence intensity (image-based)", "aliases": ["expression level"]},
+    "cell_morphology": {"label": "cell morphology", "aliases": ["cell shape", "cell spreading"]},
+    "cell_counts": {"label": "cell counts / confluence", "aliases": ["cell number", "proliferation"]},
+    "live_cell_behavior": {"label": "live-cell behaviour over time", "aliases": ["time-lapse", "migration"]},
+    "tissue_morphology": {"label": "tissue morphology (histology)", "aliases": ["histology", "tissue section"]},
+    "macroscopic_morphology": {"label": "macroscopic morphology", "aliases": ["visual inspection", "defects", "low magnification"]}
+  },
+
+  "technique_kinds": {
+    "measurement": "measures one or more properties",
+    "imaging": "produces images from which properties are read",
+    "sample_preparation": "prepares a sample for another technique; measures nothing itself",
+    "fabrication": "makes samples or devices; measures nothing itself",
+    "bench_step": "a lab procedure that needs no listed instrument (e.g. fixation, staining)"
+  },
+
+  "destructive": {
+    "no": "the sample is unchanged and can be used again",
+    "yes": "the sample (or the tested aliquot) is consumed, cut or altered",
+    "depends": "depends on the sample or settings; see destructive_note",
+    "not_applicable": "the technique makes or prepares samples"
+  },
+
+  "sources": {
+    "dataset": "stated in Stefan's equipment dataset (data/dataset.xlsx)",
+    "llm_draft": "drafted with an LLM from general knowledge of this instrument type; not yet reviewed",
+    "expert_review": "checked by the faculty mentor (Stefan Lohfeld)",
+    "contact_confirmed": "confirmed for this specific instrument by its contact"
+  },
+
+  "confidence": {
+    "high": "standard for every instrument of this type, or stated in the dataset",
+    "medium": "common for this instrument type, but depends on configuration or accessories",
+    "low": "only with optional hardware that the dataset does not list"
+  },
+
+  "accessory_status": {
+    "listed_in_dataset": "the dataset says it is installed",
+    "to_confirm": "typically needed; ask the contact whether it is installed",
+    "confirmed": "the contact confirmed it is installed"
+  },
+
+  "review_status": {
+    "draft": "drafted, not yet reviewed by the faculty mentor",
+    "reviewed": "reviewed by the faculty mentor",
+    "needs_changes": "the reviewer asked for changes"
+  }
+}

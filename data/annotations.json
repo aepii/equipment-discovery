@@ -1,0 +1,394 @@
+{
+  "_about": "Instrument annotations: which techniques each instrument in data/dataset.xlsx typically performs, typical samples, limitations and the accessories a measurement usually needs. They describe what this TYPE of instrument typically does; the dataset does not list installed accessories, so accessories are 'to_confirm' unless the dataset itself lists them. Technique ids come from data/techniques.json; sources, confidence and statuses from data/vocabulary.json. First drafted by a team member in a spreadsheet with an LLM (Oct 27), then corrected and mapped to the controlled vocabulary. Not yet reviewed by Stefan.",
+
+  "instruments": [
+    {
+      "id": "EQ01",
+      "instrument": "Extrusion-based 3D bioprinter",
+      "techniques": [
+        {"technique": "extrusion_bioprinting", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["hydrogels", "bioinks", "cell-laden materials", "thermoplastic scaffold materials"],
+      "limitations": [
+        "makes constructs; it does not measure any property",
+        "lower resolution than light-based printing",
+        "printable materials depend on the print head and temperature"
+      ],
+      "accessories": [
+        {"item": "two low-temperature heads, one high-temperature head, one UV-light head", "for": ["extrusion_bioprinting"], "status": "listed_in_dataset", "source": "dataset"},
+        {"item": "suitable needles / nozzles and cartridges for the material", "for": ["extrusion_bioprinting"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "sterile enclosure for printing with cells", "for": ["extrusion_bioprinting"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ02",
+      "instrument": "DLP 3D printer",
+      "techniques": [
+        {"technique": "vat_photopolymerization_printing", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["photopolymer resins", "dental and biomedical resins"],
+      "limitations": [
+        "makes parts; it does not measure any property",
+        "limited to photocurable resins that suit this printer"
+      ],
+      "accessories": [
+        {"item": "resin compatible with the printer", "for": ["vat_photopolymerization_printing"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "wash and UV post-curing unit", "for": ["vat_photopolymerization_printing"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ03",
+      "instrument": "Resin 3D printer (MSLA)",
+      "techniques": [
+        {"technique": "vat_photopolymerization_printing", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["photopolymer resins"],
+      "limitations": [
+        "makes parts; it does not measure any property",
+        "limited to photocurable resins; resin handling required"
+      ],
+      "accessories": [
+        {"item": "resin compatible with the printer", "for": ["vat_photopolymerization_printing"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "wash and UV post-curing station", "for": ["vat_photopolymerization_printing"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ04",
+      "instrument": "Encapsulator",
+      "techniques": [
+        {"technique": "vibrating_nozzle_encapsulation", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["alginate and other hydrogel solutions", "polymer solutions", "cell suspensions"],
+      "limitations": [
+        "makes beads and capsules; it does not measure their size or properties",
+        "bead size range depends on the nozzle and the formulation"
+      ],
+      "accessories": [
+        {"item": "nozzle of the required diameter", "for": ["vibrating_nozzle_encapsulation"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "concentric nozzle for core-shell capsules", "for": ["vibrating_nozzle_encapsulation"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "sterile setup for cell encapsulation", "for": ["vibrating_nozzle_encapsulation"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ05",
+      "instrument": "Analytical mill",
+      "techniques": [
+        {"technique": "milling", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["brittle polymers", "dried biological tissue", "plant material", "small batches of solids"],
+      "limitations": [
+        "prepares powders; it does not measure particle size",
+        "small batches only",
+        "heat from grinding can change sensitive samples unless they are cooled"
+      ],
+      "accessories": [
+        {"item": "grinding chamber and blade suited to the material", "for": ["milling"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "cooling with liquid nitrogen or dry ice for soft or heat-sensitive samples", "for": ["milling"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ06",
+      "instrument": "Fluorometer",
+      "techniques": [
+        {"technique": "fluorometric_quantification", "source": "llm_draft", "confidence": "high"}
+      ],
+      "typical_samples": ["DNA", "RNA", "protein extracts"],
+      "limitations": [
+        "only quantifies what a matching assay kit detects; it does not record full fluorescence spectra",
+        "does not check purity or integrity of nucleic acids"
+      ],
+      "accessories": [
+        {"item": "assay kit for the analyte (dsDNA, RNA or protein)", "for": ["fluorometric_quantification"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "compatible tubes or strips", "for": ["fluorometric_quantification"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ07",
+      "instrument": "Inverted confocal microscope",
+      "techniques": [
+        {"technique": "confocal_microscopy", "source": "dataset", "confidence": "high"},
+        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low"}
+      ],
+      "typical_samples": ["fixed or live cells in dishes", "thin tissue sections", "fluorescently labeled hydrogels and scaffolds"],
+      "limitations": [
+        "needs fluorescent contrast",
+        "imaging depth limited to roughly 100 µm; cannot see inside opaque samples",
+        "inverted stand suits samples in dishes or on coverslips"
+      ],
+      "accessories": [
+        {"item": "laser lines and detectors matching the fluorophores", "for": ["confocal_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "objectives of suitable magnification and working distance", "for": ["confocal_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "stage-top incubator (temperature, CO2) for live cells", "for": ["live_cell_time_lapse_imaging"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ08",
+      "instrument": "Upright confocal / multiphoton microscope",
+      "techniques": [
+        {"technique": "confocal_microscopy", "source": "dataset", "confidence": "high"},
+        {"technique": "multiphoton_microscopy", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["thick tissue", "explants", "fluorescent or collagen-rich scaffolds", "intravital samples"],
+      "limitations": [
+        "needs fluorescent or SHG contrast",
+        "deeper than confocal but still limited to several hundred µm; cannot see through opaque materials",
+        "upright stand suits thick samples and dipping objectives"
+      ],
+      "accessories": [
+        {"item": "tunable infrared multiphoton laser (dataset lists a multiphoton configuration; confirm wavelengths)", "for": ["multiphoton_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "non-descanned detectors for deep imaging", "for": ["multiphoton_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "water-dipping objective with long working distance", "for": ["multiphoton_microscopy", "confocal_microscopy"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ09",
+      "instrument": "High-content epifluorescence imaging system",
+      "techniques": [
+        {"technique": "widefield_fluorescence_microscopy", "source": "dataset", "confidence": "high"},
+        {"technique": "brightfield_microscopy", "source": "llm_draft", "confidence": "high"},
+        {"technique": "phase_contrast_microscopy", "source": "llm_draft", "confidence": "medium"},
+        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low"}
+      ],
+      "typical_samples": ["cell cultures in multiwell plates", "tissue sections on slides", "whole-slide scans"],
+      "limitations": [
+        "widefield: little optical sectioning compared with confocal",
+        "not suitable for thick or opaque samples"
+      ],
+      "accessories": [
+        {"item": "filter cubes matching the fluorophores", "for": ["widefield_fluorescence_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "phase-contrast objectives", "for": ["phase_contrast_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "stage-top incubator for live cells", "for": ["live_cell_time_lapse_imaging"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "image analysis / cell counting software module", "for": ["widefield_fluorescence_microscopy"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ10",
+      "instrument": "Environmental scanning electron microscope (ESEM)",
+      "techniques": [
+        {"technique": "environmental_sem", "source": "dataset", "confidence": "high"},
+        {"technique": "energy_dispersive_xray_spectroscopy", "source": "llm_draft", "confidence": "low"}
+      ],
+      "typical_samples": ["polymers and scaffolds", "dental materials", "hydrated or uncoated biological specimens", "powders and particles", "fracture surfaces"],
+      "limitations": [
+        "images surfaces; internal structure only after cutting or fracturing the sample",
+        "sample size limited by the chamber and stage",
+        "porosity from images is 2D"
+      ],
+      "accessories": [
+        {"item": "EDS detector (not listed in the dataset)", "for": ["energy_dispersive_xray_spectroscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "gaseous / environmental secondary-electron detector for uncoated samples", "for": ["environmental_sem"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "Peltier cooling stage for hydrated samples", "for": ["environmental_sem"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "sample stubs and conductive tape", "for": ["environmental_sem"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ11",
+      "instrument": "Transmission / scanning transmission electron microscope",
+      "techniques": [
+        {"technique": "transmission_electron_microscopy", "source": "dataset", "confidence": "high"},
+        {"technique": "scanning_transmission_electron_microscopy", "source": "dataset", "confidence": "medium"}
+      ],
+      "typical_samples": ["ultrathin sections of fixed tissue, cells or polymers", "nanoparticles on grids", "negatively stained macromolecules"],
+      "limitations": [
+        "sample must be thinner than about 100 nm, so bulk samples must be sectioned",
+        "very small field of view",
+        "beam can damage sensitive samples"
+      ],
+      "accessories": [
+        {"item": "STEM detector (instrument name lists STEM; confirm the detector is working)", "for": ["scanning_transmission_electron_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "digital camera", "for": ["transmission_electron_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "TEM grids and suitable sample holder", "for": ["transmission_electron_microscopy", "scanning_transmission_electron_microscopy"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ12",
+      "instrument": "Upright optical microscope",
+      "techniques": [
+        {"technique": "brightfield_microscopy", "source": "dataset", "confidence": "high"},
+        {"technique": "phase_contrast_microscopy", "source": "dataset", "confidence": "high"},
+        {"technique": "widefield_fluorescence_microscopy", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["stained tissue sections", "semithin sections", "cells on slides or coverslips"],
+      "limitations": [
+        "resolution limited by visible light (about 0.2 µm)",
+        "needs thin samples on slides"
+      ],
+      "accessories": [
+        {"item": "fluorescence filter cubes matching the fluorophores", "for": ["widefield_fluorescence_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "digital camera", "for": ["brightfield_microscopy", "phase_contrast_microscopy", "widefield_fluorescence_microscopy"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ13",
+      "instrument": "Inverted optical microscope",
+      "techniques": [
+        {"technique": "brightfield_microscopy", "source": "llm_draft", "confidence": "high"},
+        {"technique": "phase_contrast_microscopy", "source": "llm_draft", "confidence": "medium"},
+        {"technique": "widefield_fluorescence_microscopy", "source": "llm_draft", "confidence": "low"},
+        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low"}
+      ],
+      "typical_samples": ["live cell cultures in flasks, dishes and plates"],
+      "limitations": [
+        "resolution limited by visible light",
+        "configuration (phase contrast, fluorescence, camera) is not listed in the dataset"
+      ],
+      "accessories": [
+        {"item": "phase-contrast objectives and condenser", "for": ["phase_contrast_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "epifluorescence illuminator and filter cubes", "for": ["widefield_fluorescence_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "stage-top incubator for live-cell time-lapse", "for": ["live_cell_time_lapse_imaging"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "digital camera", "for": ["brightfield_microscopy", "phase_contrast_microscopy"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ14",
+      "instrument": "Stereomicroscope",
+      "techniques": [
+        {"technique": "stereomicroscopy", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["whole specimens", "teeth and dental restorations", "printed parts and scaffolds", "fracture surfaces", "dissections"],
+      "limitations": [
+        "low magnification (roughly up to 35x for this class); surface only",
+        "measurements need a calibrated camera"
+      ],
+      "accessories": [
+        {"item": "ring light or other illumination", "for": ["stereomicroscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "camera with calibrated measuring software", "for": ["stereomicroscopy"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ15",
+      "instrument": "Universal mechanical testing system",
+      "techniques": [
+        {"technique": "tensile_testing", "source": "llm_draft", "confidence": "high"},
+        {"technique": "compression_testing", "source": "llm_draft", "confidence": "high"},
+        {"technique": "flexural_testing", "source": "llm_draft", "confidence": "high"},
+        {"technique": "bond_strength_testing", "source": "llm_draft", "confidence": "medium"}
+      ],
+      "typical_samples": ["polymers", "porous scaffolds", "dental materials and composites", "biomaterials", "small metal specimens"],
+      "limitations": [
+        "low-rate electromechanical frame; not for high-cycle fatigue or impact testing",
+        "porous scaffolds give an apparent (structural) modulus; porosity itself is not measured",
+        "results depend on specimen geometry and fixtures"
+      ],
+      "accessories": [
+        {"item": "load cell with a capacity suited to the expected forces (low capacity for soft or porous samples)", "for": ["tensile_testing", "compression_testing", "flexural_testing", "bond_strength_testing"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "compression platens", "for": ["compression_testing"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "tensile grips suited to the specimen", "for": ["tensile_testing"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "three- or four-point bend fixture", "for": ["flexural_testing"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "shear-bond or micro-tensile jig", "for": ["bond_strength_testing"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "extensometer for accurate strain", "for": ["tensile_testing"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "fluid bath or environmental chamber for testing at 37 °C or hydrated", "for": ["tensile_testing", "compression_testing"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ16",
+      "instrument": "Ultramicrotome",
+      "techniques": [
+        {"technique": "ultramicrotomy", "source": "llm_draft", "confidence": "high"},
+        {"technique": "cryo_ultramicrotomy", "source": "llm_draft", "confidence": "low"}
+      ],
+      "typical_samples": ["resin-embedded biological tissue", "resin-embedded cells", "polymers"],
+      "limitations": [
+        "measures nothing itself; prepares sections for TEM or light microscopy",
+        "destroys the original sample; needs an embedded block"
+      ],
+      "accessories": [
+        {"item": "diamond or glass knife", "for": ["ultramicrotomy", "cryo_ultramicrotomy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "cryo chamber for frozen sections", "for": ["cryo_ultramicrotomy"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ17",
+      "instrument": "Thermogravimetric analyzer (TGA)",
+      "techniques": [
+        {"technique": "thermogravimetric_analysis", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["polymers", "composites", "pharmaceuticals", "biomaterials", "powders"],
+      "limitations": [
+        "milligram samples; may not represent heterogeneous materials",
+        "does not identify the gases released"
+      ],
+      "accessories": [
+        {"item": "sample pans (platinum, ceramic or aluminium)", "for": ["thermogravimetric_analysis"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "purge gas supply (nitrogen; air or oxygen for burn-off of fillers)", "for": ["thermogravimetric_analysis"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "evolved-gas analysis coupling (MS or FTIR) to identify released gases", "for": ["thermogravimetric_analysis"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ18",
+      "instrument": "Differential scanning calorimeter (DSC)",
+      "techniques": [
+        {"technique": "differential_scanning_calorimetry", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["polymers", "pharmaceuticals", "resins (cure)", "biomaterials", "proteins (with suitable pans)"],
+      "limitations": [
+        "milligram samples",
+        "no chemical identification",
+        "run below the decomposition temperature (check with TGA first)"
+      ],
+      "accessories": [
+        {"item": "cooling accessory for sub-ambient temperatures and controlled cooling", "for": ["differential_scanning_calorimetry"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "suitable pans and lids (e.g. hermetic for volatile or wet samples)", "for": ["differential_scanning_calorimetry"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "pan press", "for": ["differential_scanning_calorimetry"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ19",
+      "instrument": "Hybrid rheometer",
+      "techniques": [
+        {"technique": "rotational_rheometry", "source": "dataset", "confidence": "high"},
+        {"technique": "oscillatory_rheometry", "source": "dataset", "confidence": "high"},
+        {"technique": "dynamic_mechanical_analysis", "source": "llm_draft", "confidence": "low"}
+      ],
+      "typical_samples": ["polymer melts", "gels and hydrogels", "bioinks", "pastes", "suspensions"],
+      "limitations": [
+        "temperature range depends on which temperature accessory is installed",
+        "maximum shear rate is below typical extrusion shear rates (a capillary rheometer covers those)"
+      ],
+      "accessories": [
+        {"item": "temperature-control accessory (Peltier plate, or environmental test chamber for melts)", "for": ["rotational_rheometry", "oscillatory_rheometry"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "parallel-plate or cone-and-plate geometry", "for": ["rotational_rheometry", "oscillatory_rheometry"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "UV-curing accessory for photocuring kinetics", "for": ["oscillatory_rheometry"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "DMA mode / solid clamps (optional on hybrid rheometers)", "for": ["dynamic_mechanical_analysis"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ20",
+      "instrument": "Particle size / zeta-potential analyzer",
+      "techniques": [
+        {"technique": "dynamic_light_scattering", "source": "dataset", "confidence": "high"},
+        {"technique": "electrophoretic_light_scattering", "source": "dataset", "confidence": "high"}
+      ],
+      "typical_samples": ["nanoparticles", "liposomes", "emulsions", "protein solutions", "colloids"],
+      "limitations": [
+        "particles from about 1 nm to a few µm only; larger beads or powders need laser diffraction or imaging",
+        "requires dilute, well-dispersed samples; a few large particles can bias results"
+      ],
+      "accessories": [
+        {"item": "cuvettes suited to the solvent", "for": ["dynamic_light_scattering"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "folded capillary or dip cell for zeta potential", "for": ["electrophoretic_light_scattering"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "autotitrator for zeta potential vs. pH", "for": ["electrophoretic_light_scattering"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    }
+  ]
+}
