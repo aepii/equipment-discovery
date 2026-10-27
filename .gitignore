@@ -6,3 +6,5 @@ venv/
 results/
 .streamlit/secrets.toml
 service_account.json
+PLAN.md
+CLAUDE.md
