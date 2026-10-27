@@ -1,0 +1,586 @@
+{
+  "_about": "Technique knowledge base: what each technique measures, whether it damages the sample, and which steps it needs before and leads to after. It describes techniques in general, not specific instruments; data/annotations.json says which instrument performs which technique. Techniques that no instrument performs are the ones that are not available in the dataset (e.g. micro-CT). Property ids, kinds and enum values come from data/vocabulary.json. 'partial' lists properties a technique gives only under a condition. 'requires_before' steps are prerequisites ('when' says when they apply); 'leads_to' steps are typical next steps.",
+
+  "techniques": {
+    "rotational_rheometry": {
+      "name": "Rotational rheometry",
+      "aliases": ["rotational rheology", "steady shear", "flow sweep", "viscometry"],
+      "kind": "measurement",
+      "measures": ["viscosity_vs_shear_rate", "viscosity_vs_temperature", "yield_stress"],
+      "partial": {"processing_shear_viscosity": "only up to moderate shear rates; extrusion shear rates usually need a capillary rheometer"},
+      "destructive": "depends",
+      "destructive_note": "the sample is not damaged chemically, but melts and gels are usually not recovered",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "oscillatory_rheometry": {
+      "name": "Oscillatory rheometry",
+      "aliases": ["oscillatory rheology", "dynamic rheology", "amplitude sweep", "frequency sweep", "time sweep"],
+      "kind": "measurement",
+      "measures": ["viscoelastic_moduli", "gelation_and_curing_kinetics", "yield_stress", "viscosity_vs_temperature"],
+      "partial": {},
+      "destructive": "depends",
+      "destructive_note": "small-amplitude tests are non-destructive, but the loaded sample is usually not recovered",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "dynamic_mechanical_analysis": {
+      "name": "Dynamic mechanical analysis (DMA)",
+      "aliases": ["DMA", "DMTA"],
+      "kind": "measurement",
+      "measures": ["solid_viscoelastic_properties", "glass_transition_temperature"],
+      "partial": {},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "capillary_rheometry": {
+      "name": "Capillary rheometry",
+      "aliases": ["capillary rheometer", "high-pressure capillary rheometry"],
+      "kind": "measurement",
+      "measures": ["processing_shear_viscosity", "viscosity_vs_shear_rate", "viscosity_vs_temperature"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "the sample is extruded",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "melt_flow_indexing": {
+      "name": "Melt flow indexing (MFI / MFR)",
+      "aliases": ["melt flow index", "melt flow rate", "MFI", "MFR", "melt indexer"],
+      "kind": "measurement",
+      "measures": ["melt_flow_rate"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "the sample is extruded",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+
+    "thermogravimetric_analysis": {
+      "name": "Thermogravimetric analysis (TGA)",
+      "aliases": ["TGA", "thermogravimetry"],
+      "kind": "measurement",
+      "measures": ["mass_loss_vs_temperature", "thermal_stability", "moisture_and_volatile_content", "filler_content"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "the tested milligram aliquot is heated and usually decomposed",
+      "requires_before": [],
+      "leads_to": ["differential_scanning_calorimetry"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "differential_scanning_calorimetry": {
+      "name": "Differential scanning calorimetry (DSC)",
+      "aliases": ["DSC", "calorimetry"],
+      "kind": "measurement",
+      "measures": ["glass_transition_temperature", "melting_temperature", "crystallization_temperature", "degree_of_crystallinity", "reaction_enthalpy"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "the tested milligram aliquot is sealed in a pan and heated",
+      "requires_before": [{"technique": "thermogravimetric_analysis", "when": "recommended first, to keep the DSC below the decomposition temperature"}],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "gel_permeation_chromatography": {
+      "name": "Gel permeation / size-exclusion chromatography (GPC/SEC)",
+      "aliases": ["GPC", "SEC", "size-exclusion chromatography", "molecular-weight analysis"],
+      "kind": "measurement",
+      "measures": ["molecular_weight_distribution"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "the sample is dissolved",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "ftir_spectroscopy": {
+      "name": "Fourier-transform infrared spectroscopy (FTIR)",
+      "aliases": ["FTIR", "infrared spectroscopy", "ATR-FTIR", "IR"],
+      "kind": "measurement",
+      "measures": ["chemical_functional_groups", "reaction_enthalpy"],
+      "partial": {"reaction_enthalpy": "degree of cure from band intensities, not a heat measurement"},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "x_ray_diffraction": {
+      "name": "X-ray diffraction (XRD)",
+      "aliases": ["XRD", "powder diffraction"],
+      "kind": "measurement",
+      "measures": ["crystalline_phase", "degree_of_crystallinity"],
+      "partial": {},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+
+    "tensile_testing": {
+      "name": "Uniaxial tensile testing",
+      "aliases": ["tensile test", "tension test", "pull test"],
+      "kind": "measurement",
+      "measures": ["tensile_modulus", "tensile_strength", "elongation_at_break"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "tests to failure destroy the specimen; tests limited to the elastic range may not",
+      "requires_before": [],
+      "leads_to": ["environmental_sem"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "compression_testing": {
+      "name": "Uniaxial compression testing",
+      "aliases": ["compression test", "compressive test", "crush test"],
+      "kind": "measurement",
+      "measures": ["compressive_modulus", "compressive_strength"],
+      "partial": {},
+      "destructive": "depends",
+      "destructive_note": "testing to failure crushes the specimen; testing only in the linear range for stiffness may leave it usable",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "flexural_testing": {
+      "name": "Flexural (three- or four-point bend) testing",
+      "aliases": ["three-point bending", "3-point bend", "four-point bending", "flexure test"],
+      "kind": "measurement",
+      "measures": ["flexural_modulus", "flexural_strength"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "usually tested to failure",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "bond_strength_testing": {
+      "name": "Bond strength testing (shear or micro-tensile)",
+      "aliases": ["shear bond strength", "microtensile bond strength", "adhesion test", "push-out test"],
+      "kind": "measurement",
+      "measures": ["bond_strength"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "the bond is broken",
+      "requires_before": [],
+      "leads_to": ["stereomicroscopy"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "indentation_hardness_testing": {
+      "name": "Indentation hardness testing (micro- or nanoindentation)",
+      "aliases": ["microhardness", "nanoindentation", "Vickers", "Knoop"],
+      "kind": "measurement",
+      "measures": ["hardness"],
+      "partial": {},
+      "destructive": "depends",
+      "destructive_note": "leaves a small indent",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+
+    "micro_computed_tomography": {
+      "name": "X-ray micro-computed tomography (micro-CT)",
+      "aliases": ["micro-CT", "microCT", "µCT", "X-ray tomography", "computed tomography"],
+      "kind": "imaging",
+      "measures": ["internal_3d_structure", "porosity_and_pore_size"],
+      "partial": {},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "mercury_intrusion_porosimetry": {
+      "name": "Mercury intrusion porosimetry",
+      "aliases": ["mercury porosimetry", "MIP"],
+      "kind": "measurement",
+      "measures": ["porosity_and_pore_size"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "the sample is filled with mercury",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "gas_adsorption": {
+      "name": "Gas adsorption (BET surface area)",
+      "aliases": ["BET", "nitrogen adsorption"],
+      "kind": "measurement",
+      "measures": ["specific_surface_area"],
+      "partial": {"porosity_and_pore_size": "micro- and mesopores only, not scaffold-scale macropores"},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "atomic_force_microscopy": {
+      "name": "Atomic force microscopy (AFM)",
+      "aliases": ["AFM", "scanning probe microscopy"],
+      "kind": "imaging",
+      "measures": ["surface_roughness"],
+      "partial": {"hardness": "local stiffness by nanoindentation mode"},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "contact_angle_goniometry": {
+      "name": "Contact angle goniometry",
+      "aliases": ["contact angle", "goniometer", "sessile drop"],
+      "kind": "measurement",
+      "measures": ["wettability"],
+      "partial": {},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "laser_diffraction": {
+      "name": "Laser diffraction particle sizing",
+      "aliases": ["laser diffraction", "static light scattering", "Mastersizer"],
+      "kind": "measurement",
+      "measures": ["microparticle_size_distribution"],
+      "partial": {},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+
+    "confocal_microscopy": {
+      "name": "Confocal laser scanning microscopy",
+      "aliases": ["confocal", "CLSM", "z-stack", "optical sectioning"],
+      "kind": "imaging",
+      "measures": ["fluorescence_localization", "fluorescence_intensity", "cell_morphology", "tissue_morphology"],
+      "partial": {
+        "internal_3d_structure": "only for transparent or fluorescent samples, to a depth of roughly 100 µm",
+        "porosity_and_pore_size": "only near the surface of transparent or fluorescently stained samples"
+      },
+      "destructive": "depends",
+      "destructive_note": "imaging itself does not damage the sample, but labeling, fixation or clearing may",
+      "requires_before": [{"technique": "fluorescent_labeling", "when": "if the sample is not fluorescent itself"}],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "multiphoton_microscopy": {
+      "name": "Multiphoton microscopy",
+      "aliases": ["two-photon microscopy", "2-photon", "second harmonic generation", "SHG"],
+      "kind": "imaging",
+      "measures": ["fluorescence_localization", "cell_morphology", "tissue_morphology"],
+      "partial": {
+        "internal_3d_structure": "only for fluorescent or SHG-active samples (e.g. collagen); deeper than confocal, up to several hundred µm in tissue, but not through opaque materials",
+        "porosity_and_pore_size": "only for fluorescent or SHG-active samples, to a limited depth"
+      },
+      "destructive": "depends",
+      "destructive_note": "imaging itself does not damage the sample, but labeling may",
+      "requires_before": [{"technique": "fluorescent_labeling", "when": "if the sample is neither fluorescent nor SHG-active"}],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "widefield_fluorescence_microscopy": {
+      "name": "Widefield (epi)fluorescence microscopy",
+      "aliases": ["epifluorescence", "fluorescence microscopy", "immunofluorescence imaging"],
+      "kind": "imaging",
+      "measures": ["fluorescence_localization", "fluorescence_intensity", "cell_morphology", "cell_counts"],
+      "partial": {},
+      "destructive": "depends",
+      "destructive_note": "imaging itself does not damage the sample, but labeling or fixation may",
+      "requires_before": [{"technique": "fluorescent_labeling", "when": "if the sample is not fluorescent itself"}],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "brightfield_microscopy": {
+      "name": "Brightfield light microscopy",
+      "aliases": ["brightfield", "light microscopy", "histology imaging", "transmitted light"],
+      "kind": "imaging",
+      "measures": ["cell_morphology", "tissue_morphology", "cell_counts"],
+      "partial": {},
+      "destructive": "no",
+      "destructive_note": "tissue samples are usually sectioned and stained first",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "phase_contrast_microscopy": {
+      "name": "Phase-contrast microscopy",
+      "aliases": ["phase contrast"],
+      "kind": "imaging",
+      "measures": ["cell_morphology", "cell_counts"],
+      "partial": {},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "live_cell_time_lapse_imaging": {
+      "name": "Live-cell time-lapse imaging",
+      "aliases": ["live-cell imaging", "time-lapse"],
+      "kind": "imaging",
+      "measures": ["live_cell_behavior", "cell_morphology"],
+      "partial": {},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "stereomicroscopy": {
+      "name": "Stereomicroscopy",
+      "aliases": ["stereo microscope", "dissecting microscope", "low-magnification inspection"],
+      "kind": "imaging",
+      "measures": ["macroscopic_morphology", "surface_morphology"],
+      "partial": {"microparticle_size_distribution": "rough size of beads or particles above ~50 µm with a calibrated camera"},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "environmental_sem": {
+      "name": "Scanning electron microscopy (environmental / ESEM mode)",
+      "aliases": ["SEM", "ESEM", "scanning electron microscopy", "secondary electron imaging"],
+      "kind": "imaging",
+      "measures": ["surface_morphology", "nanoparticle_morphology", "microparticle_size_distribution"],
+      "partial": {
+        "internal_3d_structure": "only on cut or fractured cross-sections, which destroys the sample",
+        "porosity_and_pore_size": "2D, from surface or cross-section images"
+      },
+      "destructive": "depends",
+      "destructive_note": "ESEM mode can image uncoated, hydrated samples; the sample must fit the chamber, and internal views need cutting",
+      "requires_before": [{"technique": "sputter_coating", "when": "only for high-vacuum imaging of non-conductive samples; ESEM mode can avoid it"}],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "energy_dispersive_xray_spectroscopy": {
+      "name": "Energy-dispersive X-ray spectroscopy (EDS / EDX)",
+      "aliases": ["EDS", "EDX", "EDAX", "elemental mapping"],
+      "kind": "measurement",
+      "measures": ["elemental_composition"],
+      "partial": {},
+      "destructive": "no",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "transmission_electron_microscopy": {
+      "name": "Transmission electron microscopy (TEM)",
+      "aliases": ["TEM", "electron microscopy of thin sections"],
+      "kind": "imaging",
+      "measures": ["ultrastructure", "nanoparticle_morphology"],
+      "partial": {"internal_3d_structure": "2D views of ultrathin sections only; needs the sample to be sectioned"},
+      "destructive": "yes",
+      "destructive_note": "bulk samples must be fixed, embedded and cut into ultrathin sections; the beam can damage sensitive samples",
+      "requires_before": [
+        {"technique": "ultramicrotomy", "when": "for tissue, cells or bulk polymer samples"},
+        {"technique": "negative_staining", "when": "for nanoparticles or macromolecules dispersed on a grid"}
+      ],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "scanning_transmission_electron_microscopy": {
+      "name": "Scanning transmission electron microscopy (STEM)",
+      "aliases": ["STEM"],
+      "kind": "imaging",
+      "measures": ["ultrastructure", "nanoparticle_morphology"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "same sample preparation as TEM",
+      "requires_before": [
+        {"technique": "ultramicrotomy", "when": "for tissue, cells or bulk polymer samples"}
+      ],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+
+    "dynamic_light_scattering": {
+      "name": "Dynamic light scattering (DLS)",
+      "aliases": ["DLS", "photon correlation spectroscopy"],
+      "kind": "measurement",
+      "measures": ["particle_size_distribution"],
+      "partial": {},
+      "destructive": "no",
+      "destructive_note": "the dispersed sample can usually be recovered",
+      "requires_before": [{"technique": "sample_dispersion", "when": "always"}],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "electrophoretic_light_scattering": {
+      "name": "Electrophoretic light scattering (zeta potential)",
+      "aliases": ["ELS", "zeta potential measurement", "laser Doppler electrophoresis"],
+      "kind": "measurement",
+      "measures": ["zeta_potential"],
+      "partial": {},
+      "destructive": "depends",
+      "destructive_note": "the applied field can alter sensitive samples such as proteins",
+      "requires_before": [{"technique": "sample_dispersion", "when": "always"}],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "fluorometric_quantification": {
+      "name": "Fluorometric quantification (dye-based assay)",
+      "aliases": ["Qubit", "fluorometric assay", "dsDNA assay"],
+      "kind": "measurement",
+      "measures": ["nucleic_acid_concentration", "protein_concentration"],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "a small aliquot is mixed with dye and not recovered; the rest of the sample is unaffected",
+      "requires_before": [{"technique": "nucleic_acid_or_protein_extraction", "when": "always"}],
+      "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+
+    "ultramicrotomy": {
+      "name": "Ultramicrotomy (ultrathin and semithin sectioning)",
+      "aliases": ["ultramicrotome", "ultrathin sectioning", "semithin sections"],
+      "kind": "sample_preparation",
+      "measures": [],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "the block is cut into sections",
+      "requires_before": [{"technique": "fixation_and_resin_embedding", "when": "always (unless cryo-sectioning)"}],
+      "leads_to": ["transmission_electron_microscopy", "brightfield_microscopy"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "cryo_ultramicrotomy": {
+      "name": "Cryo-ultramicrotomy (sectioning frozen samples)",
+      "aliases": ["cryo-sectioning", "cryo-ultramicrotome"],
+      "kind": "sample_preparation",
+      "measures": [],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "the sample is cut into sections",
+      "requires_before": [],
+      "leads_to": ["transmission_electron_microscopy"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "milling": {
+      "name": "Milling / grinding to powder",
+      "aliases": ["milling", "grinding", "pulverizing", "homogenization"],
+      "kind": "sample_preparation",
+      "measures": [],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "the sample is ground to powder",
+      "requires_before": [],
+      "leads_to": ["thermogravimetric_analysis", "differential_scanning_calorimetry", "ftir_spectroscopy", "x_ray_diffraction"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "sputter_coating": {
+      "name": "Sputter coating (conductive coating for SEM)",
+      "aliases": ["sputter coater", "gold coating", "carbon coating"],
+      "kind": "sample_preparation",
+      "measures": [],
+      "partial": {},
+      "destructive": "yes",
+      "destructive_note": "a thin metal or carbon layer is applied",
+      "requires_before": [],
+      "leads_to": ["environmental_sem"],
+      "source": "llm_draft", "confidence": "high"
+    },
+
+    "extrusion_bioprinting": {
+      "name": "Extrusion-based (bio)printing",
+      "aliases": ["bioprinting", "3D bioplotting", "extrusion printing", "direct ink writing"],
+      "kind": "fabrication",
+      "measures": [],
+      "partial": {},
+      "destructive": "not_applicable",
+      "destructive_note": "",
+      "requires_before": [{"technique": "bioink_preparation", "when": "always"}],
+      "leads_to": ["confocal_microscopy", "compression_testing", "environmental_sem"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "vat_photopolymerization_printing": {
+      "name": "Vat photopolymerization 3D printing (DLP / MSLA)",
+      "aliases": ["DLP printing", "MSLA", "stereolithography", "SLA", "resin printing"],
+      "kind": "fabrication",
+      "measures": [],
+      "partial": {},
+      "destructive": "not_applicable",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": ["compression_testing", "flexural_testing", "tensile_testing", "environmental_sem"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "vibrating_nozzle_encapsulation": {
+      "name": "Vibrating-nozzle encapsulation (microbeads / microcapsules)",
+      "aliases": ["encapsulation", "microencapsulation", "bead generation", "prilling"],
+      "kind": "fabrication",
+      "measures": [],
+      "partial": {},
+      "destructive": "not_applicable",
+      "destructive_note": "",
+      "requires_before": [],
+      "leads_to": ["brightfield_microscopy", "stereomicroscopy", "laser_diffraction"],
+      "source": "llm_draft", "confidence": "high"
+    },
+
+    "fixation_and_resin_embedding": {
+      "name": "Fixation and resin embedding",
+      "aliases": ["fixation", "embedding", "resin embedding"],
+      "kind": "bench_step",
+      "measures": [], "partial": {},
+      "destructive": "yes", "destructive_note": "the sample is chemically fixed and infiltrated with resin",
+      "requires_before": [], "leads_to": ["ultramicrotomy"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "fluorescent_labeling": {
+      "name": "Fluorescent labeling / staining",
+      "aliases": ["staining", "immunostaining", "fluorescent dye"],
+      "kind": "bench_step",
+      "measures": [], "partial": {},
+      "destructive": "depends", "destructive_note": "many protocols fix or permeabilize the sample",
+      "requires_before": [], "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "negative_staining": {
+      "name": "Negative staining on a TEM grid",
+      "aliases": ["negative stain"],
+      "kind": "bench_step",
+      "measures": [], "partial": {},
+      "destructive": "yes", "destructive_note": "",
+      "requires_before": [], "leads_to": ["transmission_electron_microscopy"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "sample_dispersion": {
+      "name": "Dispersing the sample in a suitable liquid",
+      "aliases": ["dispersion", "dilution"],
+      "kind": "bench_step",
+      "measures": [], "partial": {},
+      "destructive": "depends", "destructive_note": "",
+      "requires_before": [], "leads_to": [],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "nucleic_acid_or_protein_extraction": {
+      "name": "Nucleic-acid or protein extraction",
+      "aliases": ["extraction", "lysis"],
+      "kind": "bench_step",
+      "measures": [], "partial": {},
+      "destructive": "yes", "destructive_note": "",
+      "requires_before": [], "leads_to": ["fluorometric_quantification"],
+      "source": "llm_draft", "confidence": "high"
+    },
+    "bioink_preparation": {
+      "name": "Bioink / printing material preparation",
+      "aliases": ["bioink"],
+      "kind": "bench_step",
+      "measures": [], "partial": {},
+      "destructive": "not_applicable", "destructive_note": "",
+      "requires_before": [], "leads_to": ["extrusion_bioprinting"],
+      "source": "llm_draft", "confidence": "high"
+    }
+  }
+}

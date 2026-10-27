@@ -1,7 +1,7 @@
 """Run the test questions in each mode N times, score the answers and summarize them.
 
 Usage:
-  python run_eval.py [--runs 3] [--modes structured naive] [--questions Q1 Q4] [--category vague] [--log]
+  python run_eval.py [--runs 3] [--modes structured annotated naive] [--questions Q1 Q4] [--category vague] [--log]
   python run_eval.py --rescore results/run_<time>.csv     re-score saved answers, no model calls
   python run_eval.py --review-sheet                        expected answers as Markdown, for review
   python run_eval.py --record-demo [--questions Q1 Q2]     save one answer per question x mode as the
@@ -10,7 +10,7 @@ Usage:
 Writes results/run_<time>.csv (one row per answer: scores + the app's log columns, store.ANSWER_COLUMNS)
 and results/run_<time>_summary.csv (consistency per question x mode, averages per mode).
 --log also appends each answer to the Google Sheet (or results/log.jsonl), with source "eval".
---no-repair turns off the one repair call for structured answers that are not usable JSON
+--no-repair turns off the one repair call for structured and annotated answers that are not usable JSON
 (the "repaired" column shows where it was used, so first-try JSON validity can be reported either way).
 """
 
@@ -33,7 +33,7 @@ import store
 ROOT = Path(__file__).parent
 QUESTIONS_PATH = ROOT / "test_questions.json"
 RESULTS_DIR = ROOT / "results"
-RUNNERS = {"structured": core.run_structured, "naive": core.run_naive}
+RUNNERS = {"structured": core.run_structured, "annotated": core.run_annotated, "naive": core.run_naive}
 CATEGORIES = ["named-instrument", "problem-only", "no-suitable-equipment", "accessory-trap",
               "misleading-keyword", "multi-step", "vague"]
 SCORE_COLUMNS = ["expected_hits", "expected_total", "recall", "unacceptable_hits", "unacceptable_ids",
@@ -56,8 +56,8 @@ def count_matches(text: str, patterns: list[str]) -> int:
 
 def accessory_text(result: dict, eq_id: str) -> str:
     """Where accessories for one instrument should be named: its accessories_to_confirm list in
-    structured mode; the whole answer in naive mode (free text can't be split per instrument)."""
-    if result["mode"] == "structured":
+    structured and annotated mode; the whole answer in naive mode (free text can't be split per instrument)."""
+    if result["mode"] in core.JSON_MODES:
         return " ".join(acc for rec in result["recommendations"] if rec["id"] == eq_id
                         for acc in rec["accessories_to_confirm"])
     return result["raw"]
@@ -70,7 +70,7 @@ ASKS_FOR_MORE = re.compile(r"\?|more (information|details?) (is|are) needed|plea
 def asked_clarifying(result: dict) -> bool:
     """Structured: the clarifying_question field. Naive: a heuristic (asks for more, recommends nothing),
     so check naive clarifying scores by hand."""
-    if result["mode"] == "structured":
+    if result["mode"] in core.JSON_MODES:
         return bool(result.get("clarifying_question"))
     return bool(ASKS_FOR_MORE.search(result["raw"])) and not result["instrument_ids"]
 
@@ -175,7 +175,7 @@ def summarize_group(rows: list[dict]) -> dict:
         "answers": len(rows),
         "errors": len(rows) - len(scored),
         "json_ok_rate": _mean(r["json_ok"] for r in scored),
-        "repaired_rate": _mean(r["repaired"] for r in scored if r["mode"] == "structured"),
+        "repaired_rate": _mean(r["repaired"] for r in scored if r["mode"] in core.JSON_MODES),
         "mean_recall": _mean(r["recall"] for r in scored),
         "unacceptable_rate": _mean(int((_num(r["unacceptable_hits"]) or 0) > 0) for r in scored),
         "na_rate": _ratio(scored, "na_hits", "na_total"),
@@ -380,6 +380,7 @@ def main() -> None:
     args = parser.parse_args()
     if args.no_repair:
         RUNNERS["structured"] = partial(core.run_structured, repair=False)
+        RUNNERS["annotated"] = partial(core.run_annotated, repair=False)
 
     questions = select_questions(load_questions(), args.questions, args.category)
     RESULTS_DIR.mkdir(exist_ok=True)

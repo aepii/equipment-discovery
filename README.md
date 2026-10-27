@@ -37,13 +37,20 @@ Sidebar modes:
 - **Naive**: equipment list (including contacts) + question, no rules, plus a plain request to give
   the location and contact for each suggested instrument; the answer is shown as text. The model
   copies contacts itself here, so naive answers can be checked for wrong or invented contacts.
-- **Compare both**: the two side by side.
+- **Structured + annotations** (`annotated`): structured mode, plus each instrument's draft notes from
+  the knowledge layer (typical techniques, what they measure, destructive or not, limitations,
+  accessories to confirm) and a list of techniques no listed instrument performs (e.g. micro-CT). The
+  model also returns a technique ID per recommendation, and code checks it against the notes: it warns
+  when the instrument's notes don't list that technique or it needs optional hardware, shows whether
+  it is destructive, fills in accessories to confirm if the model named none, and warns when a "not
+  available" technique is in fact listed for an instrument. See "Knowledge layer" below.
+- **Compare structured and naive** / **Compare all three**: side by side.
 
 If `APP_PASSWORD` is set, the app asks for that password before showing anything.
 
 ## Speed, cost and resilience
 
-- **Compare both** asks the two modes at the same time, so it takes about as long as one mode. The
+- **Compare** modes ask all their modes at the same time, so it takes about as long as one mode. The
   naive answer streams in as it is written (`STREAM_NAIVE=0` turns this off).
 - **Cache**: answers are kept in the app's memory, shared by everyone using the app, keyed on mode,
   question (ignoring case and spacing), model, prompt version and dataset version. Asking the same
@@ -119,8 +126,8 @@ Google Sheet setup (once):
 ## Run the evaluation
 
 ```
-python run_eval.py --runs 3                       # all questions, both modes
-python run_eval.py --runs 1 --modes structured
+python run_eval.py --runs 3                       # all questions, all three modes
+python run_eval.py --runs 1 --modes structured annotated
 python run_eval.py --questions Q1 Q4 --runs 1     # a few questions
 python run_eval.py --category vague               # one category
 python run_eval.py --runs 3 --log                 # also log answers to the sheet (source "eval")
@@ -144,7 +151,7 @@ app's log plus these scores:
 | `unclassified_ids` | recommended, but in no list of the question: review and add them to the test file |
 | `expected_only_mentioned` | naive only: expected instruments named in the answer but left off its `Recommended:` line; check by hand |
 | `na_hits` / `na_total` | expected "not available" techniques named anywhere in the answer (both modes) |
-| `accessory_hits` / `accessory_total` | expected accessories named for the recommended instruments (structured: in that instrument's `accessories_to_confirm`; naive: anywhere in the answer) |
+| `accessory_hits` / `accessory_total` | expected accessories named for the recommended instruments (structured and annotated: in that instrument's `accessories_to_confirm`; naive: anywhere in the answer) |
 | `asked_clarifying`, `clarifying_ok` | asked a clarifying question, and whether that was expected (naive is a heuristic: no instruments, and a `?` or a phrase like "more information is needed"; check by hand) |
 | `contacts_ok` / `contacts_total` | naive only: the correct contact name appears for each recommended instrument |
 
@@ -168,6 +175,33 @@ multi-step, vague), `status` (`draft` until Stefan has reviewed it, then `review
 `expect_clarifying` and `notes`. After changing expected answers, re-score earlier runs with
 `--rescore` instead of running the model again.
 
+## Knowledge layer
+
+The capability data that annotated mode uses now, and graph mode will use later. Details and the list
+of corrections to the first draft are in [`data/README.md`](data/README.md).
+
+| File | Holds |
+|---|---|
+| `data/vocabulary.json` | Controlled vocabulary: property ids (e.g. `compressive_modulus`), technique kinds, sources, confidence levels, accessory and review statuses |
+| `data/techniques.json` | Technique knowledge base: what each technique measures (fully or `partial`ly), destructive or not, `requires_before` / `leads_to` workflow steps. Includes techniques not in the dataset (micro-CT, GPC, capillary rheometry, ...) |
+| `data/annotations.json` | Per instrument (EQ01-EQ20): techniques it typically performs (each with `source` and `confidence`), typical samples, limitations, accessories (`to_confirm` unless the dataset lists them), review status |
+| `data/instrument_capabilities.xlsx` | Review copy for Stefan, generated from the JSON files |
+
+Annotations describe what this **type** of instrument typically does, never what is installed. Every
+fact has a source (`dataset` or `llm_draft`; later `expert_review` or `contact_confirmed`) and a
+confidence (`high` standard, `medium` depends on configuration, `low` needs optional hardware).
+
+```
+python scripts/draft_annotations.py check     # validate the files against each other and the dataset
+python scripts/draft_annotations.py export    # regenerate data/instrument_capabilities.xlsx for review
+python scripts/draft_annotations.py draft --ids EQ05   # LLM draft -> data/annotations_draft.json
+```
+
+`draft` never overwrites `annotations.json`; copy reviewed entries over by hand. Stefan's corrections
+are made in the JSON files and committed as data changes; then run `check` and `export`. Changing a
+knowledge file changes annotated mode's `prompt_version`, so cached and saved demo answers for that
+mode are not reused.
+
 ## Tests
 
 ```
@@ -184,6 +218,9 @@ The tests always use the mock model, so they need no API key and cost nothing. T
 |---|---|
 | `app.py` | Streamlit interface |
 | `core.py` | Load dataset (IDs EQ01-EQ20 in row order), prompts, JSON parsing, answer checks |
+| `knowledge.py` | Load and check the knowledge files; lookups; instrument notes for the annotated prompt |
+| `scripts/draft_annotations.py` | Draft annotations with the LLM, check the knowledge files, export the review spreadsheet |
+| `data/vocabulary.json`, `data/techniques.json`, `data/annotations.json` | Knowledge layer (see above) |
 | `llm.py` | `complete(system, user, json_mode)` for gemini / openai / ollama / mock, with timeouts, retries and fallback model; `complete_with_meta` adds tokens, time and cost; `stream_with_meta` streams text |
 | `runtime.py` | Answer cache and daily spending shared by all app sessions; call and budget limits |
 | `data/demo_answers.json` | Saved answers shown when the live model can't be used (`run_eval.py --record-demo`) |
