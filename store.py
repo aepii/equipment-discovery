@@ -22,8 +22,9 @@ CELL_LIMIT = 45000  # Google Sheets allows 50,000 characters per cell
 ANSWER_COLUMNS = [
     "answer_id", "timestamp", "source", "session_id", "rater", "from_example",
     "mode", "provider", "model", "prompt_version", "dataset_version", "git_commit",
-    "seconds", "input_tokens", "output_tokens", "thinking_tokens",
-    "json_ok", "clarifying_question", "instrument_ids", "ids_source", "mentioned_ids", "removed_ids", "not_available", "error",
+    "seconds", "input_tokens", "output_tokens", "thinking_tokens", "cost_usd",
+    "answer_source", "model_used", "attempts", "fallback_used",
+    "json_ok", "repaired", "schema_problems", "clarifying_question", "instrument_ids", "ids_source", "mentioned_ids", "removed_ids", "not_available", "error",
     "question", "raw_output",
 ]
 FEEDBACK_COLUMNS = [
@@ -63,7 +64,15 @@ def answer_row(question: str, result: dict, source: str = "app", session_id: str
         "input_tokens": usage.get("input_tokens"),
         "output_tokens": usage.get("output_tokens"),
         "thinking_tokens": usage.get("thinking_tokens"),
+        "cost_usd": usage.get("cost_usd"),
+        # live, cache (same answer shown again) or demo_backup (saved answer; usage is from the recording)
+        "answer_source": result.get("source", "live"),
+        "model_used": usage.get("model_used", ""),
+        "attempts": usage.get("attempts"),
+        "fallback_used": usage.get("fallback_used"),
         "json_ok": result.get("json_ok"),
+        "repaired": result.get("repaired"),
+        "schema_problems": "; ".join(result.get("schema_problems", [])),
         "clarifying_question": result.get("clarifying_question") or "",
         "instrument_ids": " ".join(result.get("instrument_ids", [])),
         "ids_source": result.get("ids_source", ""),

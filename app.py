@@ -3,6 +3,7 @@
 import hmac
 import os
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 
 import streamlit as st
 
@@ -22,6 +23,7 @@ load_secrets()
 
 import core  # noqa: E402  (imported after secrets so llm sees the deployed settings)
 import llm  # noqa: E402
+import runtime  # noqa: E402
 import store  # noqa: E402
 
 EXAMPLES = {
@@ -55,12 +57,34 @@ def password_ok() -> bool:
     return False
 
 
+@st.cache_resource
+def answer_cache() -> runtime.AnswerCache:
+    """One cache for all sessions, in the server's memory (emptied when the app restarts)."""
+    return runtime.AnswerCache()
+
+
+@st.cache_resource
+def daily_budget() -> runtime.DailyBudget:
+    return runtime.DailyBudget()
+
+
 def render_sidebar() -> str:
     with st.sidebar:
         mode = st.radio("Mode", MODES)
         st.text_input("Your name (optional, shown with your feedback)", key="rater")
-        st.caption(f"Provider: `{llm.provider()}`  \nModel: `{llm.model_name()}`  \n"
-                   f"Logging to: {store.destination()}")
+        st.checkbox("Skip cache (ask the model again)", key="skip_cache")
+        fallback = llm.fallback_model_name()
+        st.caption(f"Provider: `{llm.provider()}`  \nModel: `{llm.model_name()}`"
+                   + (f"  \nFallback model: `{fallback}`" if fallback else "")
+                   + f"  \nLogging to: {store.destination()}")
+        if runtime.flag("DEMO_OFFLINE"):
+            st.warning("Offline demo mode: answers come from saved answers only.")
+        max_calls = runtime.max_calls_per_session()
+        st.caption(f"This session: {st.session_state['calls']} model calls"
+                   + (f" of {max_calls}" if max_calls else "")
+                   + f", ${st.session_state['cost']:.4f}  \n"
+                   + f"Today, all users: ${daily_budget().spent():.4f}"
+                   + (f" of ${runtime.daily_budget_usd():.2f}" if runtime.daily_budget_usd() else ""))
         with st.expander(f"Equipment in the dataset ({len(core.load_equipment())})"):
             st.dataframe(
                 [{"ID": e["id"], "Instrument": e["instrument"], "Location": e["location"]}
@@ -78,6 +102,29 @@ def render_recommendation(rec: dict) -> None:
         st.markdown(f"**Location:** {rec['location']}  \n**Contact (fictional):** {rec['contact']}")
         if rec["accessories_to_confirm"]:
             st.warning("**Confirm with the contact:** " + "; ".join(rec["accessories_to_confirm"]))
+
+
+def render_source(result: dict) -> None:
+    """Where the answer came from, and what it took, when that is not just one live call."""
+    usage = result.get("usage") or {}
+    if result.get("source") == "demo_backup":
+        demo = result["demo"]
+        reason = f" The live model could not be used: {result['notice']}" if result.get("notice") else ""
+        st.info(f"Showing a saved answer recorded {demo['recorded_at'][:10]} with `{demo['model']}`.{reason}")
+        if demo["stale"]:
+            st.warning("The prompt or dataset has changed since this answer was saved.")
+        return
+    if result.get("source") == "cache":
+        st.caption("Shown again from the cache: this question was answered earlier with the same model.")
+    if usage.get("fallback_used"):
+        st.caption(f"The main model was unavailable; answered by the fallback model `{usage['model_used']}`.")
+    if result.get("repaired"):
+        st.caption("The model's first answer was not usable JSON; it was asked once to fix the format.")
+    parts = [f"{usage['seconds']:.1f} s" if usage.get("seconds") is not None else "",
+             f"{usage['output_tokens']:,} output tokens" if usage.get("output_tokens") is not None else "",
+             f"${usage['cost_usd']:.4f}" if usage.get("cost_usd") else ""]
+    if any(parts) and result.get("source") == "live":
+        st.caption(" · ".join(p for p in parts if p))
 
 
 def render_structured(result: dict) -> None:
@@ -153,11 +200,78 @@ def render_feedback(answer: dict) -> None:
             st.rerun()
 
 
-def ask(question: str, modes: list[str]) -> list[dict]:
-    """Run the question in each mode and log every answer."""
+def cache_key(mode: str, question: str) -> tuple:
+    """A new model, prompt or dataset never reuses an old answer."""
+    return (mode, core.normalize_question(question), llm.provider(), llm.model_name(),
+            core.prompt_version(mode), core.dataset_version())
+
+
+def saved_or_error(mode: str, question: str, reason: str) -> dict:
+    """The saved demo answer for this question, labelled with why it is shown; else the reason as an error."""
+    saved = core.demo_answer(mode, question)
+    if saved:
+        saved["notice"] = reason
+        return saved
+    result = core.new_result(mode)
+    result["error"] = reason
+    return result
+
+
+def run_live(question: str, modes: list[str], stream_box) -> dict[str, dict]:
+    """Call the model for each mode at the same time. With a stream_box, naive streams its text into it
+    from this thread (Streamlit can only draw from here) while the other mode runs in a worker thread."""
+    stream = "naive" in modes and stream_box is not None
+    threaded = [mode for mode in modes if not (stream and mode == "naive")]
+    results = {}
+    with ThreadPoolExecutor(max_workers=max(len(threaded), 1)) as pool:
+        futures = {mode: pool.submit(RUNNERS[mode], question) for mode in threaded}
+        if stream:
+            results["naive"] = {}
+            with stream_box:
+                st.write_stream(core.stream_naive(question, results["naive"]))
+        for mode, future in futures.items():
+            results[mode] = future.result()
+    return results
+
+
+def get_answers(question: str, modes: list[str], stream_box=None) -> dict[str, dict]:
+    """Answers from, in order: the cache, the model (with retries and fallback model), the saved demo
+    answers. Spending limits apply only to model calls."""
+    if runtime.flag("DEMO_OFFLINE"):
+        return {mode: saved_or_error(mode, question, "Offline demo mode answers only the saved questions; "
+                                                     "try one of the example buttons.") for mode in modes}
+    results = {}
+    if not st.session_state.get("skip_cache"):
+        for mode in modes:
+            hit = answer_cache().get(cache_key(mode, question))
+            if hit:
+                results[mode] = {**hit, "source": "cache"}
+    live = [mode for mode in modes if mode not in results]
+    if not live:
+        return results
+    blocked = runtime.limit_reason(st.session_state["calls"], len(live), daily_budget().spent())
+    if blocked:
+        return {**results, **{mode: saved_or_error(mode, question, blocked) for mode in live}}
+
+    st.session_state["calls"] += len(live)
+    for mode, result in run_live(question, live, stream_box).items():
+        cost = result["usage"].get("cost_usd") or 0.0
+        st.session_state["cost"] += cost
+        daily_budget().add(cost)
+        if not result["error"]:
+            answer_cache().put(cache_key(mode, question), result)
+        elif runtime.flag("DEMO_BACKUP", default=True) and core.demo_answer(mode, question):
+            result = saved_or_error(mode, question, result["error"])
+        results[mode] = result
+    return results
+
+
+def ask(question: str, modes: list[str], stream_box=None) -> list[dict]:
+    """Answer the question in each mode and log every answer (cached and saved ones too, by source)."""
+    results = get_answers(question, modes, stream_box)
     answers = []
     for mode in modes:
-        result = RUNNERS[mode](question)
+        result = results[mode]
         row = store.answer_row(question, result, session_id=st.session_state["session_id"],
                                rater=st.session_state.get("rater", "").strip(),
                                from_example=question in EXAMPLES.values())
@@ -166,8 +280,23 @@ def ask(question: str, modes: list[str]) -> list[dict]:
     return answers
 
 
+def stream_box_for(modes: list[str]):
+    """Where the naive answer streams while it is generated, laid out like the final answers; None
+    if streaming is off or naive is not asked."""
+    if "naive" not in modes or not runtime.flag("STREAM_NAIVE", default=True):
+        return None
+    if len(modes) == 1:
+        return st.container()
+    left, right = st.columns(2)
+    left.subheader("Structured")
+    left.caption("Waiting for the structured answer...")
+    right.subheader("Naive")
+    return right.container()
+
+
 def render_answer(answer: dict) -> None:
     result = answer["result"]
+    render_source(result)
     if result["mode"] == "structured":
         render_structured(result)
     else:
@@ -181,6 +310,8 @@ def main() -> None:
     if not password_ok():
         return
     st.session_state.setdefault("session_id", uuid.uuid4().hex[:8])
+    st.session_state.setdefault("calls", 0)
+    st.session_state.setdefault("cost", 0.0)
     mode = render_sidebar()
 
     st.title("UMKC Research Equipment Discovery")
@@ -199,8 +330,10 @@ def main() -> None:
             st.warning("Please enter a question.")
             return
         modes = {"Structured": ["structured"], "Naive": ["naive"]}.get(mode, ["structured", "naive"])
+        stream_box = stream_box_for(modes)
         with st.spinner("Asking the model..."):
-            st.session_state["answers"] = ask(question.strip(), modes)
+            st.session_state["answers"] = ask(question.strip(), modes, stream_box)
+        st.rerun()  # redraw from the session so the streamed text is replaced by the full answer
 
     # Answers are kept in the session so they stay on screen while feedback is given.
     answers = st.session_state.get("answers", [])
