@@ -4,10 +4,14 @@ Usage:
   python run_eval.py [--runs 3] [--modes structured naive] [--questions Q1 Q4] [--category vague] [--log]
   python run_eval.py --rescore results/run_<time>.csv     re-score saved answers, no model calls
   python run_eval.py --review-sheet                        expected answers as Markdown, for review
+  python run_eval.py --record-demo [--questions Q1 Q2]     save one answer per question x mode as the
+                                                           app's backup for the live demo (data/demo_answers.json)
 
 Writes results/run_<time>.csv (one row per answer: scores + the app's log columns, store.ANSWER_COLUMNS)
 and results/run_<time>_summary.csv (consistency per question x mode, averages per mode).
 --log also appends each answer to the Google Sheet (or results/log.jsonl), with source "eval".
+--no-repair turns off the one repair call for structured answers that are not usable JSON
+(the "repaired" column shows where it was used, so first-try JSON validity can be reported either way).
 """
 
 import argparse
@@ -16,12 +20,14 @@ import json
 import re
 import time
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
+from functools import partial
 from itertools import combinations
 from pathlib import Path
 from statistics import mean
 
 import core
+import llm
 import store
 
 ROOT = Path(__file__).parent
@@ -131,9 +137,10 @@ def consistency(id_sets: list[frozenset]) -> dict:
 
 # --- summary ---
 
-SUMMARY_COLUMNS = ["scope", "question_id", "mode", "answers", "errors", "json_ok_rate", "mean_recall",
+SUMMARY_COLUMNS = ["scope", "question_id", "mode", "answers", "errors", "json_ok_rate", "repaired_rate", "mean_recall",
                    "unacceptable_rate", "na_rate", "accessory_rate", "clarifying_ok_rate", "contacts_rate",
-                   "mean_seconds", "mean_output_tokens", "stable_runs", "mean_jaccard", "id_frequency"]
+                   "mean_seconds", "mean_output_tokens", "total_cost_usd", "stable_runs", "mean_jaccard",
+                   "id_frequency"]
 
 
 def _num(value):
@@ -152,6 +159,11 @@ def _mean(values) -> float | None:
     return round(mean(values), 3) if values else None
 
 
+def _total(values) -> float | None:
+    values = [v for v in (_num(v) for v in values) if v is not None]
+    return round(sum(values), 6) if values else None
+
+
 def _ratio(rows: list[dict], hits: str, total: str) -> float | None:
     totals = sum(_num(r[total]) or 0 for r in rows)
     return round(sum(_num(r[hits]) or 0 for r in rows) / totals, 3) if totals else None
@@ -163,6 +175,7 @@ def summarize_group(rows: list[dict]) -> dict:
         "answers": len(rows),
         "errors": len(rows) - len(scored),
         "json_ok_rate": _mean(r["json_ok"] for r in scored),
+        "repaired_rate": _mean(r["repaired"] for r in scored if r["mode"] == "structured"),
         "mean_recall": _mean(r["recall"] for r in scored),
         "unacceptable_rate": _mean(int((_num(r["unacceptable_hits"]) or 0) > 0) for r in scored),
         "na_rate": _ratio(scored, "na_hits", "na_total"),
@@ -171,6 +184,8 @@ def summarize_group(rows: list[dict]) -> dict:
         "contacts_rate": _ratio(scored, "contacts_ok", "contacts_total"),
         "mean_seconds": _mean(r["seconds"] for r in scored),
         "mean_output_tokens": _mean(r["output_tokens"] for r in scored),
+        # All answers, failed ones too: a failed call can still cost money. None if no prices are set.
+        "total_cost_usd": _total(r.get("cost_usd") for r in rows),
     }
 
 
@@ -203,7 +218,9 @@ def print_summary(summary: list[dict]) -> None:
         if s["scope"] == "question":
             continue
         cells = ["-" if s[key] is None else f"{s[key]:.2f}" for key, _ in PRINTED]
-        print(f"{s['scope']:<9}{s['mode']:<11}{s['answers']:>4}{s['errors']:>5}" + "".join(f"{c:>9}" for c in cells))
+        cost = "" if s["total_cost_usd"] is None else f"   ${s['total_cost_usd']:.4f}"
+        print(f"{s['scope']:<9}{s['mode']:<11}{s['answers']:>4}{s['errors']:>5}"
+              + "".join(f"{c:>9}" for c in cells) + cost)
 
 
 def write_csv(path: Path, columns: list[str], rows: list[dict]) -> None:
@@ -280,10 +297,35 @@ def rescore(path: Path, questions: list[dict]) -> list[dict]:
         # Keep the saved run's metadata (time, model, versions, tokens); refresh what reading the answer derives.
         fresh = store.answer_row(old["question"], result)
         answer = {column: old.get(column, "") for column in store.ANSWER_COLUMNS}
-        answer.update({key: fresh[key] for key in ("json_ok", "clarifying_question", "instrument_ids", "ids_source",
-                                                   "mentioned_ids", "removed_ids", "not_available", "error")})
+        answer.update({key: fresh[key] for key in ("json_ok", "schema_problems", "clarifying_question",
+                                                   "instrument_ids", "ids_source", "mentioned_ids", "removed_ids",
+                                                   "not_available", "error")})
         rows.append(eval_row(q, int(old["run"]), answer, result))
     return rows
+
+
+def record_demo(questions: list[dict], modes: list[str], path: Path = core.DEMO_ANSWERS_PATH) -> None:
+    """Save one live answer per question x mode as the app's backup. Answers already saved for other
+    questions, or for questions that fail now, are kept."""
+    saved = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"answers": []}
+    by_key = {(a["mode"], core.normalize_question(a["question"])): a for a in saved["answers"]}
+    for q in questions:
+        for mode in modes:
+            result = run_with_retry(mode, q["question"])
+            if result["error"]:
+                print(f"{q['id']:<4} {mode:<10} not saved: {result['error']}")
+                continue
+            by_key[(mode, core.normalize_question(q["question"]))] = {
+                "question_id": q["id"], "mode": mode, "question": q["question"], "raw": result["raw"],
+                "usage": result["usage"], "model": result["usage"].get("model_used", llm.model_name()),
+                "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "prompt_version": core.prompt_version(mode), "dataset_version": core.dataset_version(),
+            }
+            print(f"{q['id']:<4} {mode:<10} saved [{' '.join(result['instrument_ids'])}]")
+    path.write_text(json.dumps({"answers": list(by_key.values())}, indent=2, ensure_ascii=False) + "\n",
+                    encoding="utf-8")
+    core.load_demo_answers.cache_clear()
+    print(f"\nSaved {len(by_key)} answers to {path}")
 
 
 def readable(pattern: str) -> str:
@@ -333,7 +375,11 @@ def main() -> None:
     parser.add_argument("--log", action="store_true", help="also log answers to the sheet / log file")
     parser.add_argument("--rescore", type=Path, metavar="CSV", help="re-score a saved run, no model calls")
     parser.add_argument("--review-sheet", action="store_true", help="write the expected answers as Markdown")
+    parser.add_argument("--record-demo", action="store_true", help="save answers as the app's demo backup")
+    parser.add_argument("--no-repair", action="store_true", help="no repair call for unusable structured JSON")
     args = parser.parse_args()
+    if args.no_repair:
+        RUNNERS["structured"] = partial(core.run_structured, repair=False)
 
     questions = select_questions(load_questions(), args.questions, args.category)
     RESULTS_DIR.mkdir(exist_ok=True)
@@ -341,6 +387,8 @@ def main() -> None:
         path = RESULTS_DIR / "expected_answers_review.md"
         path.write_text(review_sheet(questions), encoding="utf-8")
         print(f"Saved {path}")
+    elif args.record_demo:
+        record_demo(questions, args.modes)
     elif args.rescore:
         write_outputs(rescore(args.rescore, questions), args.rescore.with_name(args.rescore.stem + "_rescored.csv"))
     else:

@@ -41,6 +41,48 @@ Sidebar modes:
 
 If `APP_PASSWORD` is set, the app asks for that password before showing anything.
 
+## Speed, cost and resilience
+
+- **Compare both** asks the two modes at the same time, so it takes about as long as one mode. The
+  naive answer streams in as it is written (`STREAM_NAIVE=0` turns this off).
+- **Cache**: answers are kept in the app's memory, shared by everyone using the app, keyed on mode,
+  question (ignoring case and spacing), model, prompt version and dataset version. Asking the same
+  question again is instant and free. The cache is emptied when the app restarts or is redeployed.
+  Tick **Skip cache** in the sidebar to ask the model again. Errors are never cached.
+- **Retries and fallback model**: each call has a timeout (`LLM_TIMEOUT_S`). Rate limits (429), server
+  errors (5xx) and timeouts are retried `LLM_MAX_RETRIES` times with growing waits. If they still fail
+  and `GEMINI_FALLBACK_MODEL` / `OPENAI_FALLBACK_MODEL` is set, that model is tried once. Wrong keys and
+  bad requests are not retried.
+- **JSON repair**: if a structured answer is not JSON of the expected shape, the model is asked once to
+  fix the format. The answer is marked (`repaired` in the log) so first-try JSON validity can still be
+  reported; `run_eval.py --no-repair` turns this off.
+- **Cost**: set `PRICE_IN_PER_M` / `PRICE_OUT_PER_M` (USD per million tokens, from the provider's
+  pricing page) to log `cost_usd` per answer and show the session's and today's spending in the
+  sidebar. Limits: `MAX_CALLS_PER_SESSION` and `DAILY_BUDGET_USD` (all users of one running app; resets
+  daily and on restart). When a limit is reached the app says so and shows a saved answer if it has one.
+
+### Saved answers for the live demo
+
+`data/demo_answers.json` holds one recorded answer per test question and mode (the three example
+buttons are Q1-Q3). Record or refresh it with the real model before a demo:
+
+```
+python run_eval.py --record-demo                    # all test questions, both modes
+python run_eval.py --record-demo --questions Q1 Q2 Q3
+```
+
+Answers for questions that fail are kept from the previous recording. Saved answers are the raw model
+output, so they are checked like live ones (unknown IDs removed, contact and location from the dataset).
+
+- `DEMO_BACKUP=1` (default): if the live model fails after retries and the fallback model, the saved
+  answer is shown, labelled with the recording date and model and the live error.
+- `DEMO_OFFLINE=1`: never call the model; only saved answers (e.g. no internet at the venue).
+
+A warning appears if the prompt or dataset changed since the answer was recorded.
+
+For UI work with `LLM_PROVIDER=mock`: `MOCK_DELAY_S=3` makes each answer take 3 s, and `MOCK_FAIL=429:2`
+makes the next 2 calls fail with error 429 (try `503:99` to see the saved-answer backup).
+
 ## Deploy (Streamlit Community Cloud)
 
 1. Push the repo to GitHub (private is fine; Streamlit Cloud can deploy private repos).
@@ -54,7 +96,9 @@ If `APP_PASSWORD` is set, the app asks for that password before showing anything
 
 Every answer is logged with what is needed to compare versions later: mode, provider, model,
 prompt version (hash of the system prompt), dataset version, git commit, response time, input /
-output / thinking tokens, whether the JSON parsed, instruments recommended (or, in naive mode,
+output / thinking tokens, cost, the model that answered (main or fallback), retries, whether the answer
+came from the model, the cache or the saved answers (`answer_source`), whether the JSON parsed or was
+repaired, instruments recommended (or, in naive mode,
 detected in the text), removed IDs, "not available" techniques, errors, the question and the raw
 output. Under each answer, a feedback form collects: overall Good/Bad and why, Good/Partly/Wrong per
 instrument, instruments that should have been recommended, and whether the "not available" part was
@@ -85,7 +129,10 @@ python run_eval.py --review-sheet                 # results/expected_answers_rev
 ```
 
 Use `LLM_PROVIDER=mock` to try it without spending API credits. Rate-limit and server errors are
-retried twice; other errors are kept and counted separately (they are left out of the averages).
+retried inside each call (see "Speed, cost and resilience"), then the whole answer is retried twice more
+after 10 and 20 s; other errors are kept and counted separately (they are left out of the averages).
+The summary also has `repaired_rate` (structured answers that needed the repair call) and
+`total_cost_usd` (when prices are set).
 
 `results/run_<time>.csv` has one row per question x mode x run, with the same answer columns as the
 app's log plus these scores:
@@ -137,8 +184,10 @@ The tests always use the mock model, so they need no API key and cost nothing. T
 |---|---|
 | `app.py` | Streamlit interface |
 | `core.py` | Load dataset (IDs EQ01-EQ20 in row order), prompts, JSON parsing, answer checks |
-| `llm.py` | `complete(system, user, json_mode)` for gemini / openai / ollama / mock; `complete_with_meta` adds tokens and time |
+| `llm.py` | `complete(system, user, json_mode)` for gemini / openai / ollama / mock, with timeouts, retries and fallback model; `complete_with_meta` adds tokens, time and cost; `stream_with_meta` streams text |
+| `runtime.py` | Answer cache and daily spending shared by all app sessions; call and budget limits |
+| `data/demo_answers.json` | Saved answers shown when the live model can't be used (`run_eval.py --record-demo`) |
 | `store.py` | Answer and feedback rows; saves them to the Google Sheet or `results/log.jsonl` |
-| `run_eval.py` | Batch evaluation: scores, consistency summary, re-scoring, review sheet |
+| `run_eval.py` | Batch evaluation: scores, consistency summary, re-scoring, review sheet, recording saved demo answers |
 | `test_questions.json` | Test questions with expected, acceptable and unacceptable instruments |
 | `tests/` | Unit tests (pytest, mock model) |

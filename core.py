@@ -6,12 +6,14 @@ import re
 import subprocess
 from functools import lru_cache
 from pathlib import Path
+from typing import Iterator
 
 import openpyxl
 
-from llm import complete_with_meta
+from llm import complete_with_meta, stream_with_meta
 
 DATA_PATH = Path(__file__).parent / "data" / "dataset.xlsx"
+DEMO_ANSWERS_PATH = Path(__file__).parent / "data" / "demo_answers.json"
 SHEET = "Equipment list"
 FIELDS = ["instrument", "manufacturer", "model", "notes", "location", "contact"]
 
@@ -179,6 +181,51 @@ def parse_json(text: str) -> dict:
     return data
 
 
+def _is_str_list(value) -> bool:
+    return isinstance(value, list) and all(isinstance(v, str) for v in value)
+
+
+def _list_of(parsed: dict, key: str) -> list:
+    value = parsed.get(key)
+    return value if isinstance(value, list) else []
+
+
+def validate_structured(parsed: dict) -> list[str]:
+    """Problems with the shape of a structured answer (empty list if none). Unknown instrument IDs are
+    not a shape problem: check_recommendations removes them, with a notice."""
+    problems = [f'"{key}" is missing' for key in ("recommendations", "summary") if key not in parsed]
+    if "summary" in parsed and not isinstance(parsed["summary"], str):
+        problems.append('"summary" must be a string')
+    if parsed.get("clarifying_question") is not None and not isinstance(parsed["clarifying_question"], str):
+        problems.append('"clarifying_question" must be a string or null')
+    if "measurement_needs" in parsed and not _is_str_list(parsed["measurement_needs"]):
+        problems.append('"measurement_needs" must be a list of strings')
+    for key in ("recommendations", "not_available"):
+        if key in parsed and not isinstance(parsed[key], list):
+            problems.append(f'"{key}" must be a list')
+    for i, rec in enumerate(_list_of(parsed, "recommendations"), start=1):
+        if not isinstance(rec, dict):
+            problems.append(f"recommendation {i} must be an object")
+            continue
+        for field in ("instrument_id", "technique", "why"):
+            if not isinstance(rec.get(field), str):
+                problems.append(f'recommendation {i}: "{field}" must be a string')
+        if not _is_str_list(rec.get("accessories_to_confirm", [])):
+            problems.append(f'recommendation {i}: "accessories_to_confirm" must be a list of strings')
+    for i, item in enumerate(_list_of(parsed, "not_available"), start=1):
+        if not (isinstance(item, dict) and isinstance(item.get("technique"), str)):
+            problems.append(f'not_available {i} must be an object with a "technique" string')
+    return problems
+
+
+def structured_problems(raw: str) -> list[str]:
+    """Why a raw structured answer can't be used as is: not JSON, or the wrong shape."""
+    try:
+        return validate_structured(parse_json(raw))
+    except ValueError as exc:  # json.JSONDecodeError is a ValueError
+        return [str(exc)]
+
+
 def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]:
     """Keep only recommendations whose ID is in the dataset and fill in the dataset fields.
 
@@ -207,7 +254,8 @@ def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]
 def new_result(mode: str, raw: str = "") -> dict:
     return {"mode": mode, "raw": raw, "error": None, "usage": {}, "json_ok": None,
             "recommendations": [], "removed": [], "instrument_ids": [], "mentioned_ids": [],
-            "ids_source": "", "not_available": [], "clarifying_question": None}
+            "ids_source": "", "not_available": [], "clarifying_question": None,
+            "repaired": False, "first_raw": "", "schema_problems": [], "source": "live", "demo": None}
 
 
 def read_structured(result: dict) -> dict:
@@ -219,6 +267,7 @@ def read_structured(result: dict) -> dict:
         result["json_ok"] = False if result["raw"] else None
         return result
     result["json_ok"] = True
+    result["schema_problems"] = validate_structured(parsed)
     result["recommendations"], result["removed"] = check_recommendations(parsed.get("recommendations"))
     result["instrument_ids"] = [rec["id"] for rec in result["recommendations"]]
     result["ids_source"] = "json"
@@ -250,22 +299,58 @@ def read_answer(mode: str, raw: str) -> dict:
 
 # --- run one question ---
 
-def _call(result: dict, system: str, question: str, json_mode: bool) -> None:
-    """Call the model and store its text and usage (tokens, seconds) on the result."""
-    user = build_user_prompt(question, result["mode"])
+REPAIR_REQUEST = """Your previous answer could not be used: {problems}.
+Return the same answer as ONLY a JSON object with the shape given in the instructions.
+Keep the content; fix only the format.
+
+Previous answer:
+{raw}"""
+
+
+def _call(result: dict, system: str, user: str, json_mode: bool) -> None:
+    """Call the model and store its text and usage (tokens, seconds, cost) on the result."""
     meta = complete_with_meta(system, user, json_mode=json_mode)
     result["raw"] = meta.pop("text")
     result["usage"] = meta
 
 
-def run_structured(question: str) -> dict:
-    """Structured mode: rules + JSON schema; code checks and fills in each recommendation."""
+def add_usage(first: dict, second: dict) -> dict:
+    """Usage of two calls together (an answer and its repair). A count unknown in either stays unknown."""
+    total = dict(second)
+    for key in ("input_tokens", "output_tokens", "thinking_tokens", "seconds", "cost_usd", "attempts"):
+        a, b = first.get(key), second.get(key)
+        total[key] = None if a is None or b is None else round(a + b, 6)
+    total["fallback_used"] = bool(first.get("fallback_used") or second.get("fallback_used"))
+    return total
+
+
+def _repair(result: dict, question: str, problems: list[str]) -> None:
+    """Ask the model once to fix the format of its answer. The first answer is kept in first_raw and
+    result["repaired"] is set, so first-try JSON validity can still be measured."""
+    first_raw, first_usage = result["raw"], result["usage"]
+    user = build_user_prompt(question, "structured") + "\n\n" + REPAIR_REQUEST.format(
+        problems="; ".join(problems), raw=first_raw)
+    _call(result, STRUCTURED_SYSTEM, user, json_mode=True)
+    result.update(repaired=True, first_raw=first_raw, usage=add_usage(first_usage, result["usage"]))
+
+
+def run_structured(question: str, repair: bool = True) -> dict:
+    """Structured mode: rules + JSON schema; code checks and fills in each recommendation.
+
+    If the answer is not JSON of the right shape and repair is on, the model gets one chance to fix it.
+    """
     result = new_result("structured")
     try:
-        _call(result, STRUCTURED_SYSTEM, question, json_mode=True)
+        _call(result, STRUCTURED_SYSTEM, build_user_prompt(question, "structured"), json_mode=True)
     except Exception as exc:  # API errors are shown in the page, not raised
         result["error"] = f"{type(exc).__name__}: {exc}"
         return result
+    problems = structured_problems(result["raw"])
+    if problems and repair:
+        try:
+            _repair(result, question, problems)
+        except Exception:  # the repair call failed; read the first answer as it is
+            pass
     return read_structured(result)
 
 
@@ -273,7 +358,60 @@ def run_naive(question: str) -> dict:
     """Naive mode: equipment list + question, no rules, free text answer."""
     result = new_result("naive")
     try:
-        _call(result, NAIVE_SYSTEM, question, json_mode=False)
+        _call(result, NAIVE_SYSTEM, build_user_prompt(question, "naive"), json_mode=False)
     except Exception as exc:
         result["error"] = f"{type(exc).__name__}: {exc}"
     return read_naive(result)
+
+
+def stream_naive(question: str, result: dict) -> Iterator[str]:
+    """Naive mode, streamed: yields the text as it arrives. When done, result is filled like run_naive's."""
+    result.update(new_result("naive"))
+    chunks, meta = [], {}
+    try:
+        for chunk in stream_with_meta(NAIVE_SYSTEM, build_user_prompt(question, "naive"), meta):
+            chunks.append(chunk)
+            yield chunk
+    except Exception as exc:
+        result["error"] = f"{type(exc).__name__}: {exc}"
+    result["raw"], result["usage"] = "".join(chunks), meta
+    read_naive(result)
+
+
+# --- saved answers: a backup for the live demo when the model can't be reached ---
+
+def normalize_question(question: str) -> str:
+    """Same text up to case and spacing -> same key (for the answer cache and the demo backup)."""
+    return " ".join(question.lower().split())
+
+
+@lru_cache(maxsize=4)
+def load_demo_answers(path: Path = DEMO_ANSWERS_PATH) -> dict:
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def demo_answer(mode: str, question: str, path: Path = DEMO_ANSWERS_PATH) -> dict | None:
+    """The saved answer for this question and mode, read and checked like a live one, or None.
+
+    The file holds raw model output, so unknown IDs are still removed and contact and location still
+    come from the current dataset. result["demo"] says when and with which model it was recorded, and
+    whether the prompt or dataset has changed since ("stale").
+    """
+    saved = load_demo_answers(path)
+    key = normalize_question(question)
+    entry = next((a for a in saved.get("answers", [])
+                  if a["mode"] == mode and normalize_question(a["question"]) == key), None)
+    if entry is None:
+        return None
+    result = read_answer(mode, entry["raw"])
+    result["usage"] = dict(entry.get("usage") or {})
+    result["source"] = "demo_backup"
+    result["demo"] = {
+        "recorded_at": entry.get("recorded_at", ""),
+        "model": entry.get("model", ""),
+        "stale": entry.get("prompt_version") != prompt_version(mode)
+                 or entry.get("dataset_version") != dataset_version(),
+    }
+    return result

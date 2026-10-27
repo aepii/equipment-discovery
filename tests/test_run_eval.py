@@ -139,3 +139,28 @@ def test_readable_patterns(pattern, text):
 def test_review_sheet_names_instruments():
     text = run_eval.review_sheet(run_eval.load_questions()[:2])
     assert "## Q1" in text and "Hybrid rheometer" in text and "EQ19" not in text
+
+
+# --- demo backup recording ---
+
+def test_record_demo_saves_answers_and_keeps_failed_ones(tmp_path, monkeypatch):
+    path = tmp_path / "demo.json"
+    questions = run_eval.select_questions(run_eval.load_questions(), ["Q1", "Q2"], None)
+    run_eval.record_demo(questions, ["structured", "naive"], path)
+    saved = json.loads(path.read_text(encoding="utf-8"))["answers"]
+    assert len(saved) == 4
+    assert core.demo_answer("naive", questions[0]["question"], path)["instrument_ids"] == ["EQ17", "EQ18", "EQ19"]
+
+    monkeypatch.setenv("MOCK_FAIL", "400:99")  # every call fails now: nothing is lost
+    run_eval.record_demo(questions, ["structured"], path)
+    assert json.loads(path.read_text(encoding="utf-8"))["answers"] == saved
+
+
+def test_summary_has_cost_and_repair_rate():
+    rows = [{"mode": "structured", "error": "", "repaired": "True", "cost_usd": "0.01", "json_ok": "True",
+             **{c: "" for c in ("recall", "unacceptable_hits", "clarifying_ok", "seconds", "output_tokens",
+                                "na_hits", "na_total", "accessory_hits", "accessory_total",
+                                "contacts_ok", "contacts_total")}},
+            {"mode": "structured", "error": "ServerError: 503", "repaired": "", "cost_usd": "0.02", "json_ok": ""}]
+    summary = run_eval.summarize_group(rows)
+    assert summary["repaired_rate"] == 1.0 and summary["total_cost_usd"] == pytest.approx(0.03)
