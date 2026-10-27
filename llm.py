@@ -176,4 +176,6 @@ def _mock(system: str, user: str, json_mode: bool) -> tuple[str, dict]:
     lines = [answer["summary"], ""]
     for rec in answer["recommendations"]:
         lines.append(f"- **{rec['instrument_id']}**: {rec['technique']}. {rec['why']}")
+    ids = ", ".join(rec["instrument_id"] for rec in answer["recommendations"]) or "none"
+    lines += ["", f"Recommended: {ids}"]
     return "\n".join(lines), _usage()

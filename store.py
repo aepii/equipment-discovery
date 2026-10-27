@@ -23,7 +23,7 @@ ANSWER_COLUMNS = [
     "answer_id", "timestamp", "source", "session_id", "rater", "from_example",
     "mode", "provider", "model", "prompt_version", "dataset_version", "git_commit",
     "seconds", "input_tokens", "output_tokens", "thinking_tokens",
-    "json_ok", "clarifying_question", "instrument_ids", "removed_ids", "not_available", "error",
+    "json_ok", "clarifying_question", "instrument_ids", "ids_source", "mentioned_ids", "removed_ids", "not_available", "error",
     "question", "raw_output",
 ]
 FEEDBACK_COLUMNS = [
@@ -66,6 +66,8 @@ def answer_row(question: str, result: dict, source: str = "app", session_id: str
         "json_ok": result.get("json_ok"),
         "clarifying_question": result.get("clarifying_question") or "",
         "instrument_ids": " ".join(result.get("instrument_ids", [])),
+        "ids_source": result.get("ids_source", ""),
+        "mentioned_ids": " ".join(result.get("mentioned_ids", [])),
         "removed_ids": " ".join(result.get("removed", [])),
         "not_available": "; ".join(n.get("technique", "") for n in result.get("not_available", [])),
         "error": result.get("error") or "",
