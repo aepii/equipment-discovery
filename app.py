@@ -22,6 +22,7 @@ def load_secrets() -> None:
 load_secrets()
 
 import core  # noqa: E402  (imported after secrets so llm sees the deployed settings)
+import knowledge  # noqa: E402
 import llm  # noqa: E402
 import runtime  # noqa: E402
 import store  # noqa: E402
@@ -34,8 +35,16 @@ EXAMPLES = {
     "Internal structure": "I need to examine the internal structure of a porous specimen without destroying it. "
                           "What characterization methods are available?",
 }
-MODES = ["Structured", "Naive", "Compare both"]
-RUNNERS = {"structured": core.run_structured, "naive": core.run_naive}
+# Sidebar choice -> modes to run (several are shown side by side).
+MODES = {
+    "Structured": ["structured"],
+    "Structured + annotations": ["annotated"],
+    "Naive": ["naive"],
+    "Compare structured and naive": ["structured", "naive"],
+    "Compare all three": ["structured", "annotated", "naive"],
+}
+MODE_LABELS = {"structured": "Structured", "annotated": "Structured + annotations", "naive": "Naive"}
+RUNNERS = {"structured": core.run_structured, "annotated": core.run_annotated, "naive": core.run_naive}
 RATINGS = ["Good", "Partly", "Wrong"]
 
 
@@ -70,7 +79,7 @@ def daily_budget() -> runtime.DailyBudget:
 
 def render_sidebar() -> str:
     with st.sidebar:
-        mode = st.radio("Mode", MODES)
+        mode = st.radio("Mode", list(MODES))
         st.text_input("Your name (optional, shown with your feedback)", key="rater")
         st.checkbox("Skip cache (ask the model again)", key="skip_cache")
         fallback = llm.fallback_model_name()
@@ -87,7 +96,9 @@ def render_sidebar() -> str:
                    + (f" of ${runtime.daily_budget_usd():.2f}" if runtime.daily_budget_usd() else ""))
         with st.expander(f"Equipment in the dataset ({len(core.load_equipment())})"):
             st.dataframe(
-                [{"ID": e["id"], "Instrument": e["instrument"], "Location": e["location"]}
+                [{"ID": e["id"], "Instrument": e["instrument"], "Location": e["location"],
+                  "Typical techniques (draft)": "; ".join(knowledge.technique_name(t)
+                                                          for t in knowledge.techniques_of(e["id"]))}
                  for e in core.load_equipment()],
                 hide_index=True,
             )
@@ -99,9 +110,15 @@ def render_recommendation(rec: dict) -> None:
         st.markdown(f"**{rec['instrument']}** · {rec['manufacturer']} {rec['model']} · `{rec['id']}`")
         st.markdown(f"**Technique:** {rec['technique']}")
         st.markdown(rec["why"])
+        if rec.get("destructive"):
+            st.markdown(f"**Destructive:** {rec['destructive']}")
         st.markdown(f"**Location:** {rec['location']}  \n**Contact (fictional):** {rec['contact']}")
         if rec["accessories_to_confirm"]:
             st.warning("**Confirm with the contact:** " + "; ".join(rec["accessories_to_confirm"]))
+        for caution in rec.get("cautions", []):
+            st.error(caution)
+        if rec.get("notes_status") == "draft":
+            st.caption("Instrument notes are a draft and not yet reviewed by the faculty mentor.")
 
 
 def render_source(result: dict) -> None:
@@ -151,6 +168,10 @@ def render_structured(result: dict) -> None:
             st.markdown("**Suitable techniques not available in the dataset**")
             st.markdown("\n".join(f"- **{n.get('technique', '')}**: {n.get('why_useful', '')}"
                                   for n in result["not_available"]))
+            for n in result["not_available"]:
+                if n.get("available_on"):
+                    st.error(f"{n.get('technique', '')} is listed as not available, but the instrument notes "
+                             f"list it for {', '.join(n['available_on'])}.")
     with st.expander("Raw model output"):
         st.code(result["raw"] or "(empty)", language="json")
 
@@ -287,17 +308,20 @@ def stream_box_for(modes: list[str]):
         return None
     if len(modes) == 1:
         return st.container()
-    left, right = st.columns(2)
-    left.subheader("Structured")
-    left.caption("Waiting for the structured answer...")
-    right.subheader("Naive")
-    return right.container()
+    box = None
+    for column, mode in zip(st.columns(len(modes)), modes):
+        column.subheader(MODE_LABELS[mode])
+        if mode == "naive":
+            box = column.container()
+        else:
+            column.caption(f"Waiting for the {MODE_LABELS[mode].lower()} answer...")
+    return box
 
 
 def render_answer(answer: dict) -> None:
     result = answer["result"]
     render_source(result)
-    if result["mode"] == "structured":
+    if result["mode"] in core.JSON_MODES:
         render_structured(result)
     else:
         render_naive(result)
@@ -329,7 +353,7 @@ def main() -> None:
         if not question.strip():
             st.warning("Please enter a question.")
             return
-        modes = {"Structured": ["structured"], "Naive": ["naive"]}.get(mode, ["structured", "naive"])
+        modes = MODES[mode]
         stream_box = stream_box_for(modes)
         with st.spinner("Asking the model..."):
             st.session_state["answers"] = ask(question.strip(), modes, stream_box)
@@ -337,10 +361,10 @@ def main() -> None:
 
     # Answers are kept in the session so they stay on screen while feedback is given.
     answers = st.session_state.get("answers", [])
-    if len(answers) == 2:
-        for column, answer in zip(st.columns(2), answers):
+    if len(answers) > 1:
+        for column, answer in zip(st.columns(len(answers)), answers):
             with column:
-                st.subheader(answer["result"]["mode"].capitalize())
+                st.subheader(MODE_LABELS[answer["result"]["mode"]])
                 render_answer(answer)
     elif answers:
         render_answer(answers[0])

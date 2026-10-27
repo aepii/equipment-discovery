@@ -10,12 +10,15 @@ from typing import Iterator
 
 import openpyxl
 
+import knowledge
 from llm import complete_with_meta, stream_with_meta
 
 DATA_PATH = Path(__file__).parent / "data" / "dataset.xlsx"
 DEMO_ANSWERS_PATH = Path(__file__).parent / "data" / "demo_answers.json"
 SHEET = "Equipment list"
 FIELDS = ["instrument", "manufacturer", "model", "notes", "location", "contact"]
+# Modes whose answer is JSON in the structured schema. "annotated" = structured + instrument annotations.
+JSON_MODES = ("structured", "annotated")
 
 
 # --- dataset ---
@@ -93,7 +96,9 @@ def _short_hash(data: bytes) -> str:
 
 
 def prompt_version(mode: str) -> str:
-    prompts = {"structured": STRUCTURED_SYSTEM, "naive": NAIVE_SYSTEM + NAIVE_REQUEST}
+    """Annotated mode's version also changes when the knowledge files change (they are part of its prompt)."""
+    prompts = {"structured": STRUCTURED_SYSTEM, "naive": NAIVE_SYSTEM + NAIVE_REQUEST,
+               "annotated": ANNOTATED_SYSTEM + knowledge.knowledge_version()}
     return _short_hash(prompts[mode].encode())
 
 
@@ -156,7 +161,42 @@ End your answer with one line "Recommended: <IDs>" listing the IDs of the instru
 (e.g. "Recommended: EQ03, EQ12"), or "Recommended: none"."""
 
 
+# Annotated mode: the structured rules, plus draft notes per instrument from the knowledge layer and a
+# reference list of techniques no listed instrument performs. The model also names technique IDs, so
+# code can check each recommendation against the instrument's notes.
+ANNOTATED_SYSTEM = STRUCTURED_SYSTEM.split("\n\nReturn ONLY")[0] + """
+8. Each instrument comes with draft notes: its typical techniques (with IDs such as
+   "compression_testing"), what they measure, whether they are destructive, typical samples,
+   limitations and accessories to confirm. The notes describe what this TYPE of instrument typically
+   does and are not yet reviewed. Use them, but do not treat accessories as installed unless the notes
+   say "Installed per the dataset". Techniques marked "only with optional hardware" need confirming.
+9. Instruments whose techniques measure nothing (printers, mills, sectioning) only make or prepare
+   samples. Recommend them only when the researcher needs that step.
+10. "Techniques not available on any listed instrument" supports rule 4. Whenever one of them is the
+   standard method for the problem, or would answer it better than the listed instruments, list it in
+   "not_available" with its ID, even if you also recommend a partial option. You may also name a
+   technique that is not on the list, with "technique_id": null.
+
+Return ONLY a JSON object with exactly this shape:
+{
+  "measurement_needs": ["what needs to be measured"],
+  "recommendations": [
+    {"instrument_id": "EQ17", "technique_id": "thermogravimetric_analysis", "technique": "...",
+     "why": "one or two sentences", "accessories_to_confirm": ["..."]}
+  ],
+  "not_available": [{"technique_id": "micro_computed_tomography", "technique": "...", "why_useful": "..."}],
+  "clarifying_question": null,
+  "summary": "two or three sentences for the researcher"
+}"""
+
+SYSTEMS = {"structured": STRUCTURED_SYSTEM, "annotated": ANNOTATED_SYSTEM}
+
+
 def build_user_prompt(question: str, mode: str = "structured") -> str:
+    if mode == "annotated":
+        return (f"Equipment list with draft notes:\n\n{knowledge.format_annotated_equipment(load_equipment())}"
+                f"\n\nTechniques not available on any listed instrument:\n{knowledge.format_unavailable_techniques()}"
+                f"\n\nQuestion: {question.strip()}")
     naive = mode == "naive"
     prompt = f"Equipment list:\n{format_equipment_list(include_contacts=naive)}\n\nQuestion: {question.strip()}"
     if naive:
@@ -212,6 +252,8 @@ def validate_structured(parsed: dict) -> list[str]:
                 problems.append(f'recommendation {i}: "{field}" must be a string')
         if not _is_str_list(rec.get("accessories_to_confirm", [])):
             problems.append(f'recommendation {i}: "accessories_to_confirm" must be a list of strings')
+        if not isinstance(rec.get("technique_id"), (str, type(None))):
+            problems.append(f'recommendation {i}: "technique_id" must be a string or null')
     for i, item in enumerate(_list_of(parsed, "not_available"), start=1):
         if not (isinstance(item, dict) and isinstance(item.get("technique"), str)):
             problems.append(f'not_available {i} must be an object with a "technique" string')
@@ -249,6 +291,43 @@ def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]
     return checked, removed
 
 
+def check_against_annotations(rec: dict, technique_id) -> dict:
+    """Annotated mode: compare a checked recommendation with the instrument's notes.
+
+    Adds technique_id, the technique's destructiveness, the notes' review status and cautions (e.g. a
+    technique the notes don't list for this instrument). If the model named no accessories, the notes'
+    accessories to confirm for that technique are filled in.
+    """
+    tid = str(technique_id or "").strip()
+    own = knowledge.techniques_of(rec["id"])
+    rec.update(technique_id=tid, destructive="", cautions=[], notes_status=knowledge.review_status(rec["id"]))
+    if not tid:
+        rec["cautions"].append("No technique ID given, so this was not checked against the instrument notes.")
+    elif tid not in knowledge.techniques():
+        rec["cautions"].append(f"Unknown technique ID '{tid}'; not checked against the instrument notes.")
+    elif tid not in own:
+        rec["cautions"].append(f"{knowledge.technique_name(tid)} is not among this instrument's typical "
+                               "techniques in the instrument notes; confirm with the contact that it can be done.")
+    else:
+        technique = knowledge.techniques()[tid]
+        rec["destructive"] = technique["destructive"].replace("_", " ") + (
+            f" ({technique['destructive_note']})" if technique.get("destructive_note") else "")
+        if own[tid]["confidence"] == "low":
+            rec["cautions"].append("This technique needs optional hardware that the dataset does not list.")
+        if not rec["accessories_to_confirm"]:
+            rec["accessories_to_confirm"] = knowledge.accessories_for(rec["id"], tid)
+    return rec
+
+
+def check_not_available(items: list) -> list[dict]:
+    """Annotated mode: flag "not available" techniques that a listed instrument does perform."""
+    checked = []
+    for item in items:
+        tid = str(item.get("technique_id") or "").strip()
+        checked.append({**item, "available_on": knowledge.instruments_for(tid) if tid else []})
+    return checked
+
+
 # --- read an answer (also used to re-score saved answers without calling the model) ---
 
 def new_result(mode: str, raw: str = "") -> dict:
@@ -268,11 +347,18 @@ def read_structured(result: dict) -> dict:
         return result
     result["json_ok"] = True
     result["schema_problems"] = validate_structured(parsed)
-    result["recommendations"], result["removed"] = check_recommendations(parsed.get("recommendations"))
+    recommendations = parsed.get("recommendations")
+    result["recommendations"], result["removed"] = check_recommendations(recommendations)
     result["instrument_ids"] = [rec["id"] for rec in result["recommendations"]]
     result["ids_source"] = "json"
     result["measurement_needs"] = list(parsed.get("measurement_needs") or [])
     result["not_available"] = [n for n in parsed.get("not_available") or [] if isinstance(n, dict)]
+    if result["mode"] == "annotated":
+        technique_ids = {str(r.get("instrument_id", "")).strip().upper(): r.get("technique_id")
+                         for r in recommendations or [] if isinstance(r, dict)}
+        for rec in result["recommendations"]:
+            check_against_annotations(rec, technique_ids.get(rec["id"]))
+        result["not_available"] = check_not_available(result["not_available"])
     result["clarifying_question"] = parsed.get("clarifying_question")
     result["summary"] = parsed.get("summary", "")
     return result
@@ -294,7 +380,7 @@ def read_naive(result: dict) -> dict:
 
 def read_answer(mode: str, raw: str) -> dict:
     result = new_result(mode, raw)
-    return read_structured(result) if mode == "structured" else read_naive(result)
+    return read_structured(result) if mode in JSON_MODES else read_naive(result)
 
 
 # --- run one question ---
@@ -327,21 +413,22 @@ def add_usage(first: dict, second: dict) -> dict:
 def _repair(result: dict, question: str, problems: list[str]) -> None:
     """Ask the model once to fix the format of its answer. The first answer is kept in first_raw and
     result["repaired"] is set, so first-try JSON validity can still be measured."""
-    first_raw, first_usage = result["raw"], result["usage"]
-    user = build_user_prompt(question, "structured") + "\n\n" + REPAIR_REQUEST.format(
+    first_raw, first_usage, mode = result["raw"], result["usage"], result["mode"]
+    user = build_user_prompt(question, mode) + "\n\n" + REPAIR_REQUEST.format(
         problems="; ".join(problems), raw=first_raw)
-    _call(result, STRUCTURED_SYSTEM, user, json_mode=True)
+    _call(result, SYSTEMS[mode], user, json_mode=True)
     result.update(repaired=True, first_raw=first_raw, usage=add_usage(first_usage, result["usage"]))
 
 
-def run_structured(question: str, repair: bool = True) -> dict:
+def run_structured(question: str, repair: bool = True, mode: str = "structured") -> dict:
     """Structured mode: rules + JSON schema; code checks and fills in each recommendation.
+    With mode="annotated", the prompt also has the instrument notes and code checks against them.
 
     If the answer is not JSON of the right shape and repair is on, the model gets one chance to fix it.
     """
-    result = new_result("structured")
+    result = new_result(mode)
     try:
-        _call(result, STRUCTURED_SYSTEM, build_user_prompt(question, "structured"), json_mode=True)
+        _call(result, SYSTEMS[mode], build_user_prompt(question, mode), json_mode=True)
     except Exception as exc:  # API errors are shown in the page, not raised
         result["error"] = f"{type(exc).__name__}: {exc}"
         return result
@@ -352,6 +439,11 @@ def run_structured(question: str, repair: bool = True) -> dict:
         except Exception:  # the repair call failed; read the first answer as it is
             pass
     return read_structured(result)
+
+
+def run_annotated(question: str, repair: bool = True) -> dict:
+    """Structured + annotations mode."""
+    return run_structured(question, repair, mode="annotated")
 
 
 def run_naive(question: str) -> dict:
