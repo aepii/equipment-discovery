@@ -31,7 +31,7 @@ RUNNERS = {"structured": core.run_structured, "naive": core.run_naive}
 CATEGORIES = ["named-instrument", "problem-only", "no-suitable-equipment", "accessory-trap",
               "misleading-keyword", "multi-step", "vague"]
 SCORE_COLUMNS = ["expected_hits", "expected_total", "recall", "unacceptable_hits", "unacceptable_ids",
-                 "unclassified_ids", "na_hits", "na_total", "accessory_hits", "accessory_total",
+                 "unclassified_ids", "expected_only_mentioned", "na_hits", "na_total", "accessory_hits", "accessory_total",
                  "asked_clarifying", "clarifying_ok", "contacts_ok", "contacts_total"]
 COLUMNS = ["question_id", "category", "status", "run"] + SCORE_COLUMNS + store.ANSWER_COLUMNS
 TRANSIENT = re.compile(r"\b(429|500|502|503|504)\b|rate.?limit|quota|unavailable|overloaded|timed? ?out",
@@ -57,12 +57,16 @@ def accessory_text(result: dict, eq_id: str) -> str:
     return result["raw"]
 
 
+ASKS_FOR_MORE = re.compile(r"\?|more (information|details?) (is|are) needed|please (specify|clarify|provide)"
+                           r"|could you (tell|clarify|specify|provide)", re.IGNORECASE)
+
+
 def asked_clarifying(result: dict) -> bool:
-    """Structured: the clarifying_question field. Naive: a heuristic (asks something, recommends nothing),
+    """Structured: the clarifying_question field. Naive: a heuristic (asks for more, recommends nothing),
     so check naive clarifying scores by hand."""
     if result["mode"] == "structured":
         return bool(result.get("clarifying_question"))
-    return "?" in result["raw"] and not result["instrument_ids"]
+    return bool(ASKS_FOR_MORE.search(result["raw"])) and not result["instrument_ids"]
 
 
 def contact_name(eq_id: str) -> str:
@@ -89,6 +93,8 @@ def score(question: dict, result: dict) -> dict:
         "unacceptable_hits": len(found & unacceptable),
         "unacceptable_ids": " ".join(sorted(found & unacceptable)),
         "unclassified_ids": " ".join(sorted(found - expected - acceptable - unacceptable)),
+        # Naive only: expected instruments named in the text but left off the "Recommended:" line. Check by hand.
+        "expected_only_mentioned": " ".join(sorted(expected & set(result["mentioned_ids"]) - found)),
         # Both modes are searched in the full answer, so a technique named in the summary counts too.
         "na_hits": count_matches(result["raw"], question["expected_not_available"]),
         "na_total": len(question["expected_not_available"]),

@@ -45,6 +45,23 @@ def test_score_naive_contacts():
     assert (s["contacts_ok"], s["contacts_total"]) == (1, 2)
 
 
+def test_score_flags_expected_instruments_only_mentioned():
+    raw = "No microscope can do this; the Instron 5967 or the hybrid rheometer could.\nRecommended: none"
+    s = run_eval.score(QUESTION, core.read_answer("naive", raw))
+    assert s["expected_hits"] == 0
+    assert s["expected_only_mentioned"] == "EQ15 EQ19"
+
+
+@pytest.mark.parametrize("raw, asked", [
+    ("What is your sample made of?", True),
+    ("More information is needed regarding your sample.\n\nRecommended: none", True),
+    ("None of the instruments are suitable.\n\nRecommended: none", False),
+    ("Is this OK? Use the DSC.\nRecommended: EQ18", False),  # recommends something, so not a clarifying answer
+])
+def test_naive_clarifying_heuristic(raw, asked):
+    assert run_eval.asked_clarifying(core.read_answer("naive", raw)) is asked
+
+
 def test_score_clarifying():
     vague = {**QUESTION, "expected_ids": [], "expect_clarifying": True}
     asked = structured([], clarifying_question="Which material?")

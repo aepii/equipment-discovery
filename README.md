@@ -95,9 +95,10 @@ app's log plus these scores:
 | `expected_hits` / `expected_total`, `recall` | expected instruments that were recommended |
 | `unacceptable_hits`, `unacceptable_ids` | recommended instruments that should not be |
 | `unclassified_ids` | recommended, but in no list of the question: review and add them to the test file |
+| `expected_only_mentioned` | naive only: expected instruments named in the answer but left off its `Recommended:` line; check by hand |
 | `na_hits` / `na_total` | expected "not available" techniques named anywhere in the answer (both modes) |
 | `accessory_hits` / `accessory_total` | expected accessories named for the recommended instruments (structured: in that instrument's `accessories_to_confirm`; naive: anywhere in the answer) |
-| `asked_clarifying`, `clarifying_ok` | asked a clarifying question, and whether that was expected (naive is a heuristic: a `?` and no instruments; check by hand) |
+| `asked_clarifying`, `clarifying_ok` | asked a clarifying question, and whether that was expected (naive is a heuristic: no instruments, and a `?` or a phrase like "more information is needed"; check by hand) |
 | `contacts_ok` / `contacts_total` | naive only: the correct contact name appears for each recommended instrument |
 
 `results/run_<time>_summary.csv` has one row per question x mode with consistency across runs
