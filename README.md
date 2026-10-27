@@ -34,7 +34,9 @@ streamlit run app.py
 Sidebar modes:
 - **Structured**: rules + JSON output. The model returns only instrument IDs; code fills in name,
   location and contact from the dataset and removes any ID that is not in the dataset (with a notice).
-- **Naive**: equipment list + question, no rules; the answer is shown as text.
+- **Naive**: equipment list (including contacts) + question, no rules, plus a plain request to give
+  the location and contact for each suggested instrument; the answer is shown as text. The model
+  copies contacts itself here, so naive answers can be checked for wrong or invented contacts.
 - **Compare both**: the two side by side.
 
 If `APP_PASSWORD` is set, the app asks for that password before showing anything.
@@ -48,16 +50,40 @@ If `APP_PASSWORD` is set, the app asks for that password before showing anything
    startup, so they override `.env` (which is never committed).
 4. Share the link and the password.
 
+## Logging and feedback
+
+Every answer is logged with what is needed to compare versions later: mode, provider, model,
+prompt version (hash of the system prompt), dataset version, git commit, response time, input /
+output / thinking tokens, whether the JSON parsed, instruments recommended (or, in naive mode,
+detected in the text), removed IDs, "not available" techniques, errors, the question and the raw
+output. Under each answer, a feedback form collects: overall Good/Bad and why, Good/Partly/Wrong per
+instrument, instruments that should have been recommended, and whether the "not available" part was
+right. Raters can enter their name in the sidebar.
+
+Rows go to two tabs, `answers` and `feedback` (joined on `answer_id`), of a Google Sheet. Without a
+sheet configured they go to `results/log.jsonl`. The sidebar shows which one is in use. Saving
+runs in the background; failures are printed in the server log and never break the app.
+
+Google Sheet setup (once):
+1. In Google Cloud Console, create a project, enable the **Google Sheets API** and the
+   **Google Drive API**, and create a **service account**. Under Keys, add a JSON key and download it.
+2. Create a Google Sheet and share it (Editor) with the service account's `client_email`.
+3. Locally: save the key as `service_account.json` (git-ignored) and set `GOOGLE_SHEET_ID` (the
+   long ID in the sheet URL) in `.env`. Deployed: add `GOOGLE_SHEET_ID` and paste the key file into
+   `GOOGLE_SERVICE_ACCOUNT_JSON` in the secrets (see `.streamlit/secrets.toml.example`).
+
 ## Run the evaluation
 
 ```
 python run_eval.py --runs 3                 # all questions, both modes
 python run_eval.py --runs 1 --modes structured
+python run_eval.py --runs 3 --log            # also log answers to the sheet (source "eval")
 ```
 
-Writes `results/run_<time>.csv` with, per question x mode x run: the instruments found, how many
-expected instruments were found (e.g. `2/3`), how many expected "not available" techniques were
-mentioned (e.g. micro-CT), removed IDs, errors and the full answer. Score manually from the CSV.
+Writes `results/run_<time>.csv` with, per question x mode x run: how many expected instruments were
+found (e.g. `2/3`), how many expected "not available" techniques were mentioned (e.g. micro-CT), and
+the same answer columns as the app's log (instruments, tokens, time, versions, full answer).
+Score manually from the CSV.
 Test questions and draft expected answers are in `test_questions.json`.
 
 ## Files
@@ -66,6 +92,7 @@ Test questions and draft expected answers are in `test_questions.json`.
 |---|---|
 | `app.py` | Streamlit interface |
 | `core.py` | Load dataset (IDs EQ01-EQ20 in row order), prompts, JSON parsing, answer checks |
-| `llm.py` | `complete(system, user, json_mode)` for gemini / openai / ollama / mock |
+| `llm.py` | `complete(system, user, json_mode)` for gemini / openai / ollama / mock; `complete_with_meta` adds tokens and time |
+| `store.py` | Answer and feedback rows; saves them to the Google Sheet or `results/log.jsonl` |
 | `run_eval.py` | Batch evaluation to CSV |
 | `test_questions.json` | Test questions with expected instrument IDs |
