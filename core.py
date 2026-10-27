@@ -58,6 +58,21 @@ def instrument_ids_in_text(text: str) -> list[str]:
     return [eq_id for eq_id, pattern in _instrument_patterns().items() if pattern.search(text)]
 
 
+_RECOMMENDED_LINE = re.compile(r"^\W*recommended\W*:(.*)$", re.IGNORECASE | re.MULTILINE)
+
+
+def recommended_line_ids(text: str) -> list[str] | None:
+    """IDs on the naive answer's last "Recommended:" line, as written (may include unknown IDs).
+
+    Returns None if the answer has no such line.
+    """
+    lines = _RECOMMENDED_LINE.findall(text)
+    if not lines:
+        return None
+    ids = [m.upper() for m in re.findall(r"\bEQ\d+\b", lines[-1], re.IGNORECASE)]
+    return list(dict.fromkeys(ids))
+
+
 @lru_cache(maxsize=1)
 def _instrument_patterns() -> dict[str, re.Pattern]:
     patterns = {}
@@ -131,8 +146,12 @@ Return ONLY a JSON object with exactly this shape:
 NAIVE_SYSTEM = "You are a helpful assistant."
 
 # Naive mode asks for location and contact in plain words, so its answers are comparable with
-# structured mode (where code fills them in from the ID).
-NAIVE_REQUEST = "For each instrument you suggest, include its location and contact."
+# structured mode (where code fills them in from the ID). The final "Recommended:" line only fixes the
+# format, so the evaluation can tell recommended instruments from instruments merely mentioned
+# (e.g. "TEM is destructive, so it is not suitable").
+NAIVE_REQUEST = """For each instrument you suggest, include its location and contact.
+End your answer with one line "Recommended: <IDs>" listing the IDs of the instruments you recommend
+(e.g. "Recommended: EQ03, EQ12"), or "Recommended: none"."""
 
 
 def build_user_prompt(question: str, mode: str = "structured") -> str:
@@ -183,6 +202,52 @@ def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]
     return checked, removed
 
 
+# --- read an answer (also used to re-score saved answers without calling the model) ---
+
+def new_result(mode: str, raw: str = "") -> dict:
+    return {"mode": mode, "raw": raw, "error": None, "usage": {}, "json_ok": None,
+            "recommendations": [], "removed": [], "instrument_ids": [], "mentioned_ids": [],
+            "ids_source": "", "not_available": [], "clarifying_question": None}
+
+
+def read_structured(result: dict) -> dict:
+    """Fill a structured result from its raw JSON: check IDs against the dataset, fill in fields."""
+    try:
+        parsed = parse_json(result["raw"])
+    except Exception as exc:
+        result["error"] = f"{type(exc).__name__}: {exc}"
+        result["json_ok"] = False if result["raw"] else None
+        return result
+    result["json_ok"] = True
+    result["recommendations"], result["removed"] = check_recommendations(parsed.get("recommendations"))
+    result["instrument_ids"] = [rec["id"] for rec in result["recommendations"]]
+    result["ids_source"] = "json"
+    result["measurement_needs"] = list(parsed.get("measurement_needs") or [])
+    result["not_available"] = [n for n in parsed.get("not_available") or [] if isinstance(n, dict)]
+    result["clarifying_question"] = parsed.get("clarifying_question")
+    result["summary"] = parsed.get("summary", "")
+    return result
+
+
+def read_naive(result: dict) -> dict:
+    """Find the instruments in a naive answer: from its "Recommended:" line if present, else by mention."""
+    known = equipment_by_id()
+    result["mentioned_ids"] = instrument_ids_in_text(result["raw"])
+    listed = recommended_line_ids(result["raw"])
+    if listed is None:
+        result["instrument_ids"], result["ids_source"] = result["mentioned_ids"], "mentions"
+    else:
+        result["instrument_ids"] = [eq_id for eq_id in known if eq_id in listed]
+        result["removed"] = [eq_id for eq_id in listed if eq_id not in known]
+        result["ids_source"] = "recommended_line"
+    return result
+
+
+def read_answer(mode: str, raw: str) -> dict:
+    result = new_result(mode, raw)
+    return read_structured(result) if mode == "structured" else read_naive(result)
+
+
 # --- run one question ---
 
 def _call(result: dict, system: str, question: str, json_mode: bool) -> None:
@@ -195,31 +260,20 @@ def _call(result: dict, system: str, question: str, json_mode: bool) -> None:
 
 def run_structured(question: str) -> dict:
     """Structured mode: rules + JSON schema; code checks and fills in each recommendation."""
-    result = {"mode": "structured", "raw": "", "error": None, "usage": {}, "json_ok": None,
-              "recommendations": [], "removed": [], "instrument_ids": []}
+    result = new_result("structured")
     try:
         _call(result, STRUCTURED_SYSTEM, question, json_mode=True)
-        parsed = parse_json(result["raw"])
-    except Exception as exc:  # API or parsing errors are shown in the page, not raised
+    except Exception as exc:  # API errors are shown in the page, not raised
         result["error"] = f"{type(exc).__name__}: {exc}"
-        result["json_ok"] = False if result["raw"] else None
         return result
-    result["json_ok"] = True
-    result["recommendations"], result["removed"] = check_recommendations(parsed.get("recommendations"))
-    result["instrument_ids"] = [rec["id"] for rec in result["recommendations"]]
-    result["measurement_needs"] = list(parsed.get("measurement_needs") or [])
-    result["not_available"] = [n for n in parsed.get("not_available") or [] if isinstance(n, dict)]
-    result["clarifying_question"] = parsed.get("clarifying_question")
-    result["summary"] = parsed.get("summary", "")
-    return result
+    return read_structured(result)
 
 
 def run_naive(question: str) -> dict:
     """Naive mode: equipment list + question, no rules, free text answer."""
-    result = {"mode": "naive", "raw": "", "error": None, "usage": {}, "instrument_ids": []}
+    result = new_result("naive")
     try:
         _call(result, NAIVE_SYSTEM, question, json_mode=False)
     except Exception as exc:
         result["error"] = f"{type(exc).__name__}: {exc}"
-    result["instrument_ids"] = instrument_ids_in_text(result["raw"])
-    return result
+    return read_naive(result)
