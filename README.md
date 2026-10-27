@@ -75,16 +75,60 @@ Google Sheet setup (once):
 ## Run the evaluation
 
 ```
-python run_eval.py --runs 3                 # all questions, both modes
+python run_eval.py --runs 3                       # all questions, both modes
 python run_eval.py --runs 1 --modes structured
-python run_eval.py --runs 3 --log            # also log answers to the sheet (source "eval")
+python run_eval.py --questions Q1 Q4 --runs 1     # a few questions
+python run_eval.py --category vague               # one category
+python run_eval.py --runs 3 --log                 # also log answers to the sheet (source "eval")
+python run_eval.py --rescore results/run_<time>.csv   # re-score saved answers, no model calls
+python run_eval.py --review-sheet                 # results/expected_answers_review.md for Stefan
 ```
 
-Writes `results/run_<time>.csv` with, per question x mode x run: how many expected instruments were
-found (e.g. `2/3`), how many expected "not available" techniques were mentioned (e.g. micro-CT), and
-the same answer columns as the app's log (instruments, tokens, time, versions, full answer).
-Score manually from the CSV.
-Test questions and draft expected answers are in `test_questions.json`.
+Use `LLM_PROVIDER=mock` to try it without spending API credits. Rate-limit and server errors are
+retried twice; other errors are kept and counted separately (they are left out of the averages).
+
+`results/run_<time>.csv` has one row per question x mode x run, with the same answer columns as the
+app's log plus these scores:
+
+| Column | Meaning |
+|---|---|
+| `expected_hits` / `expected_total`, `recall` | expected instruments that were recommended |
+| `unacceptable_hits`, `unacceptable_ids` | recommended instruments that should not be |
+| `unclassified_ids` | recommended, but in no list of the question: review and add them to the test file |
+| `na_hits` / `na_total` | expected "not available" techniques named anywhere in the answer (both modes) |
+| `accessory_hits` / `accessory_total` | expected accessories named for the recommended instruments (structured: in that instrument's `accessories_to_confirm`; naive: anywhere in the answer) |
+| `asked_clarifying`, `clarifying_ok` | asked a clarifying question, and whether that was expected (naive is a heuristic: a `?` and no instruments; check by hand) |
+| `contacts_ok` / `contacts_total` | naive only: the correct contact name appears for each recommended instrument |
+
+`results/run_<time>_summary.csv` has one row per question x mode with consistency across runs
+(`stable_runs` = runs that gave the most common instrument set, e.g. `3/3`; `mean_jaccard` = average
+overlap of the instrument sets; `id_frequency` = how often each ID was recommended), then one row per
+mode for reviewed, draft and all questions. The per-mode table is also printed.
+
+**Naive mode** ends its answer with a line `Recommended: <IDs>`, and only those count as
+recommendations (an instrument mentioned as unsuitable doesn't count). The IDs it mentions anywhere are
+kept in `mentioned_ids`; `ids_source` says which was used. Naive runs from before this change
+(different `prompt_version`) are not comparable with newer ones.
+
+### Test questions
+
+`test_questions.json` holds the questions and expected answers. Each question has an `id`, `category`
+(named-instrument, problem-only, no-suitable-equipment, accessory-trap, misleading-keyword,
+multi-step, vague), `status` (`draft` until Stefan has reviewed it, then `reviewed`), `expected_ids`,
+`acceptable_ids` (reasonable partial answers, not scored either way), `unacceptable_ids`,
+`expected_not_available` and `expected_accessories` (regex patterns, case-insensitive),
+`expect_clarifying` and `notes`. After changing expected answers, re-score earlier runs with
+`--rescore` instead of running the model again.
+
+## Tests
+
+```
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+The tests always use the mock model, so they need no API key and cost nothing. They also check
+`test_questions.json` (IDs exist, regexes compile, at least two questions per category).
 
 ## Files
 
@@ -94,5 +138,6 @@ Test questions and draft expected answers are in `test_questions.json`.
 | `core.py` | Load dataset (IDs EQ01-EQ20 in row order), prompts, JSON parsing, answer checks |
 | `llm.py` | `complete(system, user, json_mode)` for gemini / openai / ollama / mock; `complete_with_meta` adds tokens and time |
 | `store.py` | Answer and feedback rows; saves them to the Google Sheet or `results/log.jsonl` |
-| `run_eval.py` | Batch evaluation to CSV |
-| `test_questions.json` | Test questions with expected instrument IDs |
+| `run_eval.py` | Batch evaluation: scores, consistency summary, re-scoring, review sheet |
+| `test_questions.json` | Test questions with expected, acceptable and unacceptable instruments |
+| `tests/` | Unit tests (pytest, mock model) |
