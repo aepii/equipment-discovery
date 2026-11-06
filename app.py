@@ -6,6 +6,13 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 
 import streamlit as st
+import streamlit.components.v1 as components
+
+st.set_page_config(page_title="UMKC Equipment Discovery", layout="wide")
+
+tab1, tab2 = st.tabs(["Equipment Discovery", "Embedded Page"])
+
+with tab1:
 
 
 def load_secrets() -> None:
@@ -368,5 +375,12 @@ def main() -> None:
                 render_answer(answer)
     elif answers:
         render_answer(answers[0])
+
+with tab2:
+    components.iframe(
+        "https://granite-harrier-1qezz.ship.place/",
+        height=800,
+        scrolling=True,
+    )
 
 main()
