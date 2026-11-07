@@ -335,14 +335,15 @@ def _ollama_stream(system: str, user: str, model: str, usage: dict) -> Iterator[
 _MOCK_ANSWERS = {
     "viscous": {
         "measurement_needs": ["viscosity vs. temperature and shear rate", "thermal transitions", "thermal degradation / moisture"],
+        "objective_met": True,
         "recommendations": [
-            {"instrument_id": "EQ19", "technique_id": "rotational_rheometry", "technique": "Rotational rheology (temperature and shear-rate sweeps)",
+            {"instrument_id": "EQ19", "role": "primary", "technique_id": "rotational_rheometry", "technique": "Rotational rheology (temperature and shear-rate sweeps)",
              "why": "Shows how viscosity changes with temperature and shear rate.",
              "accessories_to_confirm": ["Temperature-control accessory (e.g. Peltier or environmental test chamber)", "Parallel-plate or cone-and-plate geometry"]},
-            {"instrument_id": "EQ18", "technique_id": "differential_scanning_calorimetry", "technique": "Differential scanning calorimetry",
+            {"instrument_id": "EQ18", "role": "primary", "technique_id": "differential_scanning_calorimetry", "technique": "Differential scanning calorimetry",
              "why": "Identifies melting, glass transition or crystallization that affects flow.",
              "accessories_to_confirm": ["Suitable pans and lids"]},
-            {"instrument_id": "EQ17", "technique_id": "thermogravimetric_analysis", "technique": "Thermogravimetric analysis",
+            {"instrument_id": "EQ17", "role": "primary", "technique_id": "thermogravimetric_analysis", "technique": "Thermogravimetric analysis",
              "why": "Checks for degradation, moisture or filler content.", "accessories_to_confirm": []},
         ],
         "not_available": [
@@ -354,11 +355,12 @@ _MOCK_ANSWERS = {
     },
     "compress": {
         "measurement_needs": ["compressive modulus of a porous scaffold"],
+        "objective_met": True,
         "recommendations": [
-            {"instrument_id": "EQ15", "technique_id": "compression_testing", "technique": "Uniaxial compression testing",
+            {"instrument_id": "EQ15", "role": "primary", "technique_id": "compression_testing", "technique": "Uniaxial compression testing",
              "why": "Measures the stress-strain response; stiffness is the slope of the linear region.",
              "accessories_to_confirm": ["Load cell with a suitable (low) capacity", "Compression platens"]},
-            {"instrument_id": "EQ99", "technique": "Made-up instrument (tests the removal notice)",
+            {"instrument_id": "EQ99", "role": "primary", "technique": "Made-up instrument (tests the removal notice)",
              "why": "This ID is not in the dataset.", "accessories_to_confirm": []},
         ],
         "not_available": [{"technique_id": "micro_computed_tomography", "technique": "Micro-CT", "why_useful": "Quantifies porosity and pore structure."}],
@@ -367,14 +369,30 @@ _MOCK_ANSWERS = {
     },
     "internal": {
         "measurement_needs": ["non-destructive 3D imaging of internal pore structure"],
+        "objective_met": False,
         "recommendations": [
-            {"instrument_id": "EQ08", "technique_id": "multiphoton_microscopy", "technique": "Multiphoton microscopy (partial option)",
+            {"instrument_id": "EQ08", "role": "supplementary", "technique_id": "multiphoton_microscopy", "technique": "Multiphoton microscopy (partial option)",
              "why": "Can image some depth into transparent or fluorescent samples only.",
              "accessories_to_confirm": ["Suitable objectives and laser lines"]},
         ],
         "not_available": [{"technique_id": "micro_computed_tomography", "technique": "Micro-CT", "why_useful": "Standard non-destructive method for internal 3D structure."}],
         "clarifying_question": None,
         "summary": "No fully suitable instrument is available. Micro-CT is not in the dataset. (Mock answer.)",
+    },
+    "roughness": {
+        "measurement_needs": ["quantitative RMS roughness over about 5 x 5 µm"],
+        "objective_met": False,
+        "recommendations": [
+            {"instrument_id": "EQ10", "role": "supplementary", "technique_id": "environmental_sem",
+             "technique": "Environmental SEM surface imaging (qualitative)",
+             "why": "Shows surface features but cannot give a numerical RMS roughness.",
+             "accessories_to_confirm": []},
+        ],
+        "not_available": [{"technique_id": "atomic_force_microscopy", "technique": "Atomic force microscopy (AFM)",
+                           "why_useful": "Standard method for nanoscale RMS roughness over micrometre areas."}],
+        "clarifying_question": None,
+        "summary": "No listed instrument can measure nanoscale RMS roughness; AFM would be needed and is not "
+                   "in the dataset. The ESEM can only show the surface qualitatively. (Mock answer.)",
     },
 }
 

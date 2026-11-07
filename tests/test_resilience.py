@@ -9,7 +9,8 @@ import llm
 import runtime
 
 GOOD = {"measurement_needs": ["x"], "recommendations": [
-    {"instrument_id": "EQ15", "technique": "compression", "why": "w", "accessories_to_confirm": ["platens"]}],
+    {"instrument_id": "EQ15", "role": "primary", "technique": "compression", "why": "w",
+     "accessories_to_confirm": ["platens"]}],
     "not_available": [{"technique": "micro-CT", "why_useful": "u"}], "clarifying_question": None, "summary": "s"}
 
 
@@ -34,6 +35,9 @@ def test_unknown_ids_are_not_a_shape_problem():
      '"accessories_to_confirm" must be a list of strings'),
     ({"not_available": ["micro-CT"]}, "not_available 1"),
     ({"clarifying_question": ["?"]}, '"clarifying_question"'),
+    ({"recommendations": [{"instrument_id": "EQ15", "technique": "t", "why": "w"}]}, '"role" must be'),
+    ({"recommendations": [{"instrument_id": "EQ15", "role": "best", "technique": "t", "why": "w"}]}, '"role" must be'),
+    ({"objective_met": "yes"}, '"objective_met" must be true or false'),
 ])
 def test_shape_problems_are_found(change, problem):
     assert any(problem in p for p in core.validate_structured({**GOOD, **change}))
@@ -191,3 +195,12 @@ def test_flag_defaults(monkeypatch):
 def test_mock_delay_is_used(monkeypatch):
     monkeypatch.setenv("MOCK_DELAY_S", "0.2")
     assert llm.complete_with_meta("s", "Question: viscous")["seconds"] >= 0.2
+
+
+def test_missing_role_is_repaired_and_else_counts_as_primary(monkeypatch):
+    no_role = {**GOOD, "recommendations": [{k: v for k, v in GOOD["recommendations"][0].items() if k != "role"}]}
+    prompts = fake_model(monkeypatch, [json.dumps(no_role), json.dumps(GOOD)])
+    assert core.run_structured("q")["repaired"] and '"role"' in prompts[1]
+    fake_model(monkeypatch, [json.dumps(no_role), json.dumps(no_role)])
+    result = core.run_structured("q")
+    assert result["primary_ids"] == ["EQ15"] and any('"role"' in p for p in result["schema_problems"])

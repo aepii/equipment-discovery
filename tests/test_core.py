@@ -7,10 +7,32 @@ import core
 
 # --- dataset ---
 
-def test_dataset_has_20_instruments_with_ids_in_row_order():
+def test_dataset_has_20_instruments_then_3_test_instruments():
     equipment = core.load_equipment()
-    assert [e["id"] for e in equipment] == [f"EQ{i:02d}" for i in range(1, 21)]
+    assert [e["id"] for e in equipment] == [f"EQ{i:02d}" for i in range(1, 24)]
     assert all(e["instrument"] and e["location"] and e["contact"] for e in equipment)
+    assert [e["fictional_test_instrument"] for e in equipment] == [False] * 20 + [True] * 3
+    assert all(e["installed_accessories"] == [] for e in equipment[:20])
+    assert core.equipment_by_id()["EQ21"]["installed_accessories"] == ["Environmental Test Chamber (ETC), P/N 534040.901"]
+
+
+def test_without_the_test_file_only_the_dataset_is_loaded(tmp_path):
+    equipment = core.load_equipment.__wrapped__(core.DATA_PATH, tmp_path / "missing.json")
+    assert len(equipment) == 20
+
+
+def test_installed_accessories_are_in_every_prompt_but_fictional_notes_are_not():
+    for mode in ("structured", "naive", "annotated"):
+        prompt = core.build_user_prompt("q", mode)
+        assert "Installed accessories: Environmental Test Chamber (ETC), P/N 534040.901" in prompt
+        assert "model-specific testing" not in prompt
+    assert '"Installed accessories: ...' in core.STRUCTURED_SYSTEM
+    assert "identical model" in core.STRUCTURED_SYSTEM and "identical model" in core.ANNOTATED_SYSTEM
+
+
+def test_test_instruments_found_by_id_or_model_not_by_shared_name():
+    assert core.instrument_ids_in_text("the hybrid rheometer") == ["EQ19"]
+    assert core.instrument_ids_in_text("the Discovery HR20 or EQ22, and an Olympus IX83") == ["EQ21", "EQ22", "EQ23"]
 
 
 def test_known_instruments_are_where_the_test_set_expects_them():
@@ -130,3 +152,47 @@ def test_api_errors_are_returned_not_raised(monkeypatch):
         result = run("anything")
         assert "Unknown LLM_PROVIDER" in result["error"]
         assert result["instrument_ids"] == []
+
+
+# --- primary vs. supplementary ---
+
+def test_prompts_define_roles_but_naive_stays_unguided():
+    for system in (core.STRUCTURED_SYSTEM, core.ANNOTATED_SYSTEM):
+        assert '"role": "primary"' in system and '"objective_met"' in system and "supplementary" in system
+    assert "supplementary" not in core.NAIVE_SYSTEM + core.NAIVE_REQUEST
+
+
+def test_read_structured_splits_roles_and_sets_objective_met():
+    recs = [{"instrument_id": "EQ15", "role": "primary", "technique": "t", "why": "w"},
+            {"instrument_id": "EQ10", "role": "supplementary", "technique": "t", "why": "w"}]
+    result = core.read_answer("structured", json.dumps({"recommendations": recs, "summary": "s"}))
+    assert (result["primary_ids"], result["supplementary_ids"]) == (["EQ15"], ["EQ10"])
+    assert result["instrument_ids"] == ["EQ15", "EQ10"] and result["objective_met"] is True
+    assert result["recommendations"][1]["role"] == "supplementary"
+
+
+@pytest.mark.parametrize("roles, claimed, met", [
+    (["supplementary"], True, False),  # no primary instrument: never met, whatever the model says
+    (["primary"], False, False),       # the model itself says it is not met
+    (["primary"], None, True),         # not given: met because an instrument is primary
+    ([], None, False),
+])
+def test_objective_met(roles, claimed, met):
+    recs = [{"instrument_id": "EQ10", "role": r, "technique": "t", "why": "w"} for r in roles]
+    answer = {"recommendations": recs, "summary": "s"}
+    if claimed is not None:
+        answer["objective_met"] = claimed
+    assert core.read_answer("structured", json.dumps(answer))["objective_met"] is met
+
+
+def test_naive_recommendations_all_count_as_primary():
+    result = core.read_answer("naive", "Use the DSC.\nRecommended: EQ18, EQ19")
+    assert result["primary_ids"] == ["EQ18", "EQ19"] and result["supplementary_ids"] == []
+    assert result["objective_met"] is True
+    assert core.read_answer("naive", "Nothing fits.\nRecommended: none")["objective_met"] is False
+
+
+def test_mock_roughness_answer_is_supplementary_only():
+    result = core.run_structured("I want to quantify the RMS roughness of a scaffold surface.")
+    assert result["primary_ids"] == [] and result["supplementary_ids"] == ["EQ10"]
+    assert result["objective_met"] is False and not result["schema_problems"]

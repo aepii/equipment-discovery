@@ -1,0 +1,35 @@
+{
+  "_about": "Fictional test instruments for model-specific testing (Stefan's suggestion, Oct 30). They are appended after the 20 instruments of dataset.xlsx as EQ21, EQ22, ... in this order. Like the dataset, they list manufacturer, model, installed accessories, location and contact, but not capabilities. Do not reorder: IDs depend on the order.",
+  "instruments": [
+    {
+      "instrument": "Hybrid rheometer",
+      "manufacturer": "TA Instruments",
+      "model": "Discovery HR20",
+      "notes": "Fictional test instrument added for model-specific testing (Stefan's suggestion, Oct 30).",
+      "location": "School of Science and Engineering – Polymer Processing Lab (fictional)",
+      "contact": "Jordan Ellis (SSE)",
+      "installed_accessories": ["Environmental Test Chamber (ETC), P/N 534040.901"],
+      "fictional_test_instrument": true
+    },
+    {
+      "instrument": "Upright optical microscope",
+      "manufacturer": "Olympus",
+      "model": "BX53",
+      "notes": "Fictional test instrument added for model-specific testing (Stefan's suggestion, Oct 30).",
+      "location": "School of Medicine – Histology Core (fictional)",
+      "contact": "Priya Shah (SOM)",
+      "installed_accessories": [],
+      "fictional_test_instrument": true
+    },
+    {
+      "instrument": "Inverted optical microscope",
+      "manufacturer": "Olympus",
+      "model": "IX83",
+      "notes": "Fictional test instrument added for model-specific testing (Stefan's suggestion, Oct 30).",
+      "location": "School of Biological and Chemical Sciences – Cell Imaging Lab (fictional)",
+      "contact": "Sam Okafor (SBS)",
+      "installed_accessories": [],
+      "fictional_test_instrument": true
+    }
+  ]
+}

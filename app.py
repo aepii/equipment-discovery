@@ -47,6 +47,7 @@ MODES = {
 MODE_LABELS = {"structured": "Structured", "annotated": "Structured + annotations", "naive": "Naive"}
 RUNNERS = {"structured": core.run_structured, "annotated": core.run_annotated, "naive": core.run_naive}
 RATINGS = ["Good", "Partly", "Wrong"]
+FICTIONAL_LABEL = "Fictional test instrument"
 
 
 def set_question(text: str) -> None:
@@ -97,7 +98,10 @@ def render_sidebar() -> str:
                    + (f" of ${runtime.daily_budget_usd():.2f}" if runtime.daily_budget_usd() else ""))
         with st.expander(f"Equipment in the dataset ({len(core.load_equipment())})"):
             st.dataframe(
-                [{"ID": e["id"], "Instrument": e["instrument"], "Location": e["location"],
+                [{"ID": e["id"],
+                  "Instrument": e["instrument"] + (f" ({FICTIONAL_LABEL})" if e["fictional_test_instrument"] else ""),
+                  "Location": e["location"],
+                  "Installed accessories": "; ".join(e["installed_accessories"]),
                   "Typical techniques (draft)": "; ".join(knowledge.technique_name(t)
                                                           for t in knowledge.techniques_of(e["id"]))}
                  for e in core.load_equipment()],
@@ -108,12 +112,15 @@ def render_sidebar() -> str:
 
 def render_recommendation(rec: dict) -> None:
     with st.container(border=True):
-        st.markdown(f"**{rec['instrument']}** · {rec['manufacturer']} {rec['model']} · `{rec['id']}`")
+        label = f" · :orange[**{FICTIONAL_LABEL}**]" if rec.get("fictional_test_instrument") else ""
+        st.markdown(f"**{rec['instrument']}** · {rec['manufacturer']} {rec['model']} · `{rec['id']}`{label}")
         st.markdown(f"**Technique:** {rec['technique']}")
         st.markdown(rec["why"])
         if rec.get("destructive"):
             st.markdown(f"**Destructive:** {rec['destructive']}")
         st.markdown(f"**Location:** {rec['location']}  \n**Contact (fictional):** {rec['contact']}")
+        if rec.get("installed_accessories"):
+            st.success("**Installed (listed in the dataset):** " + "; ".join(rec["installed_accessories"]))
         if rec["accessories_to_confirm"]:
             st.warning("**Confirm with the contact:** " + "; ".join(rec["accessories_to_confirm"]))
         for caution in rec.get("cautions", []):
@@ -159,12 +166,18 @@ def render_structured(result: dict) -> None:
         if result["removed"]:
             st.error("Removed recommendation(s) naming an instrument not in the dataset: "
                      + ", ".join(result["removed"]))
-        if result["recommendations"]:
-            st.markdown("**Recommended equipment**")
-            for rec in result["recommendations"]:
-                render_recommendation(rec)
-        elif not result.get("clarifying_question"):
-            st.warning("No suitable equipment was found in the dataset.")
+        if not result.get("objective_met") and not result.get("clarifying_question"):
+            missing = ", ".join(n.get("technique", "") for n in result.get("not_available", []))
+            st.warning("**No instrument in the dataset can perform this measurement.**"
+                       + (f" Suitable technique(s) not available: {missing}." if missing else ""))
+        sections = [("primary", "Can perform this measurement"),
+                    ("supplementary", "Complementary only: cannot perform the main measurement")]
+        for role, heading in sections:
+            recs = [rec for rec in result["recommendations"] if rec.get("role", "primary") == role]
+            if recs:
+                st.markdown(f"**{heading}**")
+                for rec in recs:
+                    render_recommendation(rec)
         if result.get("not_available"):
             st.markdown("**Suitable techniques not available in the dataset**")
             st.markdown("\n".join(f"- **{n.get('technique', '')}**: {n.get('why_useful', '')}"

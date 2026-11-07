@@ -4,6 +4,13 @@ Type a research or measurement question in plain language; the app suggests tech
 to instruments in the built-in dataset (`data/dataset.xlsx`), and shows location and contact for each.
 Contact names in the dataset are fictional.
 
+The dataset has Stefan's 20 instruments (EQ01-EQ20) plus 3 fictional test instruments (EQ21-EQ23,
+`data/test_instruments.json`) for testing whether the AI understands specific models and their installed
+accessories, e.g. a second Discovery HR20 rheometer with the Environmental Test Chamber installed.
+Instruments can list `installed_accessories`; those count as confirmed in every prompt, and anything else
+is still "confirm with the contact". The app labels test instruments "Fictional test instrument". See
+[`data/README.md`](data/README.md).
+
 ## Setup
 
 ```
@@ -46,6 +53,16 @@ Sidebar modes:
   available" technique is in fact listed for an instrument. See "Knowledge layer" below.
 - **Compare structured and naive** / **Compare all three**: side by side.
 
+**Primary vs. supplementary** (structured and annotated, from Stefan's feedback of Oct 31): each
+recommendation has a `role`. `primary` = the instrument can itself perform the measurement that answers
+the question; `supplementary` = useful context, preparation or a partial/qualitative view, but it cannot
+meet the objective on its own. The answer also has `objective_met` (false when nothing is primary). The
+page shows two sections, "Can perform this measurement" and "Complementary only: cannot perform the main
+measurement", and when the objective is not met a notice "No instrument in the dataset can perform this
+measurement" with the techniques that are not available. A missing or invalid role is a schema problem
+(so the repair call fixes it); if it is still missing it counts as primary. Naive mode gets no role
+instructions (it is the baseline), and every instrument it recommends counts as primary.
+
 If `APP_PASSWORD` is set, the app asks for that password before showing anything.
 
 ## Speed, cost and resilience
@@ -85,9 +102,12 @@ output, so they are checked like live ones (unknown IDs removed, contact and loc
   answer is shown, labelled with the recording date and model and the live error.
 - `DEMO_OFFLINE=1`: never call the model; only saved answers (e.g. no internet at the venue).
 
-A warning appears if the prompt or dataset changed since the answer was recorded.
+A warning appears if the prompt or dataset changed since the answer was recorded. The prompts and the
+dataset version changed with the primary/supplementary roles and the test instruments (Nov 7), so
+re-record with the real model: `python run_eval.py --record-demo`.
 
-For UI work with `LLM_PROVIDER=mock`: `MOCK_DELAY_S=3` makes each answer take 3 s, and `MOCK_FAIL=429:2`
+For UI work with `LLM_PROVIDER=mock` (canned answers for questions mentioning viscous, compress,
+internal or roughness; the roughness one shows the "Complementary only" section): `MOCK_DELAY_S=3` makes each answer take 3 s, and `MOCK_FAIL=429:2`
 makes the next 2 calls fail with error 429 (try `503:99` to see the saved-answer backup).
 
 ## Deploy (Streamlit Community Cloud)
@@ -106,7 +126,7 @@ prompt version (hash of the system prompt), dataset version, git commit, respons
 output / thinking tokens, cost, the model that answered (main or fallback), retries, whether the answer
 came from the model, the cache or the saved answers (`answer_source`), whether the JSON parsed or was
 repaired, instruments recommended (or, in naive mode,
-detected in the text), removed IDs, "not available" techniques, errors, the question and the raw
+detected in the text), which of them are primary and supplementary, `objective_met`, removed IDs, "not available" techniques, errors, the question and the raw
 output. Under each answer, a feedback form collects: overall Good/Bad and why, Good/Partly/Wrong per
 instrument, instruments that should have been recommended, and whether the "not available" part was
 right. Raters can enter their name in the sidebar.
@@ -138,16 +158,24 @@ python run_eval.py --review-sheet                 # results/expected_answers_rev
 Use `LLM_PROVIDER=mock` to try it without spending API credits. Rate-limit and server errors are
 retried inside each call (see "Speed, cost and resilience"), then the whole answer is retried twice more
 after 10 and 20 s; other errors are kept and counted separately (they are left out of the averages).
-The summary also has `repaired_rate` (structured answers that needed the repair call) and
-`total_cost_usd` (when prices are set).
+The summary also has `repaired_rate` (structured answers that needed the repair call),
+`false_primary_rate` (answers with at least one false primary), `objective_met_ok_rate` and
+`total_cost_usd` (when prices are set). In the printed table these are `falseP` and `no-obj`, and each
+printed answer line shows the primary IDs, then `+supplementary [...]` if there are any.
+
+Recall changed meaning with the roles (it now counts primary instruments only), so runs from before
+Nov 7 are not directly comparable; `--rescore` re-reads old answers, but those have no roles, so every
+recommendation counts as primary there.
 
 `results/run_<time>.csv` has one row per question x mode x run, with the same answer columns as the
-app's log plus these scores:
+app's log (including `primary_ids`, `supplementary_ids` and `objective_met`) plus these scores:
 
 | Column | Meaning |
 |---|---|
-| `expected_hits` / `expected_total`, `recall` | expected instruments that were recommended |
-| `unacceptable_hits`, `unacceptable_ids` | recommended instruments that should not be |
+| `expected_hits` / `expected_total`, `recall` | expected instruments recommended as **primary** (naive: every recommended instrument) |
+| `unacceptable_hits`, `unacceptable_ids` | recommended instruments (any role) that should not be |
+| `false_primary_hits`, `false_primary_ids` | primary instruments that are in `supplementary_only_ids` or `unacceptable_ids` |
+| `objective_met_ok` | only for questions with no expected instrument (and no clarifying question expected): the answer said `objective_met: false` (naive: `Recommended: none`) |
 | `unclassified_ids` | recommended, but in no list of the question: review and add them to the test file |
 | `expected_only_mentioned` | naive only: expected instruments named in the answer but left off its `Recommended:` line; check by hand |
 | `na_hits` / `na_total` | expected "not available" techniques named anywhere in the answer (both modes) |
@@ -169,8 +197,9 @@ kept in `mentioned_ids`; `ids_source` says which was used. Naive runs from befor
 
 `test_questions.json` holds the questions and expected answers. Each question has an `id`, `category`
 (named-instrument, problem-only, no-suitable-equipment, accessory-trap, misleading-keyword,
-multi-step, vague), `status` (`draft` until Stefan has reviewed it, then `reviewed`), `expected_ids`,
-`acceptable_ids` (reasonable partial answers, not scored either way), `unacceptable_ids`,
+multi-step, vague, model-specific), `status` (`draft` until Stefan has reviewed it, then `reviewed`), `expected_ids`,
+`acceptable_ids` (reasonable partial answers, not scored either way), optional `supplementary_only_ids`
+(fine as supplementary, wrong as primary), `unacceptable_ids`,
 `expected_not_available` and `expected_accessories` (regex patterns, case-insensitive),
 `expect_clarifying` and `notes`. After changing expected answers, re-score earlier runs with
 `--rescore` instead of running the model again.
@@ -184,7 +213,7 @@ of corrections to the first draft are in [`data/README.md`](data/README.md).
 |---|---|
 | `data/vocabulary.json` | Controlled vocabulary: property ids (e.g. `compressive_modulus`), technique kinds, sources, confidence levels, accessory and review statuses |
 | `data/techniques.json` | Technique knowledge base: what each technique measures (fully or `partial`ly), destructive or not, `requires_before` / `leads_to` workflow steps. Includes techniques not in the dataset (micro-CT, GPC, capillary rheometry, ...) |
-| `data/annotations.json` | Per instrument (EQ01-EQ20): techniques it typically performs (each with `source` and `confidence`), typical samples, limitations, accessories (`to_confirm` unless the dataset lists them), review status |
+| `data/annotations.json` | Per instrument (EQ01-EQ23): techniques it typically performs (each with `source` and `confidence`), typical samples, limitations, accessories (`to_confirm` unless the dataset lists them), review status |
 | `data/instrument_capabilities.xlsx` | Review copy for Stefan, generated from the JSON files |
 
 Annotations describe what this **type** of instrument typically does, never what is installed. Every
@@ -217,7 +246,7 @@ The tests always use the mock model, so they need no API key and cost nothing. T
 | File | Purpose |
 |---|---|
 | `app.py` | Streamlit interface |
-| `core.py` | Load dataset (IDs EQ01-EQ20 in row order), prompts, JSON parsing, answer checks |
+| `core.py` | Load dataset (IDs EQ01-EQ20 in row order) and test instruments (EQ21-EQ23), prompts, JSON parsing, answer checks |
 | `knowledge.py` | Load and check the knowledge files; lookups; instrument notes for the annotated prompt |
 | `scripts/draft_annotations.py` | Draft annotations with the LLM, check the knowledge files, export the review spreadsheet |
 | `data/vocabulary.json`, `data/techniques.json`, `data/annotations.json` | Knowledge layer (see above) |

@@ -35,8 +35,9 @@ QUESTIONS_PATH = ROOT / "test_questions.json"
 RESULTS_DIR = ROOT / "results"
 RUNNERS = {"structured": core.run_structured, "annotated": core.run_annotated, "naive": core.run_naive}
 CATEGORIES = ["named-instrument", "problem-only", "no-suitable-equipment", "accessory-trap",
-              "misleading-keyword", "multi-step", "vague"]
+              "misleading-keyword", "multi-step", "vague", "model-specific"]
 SCORE_COLUMNS = ["expected_hits", "expected_total", "recall", "unacceptable_hits", "unacceptable_ids",
+                 "false_primary_hits", "false_primary_ids", "objective_met_ok",
                  "unclassified_ids", "expected_only_mentioned", "na_hits", "na_total", "accessory_hits", "accessory_total",
                  "asked_clarifying", "clarifying_ok", "contacts_ok", "contacts_total"]
 COLUMNS = ["question_id", "category", "status", "run"] + SCORE_COLUMNS + store.ANSWER_COLUMNS
@@ -81,24 +82,35 @@ def contact_name(eq_id: str) -> str:
 
 
 def score(question: dict, result: dict) -> dict:
-    """Scores for one answer. Answers with an error get no scores (they are counted separately)."""
+    """Scores for one answer. Answers with an error get no scores (they are counted separately).
+
+    Recall counts only primary recommendations (naive: every recommended instrument). An instrument
+    that is only fine as a supplementary one, or not at all, counts as a false primary.
+    """
     if result["error"]:
         return {column: None for column in SCORE_COLUMNS}
-    found = set(result["instrument_ids"])
+    found, primary = set(result["instrument_ids"]), set(result["primary_ids"])
     expected, acceptable = set(question["expected_ids"]), set(question.get("acceptable_ids", []))
     unacceptable = set(question.get("unacceptable_ids", []))
+    supplementary_only = set(question.get("supplementary_only_ids", []))
+    false_primary = primary & (supplementary_only | unacceptable)
+    # Only for questions no listed instrument can answer: did the answer say so (objective_met false)?
+    no_answer_expected = not question["expected_ids"] and not question.get("expect_clarifying", False)
     accessories = {eq_id: patterns for eq_id, patterns in question.get("expected_accessories", {}).items()
                    if eq_id in found}
     asked = asked_clarifying(result)
     naive = result["mode"] == "naive"
-    hits = len(found & expected)
+    hits = len(primary & expected)
     return {
         "expected_hits": hits,
         "expected_total": len(expected),
         "recall": round(hits / len(expected), 3) if expected else None,
         "unacceptable_hits": len(found & unacceptable),
         "unacceptable_ids": " ".join(sorted(found & unacceptable)),
-        "unclassified_ids": " ".join(sorted(found - expected - acceptable - unacceptable)),
+        "false_primary_hits": len(false_primary),
+        "false_primary_ids": " ".join(sorted(false_primary)),
+        "objective_met_ok": (result["objective_met"] is False) if no_answer_expected else None,
+        "unclassified_ids": " ".join(sorted(found - expected - acceptable - unacceptable - supplementary_only)),
         # Naive only: expected instruments named in the text but left off the "Recommended:" line. Check by hand.
         "expected_only_mentioned": " ".join(sorted(expected & set(result["mentioned_ids"]) - found)),
         # Both modes are searched in the full answer, so a technique named in the summary counts too.
@@ -138,7 +150,7 @@ def consistency(id_sets: list[frozenset]) -> dict:
 # --- summary ---
 
 SUMMARY_COLUMNS = ["scope", "question_id", "mode", "answers", "errors", "json_ok_rate", "repaired_rate", "mean_recall",
-                   "unacceptable_rate", "na_rate", "accessory_rate", "clarifying_ok_rate", "contacts_rate",
+                   "unacceptable_rate", "false_primary_rate", "objective_met_ok_rate", "na_rate", "accessory_rate", "clarifying_ok_rate", "contacts_rate",
                    "mean_seconds", "mean_output_tokens", "total_cost_usd", "stable_runs", "mean_jaccard",
                    "id_frequency"]
 
@@ -178,6 +190,8 @@ def summarize_group(rows: list[dict]) -> dict:
         "repaired_rate": _mean(r["repaired"] for r in scored if r["mode"] in core.JSON_MODES),
         "mean_recall": _mean(r["recall"] for r in scored),
         "unacceptable_rate": _mean(int((_num(r["unacceptable_hits"]) or 0) > 0) for r in scored),
+        "false_primary_rate": _mean(int((_num(r.get("false_primary_hits")) or 0) > 0) for r in scored),
+        "objective_met_ok_rate": _mean(r.get("objective_met_ok") for r in scored),
         "na_rate": _ratio(scored, "na_hits", "na_total"),
         "accessory_rate": _ratio(scored, "accessory_hits", "accessory_total"),
         "clarifying_ok_rate": _mean(r["clarifying_ok"] for r in scored),
@@ -206,7 +220,8 @@ def summarize(rows: list[dict]) -> list[dict]:
     return summary
 
 
-PRINTED = [("mean_recall", "recall"), ("unacceptable_rate", "unacc"), ("na_rate", "n/a"),
+PRINTED = [("mean_recall", "recall"), ("unacceptable_rate", "unacc"), ("false_primary_rate", "falseP"),
+           ("objective_met_ok_rate", "no-obj"), ("na_rate", "n/a"),
            ("accessory_rate", "acc"), ("clarifying_ok_rate", "clar"), ("contacts_rate", "contact"),
            ("mean_seconds", "sec")]
 
@@ -270,7 +285,8 @@ def run(questions: list[dict], modes: list[str], runs: int, log: bool = False) -
                     store.save("answers", answer, background=False)
                 row = eval_row(q, n, answer, result)
                 rows.append(row)
-                print(f"{q['id']:<4} {mode:<10} run {n}: [{row['instrument_ids']}] "
+                supplementary = f" +supplementary [{row['supplementary_ids']}]" if row["supplementary_ids"] else ""
+                print(f"{q['id']:<4} {mode:<10} run {n}: [{row['primary_ids']}]{supplementary} "
                       f"expected {row['expected_hits']}/{row['expected_total']}, "
                       f"unacceptable {row['unacceptable_hits']}, not-available {row['na_hits']}/{row['na_total']}"
                       + (f"  ERROR {row['error']}" if row["error"] else ""))
@@ -299,7 +315,8 @@ def rescore(path: Path, questions: list[dict]) -> list[dict]:
         answer = {column: old.get(column, "") for column in store.ANSWER_COLUMNS}
         answer.update({key: fresh[key] for key in ("json_ok", "schema_problems", "clarifying_question",
                                                    "instrument_ids", "ids_source", "mentioned_ids", "removed_ids",
-                                                   "not_available", "error")})
+                                                   "not_available", "error", "primary_ids", "supplementary_ids",
+                                                   "objective_met")})
         rows.append(eval_row(q, int(old["run"]), answer, result))
     return rows
 
@@ -356,6 +373,7 @@ def review_sheet(questions: list[dict]) -> str:
             f"**Question:** {q['question']}", "",
             f"- **Expected:** {names(q['expected_ids'])}",
             f"- **Acceptable:** {names(q.get('acceptable_ids', []))}",
+            f"- **Complementary only (wrong as the main answer):** {names(q.get('supplementary_only_ids', []))}",
             f"- **Unacceptable:** {names(q.get('unacceptable_ids', []))}",
             f"- **Should be flagged as not available:** {terms(q['expected_not_available'])}",
             f"- **Accessories to confirm:** {accessories}",

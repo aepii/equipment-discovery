@@ -62,7 +62,16 @@ def test_instron_compression_needs_load_cell_and_platens_to_confirm():
 def test_only_dataset_facts_are_listed_as_installed():
     listed = [(a["id"], x["item"]) for a in knowledge.annotations().values()
               for x in a["accessories"] if x["status"] != "to_confirm"]
-    assert listed == [("EQ01", "two low-temperature heads, one high-temperature head, one UV-light head")]
+    assert listed == [("EQ01", "two low-temperature heads, one high-temperature head, one UV-light head"),
+                      ("EQ21", "Environmental Test Chamber (ETC), P/N 534040.901")]
+    for e in EQUIPMENT:  # every installed accessory of the test instruments is in its annotation
+        items = [x["item"] for x in knowledge.annotations()[e["id"]]["accessories"]]
+        assert set(e["installed_accessories"]) <= set(items)
+
+
+def test_installed_accessories_are_printed_once_in_the_annotated_prompt():
+    prompt = core.build_user_prompt("q", "annotated")
+    assert prompt.count("Environmental Test Chamber (ETC), P/N 534040.901") == 1
 
 
 def test_ultramicrotomy_leads_to_tem_which_requires_it():
@@ -143,7 +152,7 @@ def test_not_available_that_is_available_is_flagged():
         {"technique_id": "micro_computed_tomography", "technique": "Micro-CT"},
         {"technique_id": "rotational_rheometry", "technique": "Rheology"},
         {"technique_id": None, "technique": "Something else"}])
-    assert [n["available_on"] for n in result["not_available"]] == [[], ["EQ19"], []]
+    assert [n["available_on"] for n in result["not_available"]] == [[], ["EQ19", "EQ21"], []]
 
 
 def test_structured_mode_is_not_checked_against_the_notes():
@@ -197,6 +206,9 @@ def test_draft_prompt_lists_techniques_and_the_dataset_row():
     script = load_script()
     prompt = script.draft_prompt(core.equipment_by_id()["EQ01"])
     assert "micro_computed_tomography" in prompt and "Two low-temperature heads" in prompt
+    test_instrument = script.draft_prompt(core.equipment_by_id()["EQ21"])
+    assert "installed accessories: Environmental Test Chamber (ETC)" in test_instrument
+    assert "Discovery HR20" in test_instrument and "model-specific testing" not in test_instrument
 
 
 def test_export_writes_one_row_per_instrument(tmp_path):

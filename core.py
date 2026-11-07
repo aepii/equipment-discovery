@@ -14,18 +14,27 @@ import knowledge
 from llm import complete_with_meta, stream_with_meta
 
 DATA_PATH = Path(__file__).parent / "data" / "dataset.xlsx"
+TEST_INSTRUMENTS_PATH = Path(__file__).parent / "data" / "test_instruments.json"
 DEMO_ANSWERS_PATH = Path(__file__).parent / "data" / "demo_answers.json"
 SHEET = "Equipment list"
 FIELDS = ["instrument", "manufacturer", "model", "notes", "location", "contact"]
 # Modes whose answer is JSON in the structured schema. "annotated" = structured + instrument annotations.
 JSON_MODES = ("structured", "annotated")
+# A recommendation's role: "primary" = the instrument can itself perform the measurement that answers
+# the question; "supplementary" = useful context, preparation or a partial view only.
+ROLES = ("primary", "supplementary")
 
 
 # --- dataset ---
 
 @lru_cache(maxsize=1)
-def load_equipment(path: Path = DATA_PATH) -> tuple[dict, ...]:
-    """Read the equipment sheet. Each row gets a stable ID in row order: EQ01 ... EQ20."""
+def load_equipment(path: Path = DATA_PATH, test_path: Path = TEST_INSTRUMENTS_PATH) -> tuple[dict, ...]:
+    """The equipment sheet (stable IDs in row order: EQ01 ... EQ20), then the fictional test instruments
+    from test_path (EQ21, EQ22, ... in file order).
+
+    Every instrument has "installed_accessories" (a list; empty for the dataset rows, which don't record
+    them) and "fictional_test_instrument".
+    """
     sheet = openpyxl.load_workbook(path, read_only=True)[SHEET]
     rows = [r for r in sheet.iter_rows(min_row=2, values_only=True) if r and r[0]]
     equipment = []
@@ -33,12 +42,24 @@ def load_equipment(path: Path = DATA_PATH) -> tuple[dict, ...]:
         item = {"id": f"EQ{i:02d}"}
         for field, value in zip(FIELDS, row):
             item[field] = str(value).strip() if value is not None else ""
-        equipment.append(item)
+        equipment.append({**item, "installed_accessories": [], "fictional_test_instrument": False})
+    extras = json.loads(test_path.read_text(encoding="utf-8"))["instruments"] if test_path.exists() else []
+    for extra in extras:
+        equipment.append({"id": f"EQ{len(equipment) + 1:02d}",
+                          **{field: str(extra.get(field) or "").strip() for field in FIELDS},
+                          "installed_accessories": list(extra.get("installed_accessories", [])),
+                          "fictional_test_instrument": bool(extra.get("fictional_test_instrument"))})
     return tuple(equipment)
 
 
 def equipment_by_id() -> dict[str, dict]:
     return {item["id"]: item for item in load_equipment()}
+
+
+def prompt_notes(item: dict) -> str:
+    """The notes the model sees. A fictional test instrument's notes only say that it is fictional, which
+    would let the model treat it differently from the real ones, so they are left out of prompts."""
+    return "" if item.get("fictional_test_instrument") else item["notes"]
 
 
 def format_equipment_list(include_contacts: bool = False) -> str:
@@ -52,8 +73,10 @@ def format_equipment_list(include_contacts: bool = False) -> str:
         line = f"{e['id']} | {e['instrument']} | {e['manufacturer']} {e['model']} | {e['location']}"
         if include_contacts:
             line += f" | Contact: {e['contact']}"
-        if e["notes"]:
-            line += f" | Notes: {e['notes']}"
+        if e["installed_accessories"]:
+            line += f" | Installed accessories: {'; '.join(e['installed_accessories'])}"
+        if prompt_notes(e):
+            line += f" | Notes: {prompt_notes(e)}"
         lines.append(line)
     return "\n".join(lines)
 
@@ -80,10 +103,14 @@ def recommended_line_ids(text: str) -> list[str] | None:
 
 @lru_cache(maxsize=1)
 def _instrument_patterns() -> dict[str, re.Pattern]:
-    patterns = {}
+    """A name shared with an earlier instrument stays with that one (e.g. "Hybrid rheometer" is EQ19;
+    the test instrument EQ21 has the same name), so the later one is found by its ID or model only."""
+    patterns, claimed = {}, set()
     for e in load_equipment():
-        names = [e["id"], e["model"], e["instrument"]]
+        names = [e["model"], e["instrument"]]
         names += re.findall(r"\(([A-Z]{2,})\)", e["instrument"])  # e.g. TGA, DSC, ESEM
+        names = [e["id"]] + [n for n in names if n and n.lower() not in claimed]
+        claimed.update(n.lower() for n in names)
         alternatives = "|".join(re.escape(n) for n in names if n)
         patterns[e["id"]] = re.compile(rf"\b(?:{alternatives})\b", re.IGNORECASE)
     return patterns
@@ -104,7 +131,8 @@ def prompt_version(mode: str) -> str:
 
 @lru_cache(maxsize=1)
 def dataset_version() -> str:
-    return _short_hash(DATA_PATH.read_bytes())
+    test_instruments = TEST_INSTRUMENTS_PATH.read_bytes() if TEST_INSTRUMENTS_PATH.exists() else b""
+    return _short_hash(DATA_PATH.read_bytes() + test_instruments)
 
 
 @lru_cache(maxsize=1)
@@ -129,20 +157,32 @@ Rules:
    in instrument names alone.
 2. Recommend ONLY instruments from the equipment list, referenced by their ID (e.g. "EQ15").
    Never invent instruments or IDs.
-3. The list does NOT record installed accessories, fixtures or configurations. Never assume they
-   are installed. In "accessories_to_confirm", name the accessories the measurement typically needs
-   (e.g. a suitable load cell and compression platens) so the researcher can confirm them.
+3. The list records installed accessories only where an instrument says "Installed accessories: ...";
+   those count as confirmed. Never assume any other accessory, fixture or configuration is installed.
+   In "accessories_to_confirm", name the other accessories the measurement typically needs (e.g. a
+   suitable load cell and compression platens) so the researcher can confirm them. Prefer an
+   instrument whose installed configuration fits the measurement over an identical model whose
+   configuration is unknown.
 4. If a well-suited technique is not available on any listed instrument (e.g. micro-CT), list it
    in "not_available" and say why it would be useful.
 5. Point out limitations honestly (e.g. a method that is destructive or only works on certain samples).
 6. If the question is too vague to answer, set "clarifying_question" and return no recommendations.
 7. Do not give locations or contact names; the application adds them.
+8. Give every recommendation a "role":
+   - "primary": this instrument can itself perform the measurement that answers the question.
+   - "supplementary": it gives useful context, sample preparation or a partial or qualitative view,
+     but it cannot meet the stated objective on its own.
+   Never mark an instrument primary just because it is the closest available option. Set
+   "objective_met" to true only if at least one recommendation is primary. If none is primary, the
+   summary must first say plainly that no listed instrument can perform the requested measurement,
+   name the right technique under "not_available", and only then mention supplementary instruments.
 
 Return ONLY a JSON object with exactly this shape:
 {
   "measurement_needs": ["what needs to be measured"],
+  "objective_met": true,
   "recommendations": [
-    {"instrument_id": "EQ17", "technique": "...", "why": "one or two sentences",
+    {"instrument_id": "EQ17", "role": "primary", "technique": "...", "why": "one or two sentences",
      "accessories_to_confirm": ["..."]}
   ],
   "not_available": [{"technique": "...", "why_useful": "..."}],
@@ -165,14 +205,14 @@ End your answer with one line "Recommended: <IDs>" listing the IDs of the instru
 # reference list of techniques no listed instrument performs. The model also names technique IDs, so
 # code can check each recommendation against the instrument's notes.
 ANNOTATED_SYSTEM = STRUCTURED_SYSTEM.split("\n\nReturn ONLY")[0] + """
-8. Each instrument comes with draft notes: its typical techniques (with IDs such as
+9. Each instrument comes with draft notes: its typical techniques (with IDs such as
    "compression_testing"), what they measure, whether they are destructive, typical samples,
    limitations and accessories to confirm. The notes describe what this TYPE of instrument typically
-   does and are not yet reviewed. Use them, but do not treat accessories as installed unless the notes
-   say "Installed per the dataset". Techniques marked "only with optional hardware" need confirming.
-9. Instruments whose techniques measure nothing (printers, mills, sectioning) only make or prepare
+   does and are not yet reviewed. Use them, but do not treat accessories as installed unless the list
+   says "Installed accessories" or "Installed per the dataset". Techniques marked "only with optional hardware" need confirming.
+10. Instruments whose techniques measure nothing (printers, mills, sectioning) only make or prepare
    samples. Recommend them only when the researcher needs that step.
-10. "Techniques not available on any listed instrument" supports rule 4. Whenever one of them is the
+11. "Techniques not available on any listed instrument" supports rule 4. Whenever one of them is the
    standard method for the problem, or would answer it better than the listed instruments, list it in
    "not_available" with its ID, even if you also recommend a partial option. You may also name a
    technique that is not on the list, with "technique_id": null.
@@ -180,8 +220,9 @@ ANNOTATED_SYSTEM = STRUCTURED_SYSTEM.split("\n\nReturn ONLY")[0] + """
 Return ONLY a JSON object with exactly this shape:
 {
   "measurement_needs": ["what needs to be measured"],
+  "objective_met": true,
   "recommendations": [
-    {"instrument_id": "EQ17", "technique_id": "thermogravimetric_analysis", "technique": "...",
+    {"instrument_id": "EQ17", "role": "primary", "technique_id": "thermogravimetric_analysis", "technique": "...",
      "why": "one or two sentences", "accessories_to_confirm": ["..."]}
   ],
   "not_available": [{"technique_id": "micro_computed_tomography", "technique": "...", "why_useful": "..."}],
@@ -243,6 +284,8 @@ def validate_structured(parsed: dict) -> list[str]:
     for key in ("recommendations", "not_available"):
         if key in parsed and not isinstance(parsed[key], list):
             problems.append(f'"{key}" must be a list')
+    if parsed.get("objective_met") is not None and not isinstance(parsed["objective_met"], bool):
+        problems.append('"objective_met" must be true or false')
     for i, rec in enumerate(_list_of(parsed, "recommendations"), start=1):
         if not isinstance(rec, dict):
             problems.append(f"recommendation {i} must be an object")
@@ -250,6 +293,8 @@ def validate_structured(parsed: dict) -> list[str]:
         for field in ("instrument_id", "technique", "why"):
             if not isinstance(rec.get(field), str):
                 problems.append(f'recommendation {i}: "{field}" must be a string')
+        if rec.get("role") not in ROLES:
+            problems.append(f'recommendation {i}: "role" must be "primary" or "supplementary"')
         if not _is_str_list(rec.get("accessories_to_confirm", [])):
             problems.append(f'recommendation {i}: "accessories_to_confirm" must be a list of strings')
         if not isinstance(rec.get("technique_id"), (str, type(None))):
@@ -271,6 +316,7 @@ def structured_problems(raw: str) -> list[str]:
 def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]:
     """Keep only recommendations whose ID is in the dataset and fill in the dataset fields.
 
+    A missing or invalid role counts as primary (validate_structured reports it as a schema problem).
     Returns (checked recommendations, removed IDs).
     """
     known = equipment_by_id()
@@ -282,8 +328,10 @@ def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]
         if eq_id not in known:
             removed.append(eq_id or "(missing ID)")
             continue
+        role = rec.get("role")
         checked.append({
             **known[eq_id],
+            "role": role if role in ROLES else "primary",
             "technique": rec.get("technique", ""),
             "why": rec.get("why", ""),
             "accessories_to_confirm": list(rec.get("accessories_to_confirm") or []),
@@ -333,6 +381,7 @@ def check_not_available(items: list) -> list[dict]:
 def new_result(mode: str, raw: str = "") -> dict:
     return {"mode": mode, "raw": raw, "error": None, "usage": {}, "json_ok": None,
             "recommendations": [], "removed": [], "instrument_ids": [], "mentioned_ids": [],
+            "primary_ids": [], "supplementary_ids": [], "objective_met": None,
             "ids_source": "", "not_available": [], "clarifying_question": None,
             "repaired": False, "first_raw": "", "schema_problems": [], "source": "live", "demo": None}
 
@@ -350,6 +399,10 @@ def read_structured(result: dict) -> dict:
     recommendations = parsed.get("recommendations")
     result["recommendations"], result["removed"] = check_recommendations(recommendations)
     result["instrument_ids"] = [rec["id"] for rec in result["recommendations"]]
+    result["primary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "primary"]
+    result["supplementary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "supplementary"]
+    # Met only if some instrument is primary; the model can also say false itself.
+    result["objective_met"] = bool(result["primary_ids"]) and parsed.get("objective_met") is not False
     result["ids_source"] = "json"
     result["measurement_needs"] = list(parsed.get("measurement_needs") or [])
     result["not_available"] = [n for n in parsed.get("not_available") or [] if isinstance(n, dict)]
@@ -365,7 +418,10 @@ def read_structured(result: dict) -> dict:
 
 
 def read_naive(result: dict) -> dict:
-    """Find the instruments in a naive answer: from its "Recommended:" line if present, else by mention."""
+    """Find the instruments in a naive answer: from its "Recommended:" line if present, else by mention.
+
+    Naive mode has no roles (it is the unguided baseline), so every recommended instrument counts as primary.
+    """
     known = equipment_by_id()
     result["mentioned_ids"] = instrument_ids_in_text(result["raw"])
     listed = recommended_line_ids(result["raw"])
@@ -375,6 +431,8 @@ def read_naive(result: dict) -> dict:
         result["instrument_ids"] = [eq_id for eq_id in known if eq_id in listed]
         result["removed"] = [eq_id for eq_id in listed if eq_id not in known]
         result["ids_source"] = "recommended_line"
+    result["primary_ids"], result["supplementary_ids"] = list(result["instrument_ids"]), []
+    result["objective_met"] = bool(result["instrument_ids"]) if not result["error"] else None
     return result
 
 

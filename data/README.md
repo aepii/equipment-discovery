@@ -3,6 +3,7 @@
 | File | What it is | Edit by hand? |
 |---|---|---|
 | `dataset.xlsx` | Stefan's equipment list (20 instruments, IDs EQ01-EQ20 in row order) | No, it is the source data |
+| `test_instruments.json` | Fictional test instruments for model-specific testing, appended as EQ21, EQ22, EQ23 (see below) | Yes, but only append: IDs follow the file order |
 | `vocabulary.json` | Controlled vocabulary: property ids, technique kinds, sources, confidence, statuses | Yes: add a term here before using it |
 | `techniques.json` | Technique knowledge base, including techniques not in the dataset | Yes |
 | `annotations.json` | Instrument annotations (source of truth for capabilities) | Yes |
@@ -10,6 +11,33 @@
 | `demo_answers.json` | Saved answers for the live demo | No: `python run_eval.py --record-demo` |
 
 After any edit run `python scripts/draft_annotations.py check` (also run by `pytest`).
+
+## Fictional test instruments (EQ21-EQ23)
+
+Stefan (Oct 30) wants to test whether the AI understands specific instrument **models and their installed
+configurations**, not just instrument categories. Long-term, equipment owners would enter only
+manufacturer, model, installed accessories, location and contact, and the AI would work out the
+capabilities. `test_instruments.json` has that shape: `instrument`, `manufacturer`, `model`, `notes`,
+`location`, `contact`, `installed_accessories` (list) and `"fictional_test_instrument": true`.
+`dataset.xlsx` is not edited; `core.load_equipment` appends these after EQ20.
+
+| ID | Instrument | Model | Installed accessories | Tests |
+|---|---|---|---|---|
+| EQ21 | Hybrid rheometer | TA Instruments Discovery HR20 | Environmental Test Chamber (ETC), P/N 534040.901 | same model as EQ19, but its high-temperature configuration is known (Q18) |
+| EQ22 | Upright optical microscope | Olympus BX53 | none listed | upright: not for cells in well plates (Q19) |
+| EQ23 | Inverted optical microscope | Olympus IX83 | none listed | inverted: suits well plates (Q19) |
+
+- Every instrument now has `installed_accessories`; the 20 dataset instruments have `[]` (the dataset
+  doesn't record them). Every mode's prompt, naive included, prints `Installed accessories: ...` when
+  there are some. Structured and annotated mode treat them as confirmed; everything else is still
+  "confirm with the contact".
+- The notes of a test instrument only say it is fictional, so they are left out of prompts
+  (`core.prompt_notes`); the app labels these instruments "Fictional test instrument".
+- Their annotations were drafted by the LLM from manufacturer, model and installed accessories only
+  (`draft_annotations.py draft --ids EQ21 EQ22 EQ23`). Installed accessories have status
+  `listed_in_dataset` (source `dataset`); everything else is `llm_draft` / `to_confirm`.
+- Names shared with an earlier instrument (e.g. "Hybrid rheometer") stay with that instrument when
+  naive answers are searched for mentions, so a test instrument is found by its ID or model.
 
 ## How the pieces connect
 
