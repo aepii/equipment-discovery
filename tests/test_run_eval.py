@@ -196,3 +196,21 @@ def test_q20_mock_answer_keeps_the_esem_complementary():
     q20 = run_eval.select_questions(run_eval.load_questions(), ["Q20"], None)[0]
     s = run_eval.score(q20, core.run_structured(q20["question"]))
     assert s["objective_met_ok"] is True and s["false_primary_hits"] == 0 and s["na_hits"] == 1
+
+
+def test_make_charts_from_a_mock_run(tmp_path):
+    import importlib.util
+    from pathlib import Path
+    path = Path(__file__).parent.parent / "scripts" / "make_charts.py"
+    spec = importlib.util.spec_from_file_location("make_charts", path)
+    charts = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(charts)
+    rows = run_eval.run(run_eval.select_questions(run_eval.load_questions(), ["Q2", "Q20"], None),
+                        ["structured", "annotated", "naive"], runs=1)
+    run_eval.write_outputs(rows, tmp_path / "run_x.csv")
+    metrics = charts.mode_metrics(charts.read_csv(tmp_path / "run_x_summary.csv"), charts.read_csv(tmp_path / "run_x.csv"))
+    assert list(metrics) == ["structured", "annotated", "naive"]
+    assert metrics["annotated"]["Wrong main picks"] == 0 and metrics["annotated"]["answers"] == 2
+    charts.bar_chart(metrics, 2, tmp_path / "modes.png")
+    table = charts.table_chart(metrics, tmp_path / "time_cost.png")
+    assert (tmp_path / "modes.png").stat().st_size > 10_000 and table[0][0] == "Mode" and len(table) == 4

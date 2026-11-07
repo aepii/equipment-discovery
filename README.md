@@ -189,6 +189,20 @@ python run_eval.py --rescore results/run_<time>.csv   # re-score saved answers, 
 python run_eval.py --review-sheet                 # results/expected_answers_review.md for Stefan
 ```
 
+Poster results (`pip install -r requirements-dev.txt` for matplotlib):
+
+```
+python scripts/make_charts.py                     # newest results/run_*_summary.csv -> results/charts/*.png (300 dpi)
+python scripts/make_charts.py --summary results/run_<time>_rescored_summary.csv
+python scripts/before_after.py --before rows.json --question-id Q20   # results/before_afm.json, after_afm.json
+```
+
+`make_charts.py` draws one grouped bar chart per mode (expected instruments found, wrong main picks,
+unavailable techniques flagged, accessories named) and a table of median response time and cost, and
+writes the same numbers as CSV next to them. `before_after.py` saves logged answers of an older version
+(rows exported from the answers tab) next to fresh answers from the current code, for a before/after
+example. A short write-up of the latest run is in `results/FINDINGS.md` (not committed, like all of `results/`).
+
 Use `LLM_PROVIDER=mock` to try it without spending API credits. Rate-limit and server errors are
 retried inside each call (see "Speed, cost and resilience"), then the whole answer is retried twice more
 after 10 and 20 s; other errors are kept and counted separately (they are left out of the averages).
@@ -304,5 +318,6 @@ The tests always use the mock model, so they need no API key and cost nothing. T
 | `data/demo_answers.json` | Saved answers shown when the live model can't be used (`run_eval.py --record-demo`) |
 | `store.py` | Answer and feedback rows; saves them to the Google Sheet or `results/log.jsonl` |
 | `run_eval.py` | Batch evaluation: scores, consistency summary, re-scoring, review sheet, recording saved demo answers |
+| `scripts/make_charts.py`, `scripts/before_after.py` | Poster charts and the before/after example from evaluation results |
 | `test_questions.json` | Test questions with expected, acceptable and unacceptable instruments |
 | `tests/` | Unit tests (pytest, mock model) |
