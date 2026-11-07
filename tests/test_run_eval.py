@@ -190,3 +190,9 @@ def test_summary_has_cost_and_repair_rate():
             {"mode": "structured", "error": "ServerError: 503", "repaired": "", "cost_usd": "0.02", "json_ok": ""}]
     summary = run_eval.summarize_group(rows)
     assert summary["repaired_rate"] == 1.0 and summary["total_cost_usd"] == pytest.approx(0.03)
+
+
+def test_q20_mock_answer_keeps_the_esem_complementary():
+    q20 = run_eval.select_questions(run_eval.load_questions(), ["Q20"], None)[0]
+    s = run_eval.score(q20, core.run_structured(q20["question"]))
+    assert s["objective_met_ok"] is True and s["false_primary_hits"] == 0 and s["na_hits"] == 1

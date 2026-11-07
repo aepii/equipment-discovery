@@ -35,7 +35,7 @@ QUESTIONS_PATH = ROOT / "test_questions.json"
 RESULTS_DIR = ROOT / "results"
 RUNNERS = {"structured": core.run_structured, "annotated": core.run_annotated, "naive": core.run_naive}
 CATEGORIES = ["named-instrument", "problem-only", "no-suitable-equipment", "accessory-trap",
-              "misleading-keyword", "multi-step", "vague"]
+              "misleading-keyword", "multi-step", "vague", "model-specific"]
 SCORE_COLUMNS = ["expected_hits", "expected_total", "recall", "unacceptable_hits", "unacceptable_ids",
                  "false_primary_hits", "false_primary_ids", "objective_met_ok",
                  "unclassified_ids", "expected_only_mentioned", "na_hits", "na_total", "accessory_hits", "accessory_total",

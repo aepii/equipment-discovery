@@ -189,7 +189,7 @@ kept in `mentioned_ids`; `ids_source` says which was used. Naive runs from befor
 
 `test_questions.json` holds the questions and expected answers. Each question has an `id`, `category`
 (named-instrument, problem-only, no-suitable-equipment, accessory-trap, misleading-keyword,
-multi-step, vague), `status` (`draft` until Stefan has reviewed it, then `reviewed`), `expected_ids`,
+multi-step, vague, model-specific), `status` (`draft` until Stefan has reviewed it, then `reviewed`), `expected_ids`,
 `acceptable_ids` (reasonable partial answers, not scored either way), optional `supplementary_only_ids`
 (fine as supplementary, wrong as primary), `unacceptable_ids`,
 `expected_not_available` and `expected_accessories` (regex patterns, case-insensitive),

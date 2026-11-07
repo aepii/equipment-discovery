@@ -219,5 +219,61 @@
     "expected_accessories": {},
     "expect_clarifying": true,
     "notes": "Draft. No sample type or property; should ask a clarifying question."
+  },
+  {
+    "id": "Q18",
+    "category": "model-specific",
+    "status": "draft",
+    "question": "I need to measure the melt viscosity of a polymer at 280 °C. Which equipment at UMKC can perform this measurement?",
+    "expected_ids": ["EQ21"],
+    "acceptable_ids": [],
+    "supplementary_only_ids": ["EQ19"],
+    "unacceptable_ids": ["EQ01", "EQ18"],
+    "expected_not_available": [],
+    "expected_accessories": {"EQ21": ["parallel.plate|geometry|plate"]},
+    "expect_clarifying": false,
+    "notes": "From Stefan (Oct 30). EQ21 has the Environmental Test Chamber installed, so it can reach 280 °C. EQ19 is the same model with unconfirmed accessories: at most mention it as needing confirmation of a high-temperature accessory, never as the primary answer."
+  },
+  {
+    "id": "Q19",
+    "category": "model-specific",
+    "status": "draft",
+    "question": "I want to observe living cells growing in a standard tissue-culture well plate. Which microscope at UMKC should I use?",
+    "expected_ids": ["EQ23", "EQ13"],
+    "acceptable_ids": ["EQ07", "EQ09"],
+    "supplementary_only_ids": [],
+    "unacceptable_ids": ["EQ22", "EQ12", "EQ10", "EQ11"],
+    "expected_not_available": [],
+    "expected_accessories": {"EQ23": ["incubat|environmental|CO2|temperature|stage.top"]},
+    "expect_clarifying": false,
+    "notes": "From Stefan (Oct 30). Inverted microscopes suit well plates: the IX83 (EQ23) and the existing Nikon TE300 (EQ13). Upright BX53 (EQ22) and Nikon E800 (EQ12) do not. Live-cell work needs an incubation/environmental accessory to confirm. EQ13 being correct was raised with Stefan; confirm with him."
+  },
+  {
+    "id": "Q20",
+    "category": "no-suitable-equipment",
+    "status": "reviewed",
+    "question": "I have a polymer scaffold with a smooth-looking surface, but I suspect there are nanoscale differences in surface roughness between samples. I want to quantify the surface topography and determine the RMS roughness over areas of approximately 5 × 5 µm. What equipment at UMKC should I use?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "supplementary_only_ids": ["EQ10"],
+    "unacceptable_ids": [],
+    "expected_not_available": ["\\bAFM\\b|atomic force|profilomet"],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "notes": "From Stefan's app feedback (Oct 31). No listed instrument can give quantitative nanoscale RMS roughness; AFM is the right technique and is not available. The ESEM is complementary (qualitative surface imaging) and must not be primary."
+  },
+  {
+    "id": "Q21",
+    "category": "problem-only",
+    "status": "reviewed",
+    "question": "I have shape memory polymers of which I need to determine the force they can act when activated to go back to their original shape. How do I best do that?",
+    "expected_ids": ["EQ15"],
+    "acceptable_ids": ["EQ19"],
+    "supplementary_only_ids": ["EQ18"],
+    "unacceptable_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {"EQ15": ["temperature|environmental chamber|heat|thermal", "load cell"]},
+    "expect_clarifying": false,
+    "notes": "From Stefan's app feedback (Nov 5), rated Good. Constrained recovery-force testing on the universal testing system with temperature control to confirm. DSC is complementary: it finds thermal transitions, not necessarily the exact activation temperature. Ideally the answer notes it assumed thermal activation, since the activation mechanism was not stated."
   }
 ]
