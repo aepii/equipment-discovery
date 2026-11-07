@@ -86,6 +86,25 @@ def installed_for(eq_id: str, tech_id: str) -> list[str]:
             if tech_id in a["for"] and a["status"] in ("listed_in_dataset", "confirmed")]
 
 
+def _step(tech_id: str, when: str = "") -> dict:
+    """One workflow step: available on listed instruments, a bench step (no instrument needed) or missing."""
+    t = techniques().get(tech_id, {})
+    instruments = instruments_for(tech_id)
+    status = "available" if instruments else "bench_step" if t.get("kind") == "bench_step" else "missing"
+    # A step "when" something applies may be needed; only "always" makes it a hard requirement.
+    conditional = bool(when) and not when.lower().startswith("always")
+    return {"technique": tech_id, "name": technique_name(tech_id), "status": status,
+            "instruments": instruments, "when": when, "conditional": conditional}
+
+
+def workflow_for(tech_id: str) -> dict:
+    """The steps around a technique: "requires" (what must or may come first, with its condition) and
+    "leads_to" (what the result is used for), each labeled available / bench_step / missing."""
+    t = techniques().get(tech_id, {})
+    return {"requires": [_step(s["technique"], s.get("when", "")) for s in t.get("requires_before", [])],
+            "leads_to": [_step(s) for s in t.get("leads_to", [])]}
+
+
 def review_status(eq_id: str) -> str:
     return annotations().get(eq_id, {}).get("review", {}).get("status", "")
 

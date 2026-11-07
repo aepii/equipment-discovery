@@ -40,7 +40,8 @@ SCORE_COLUMNS = ["expected_hits", "expected_total", "recall", "unacceptable_hits
                  "false_primary_hits", "false_primary_ids", "objective_met_ok",
                  "unclassified_ids", "expected_only_mentioned", "na_hits", "na_total", "accessory_hits", "accessory_total",
                  "asked_clarifying", "clarifying_ok", "contacts_ok", "contacts_total",
-                 "fit_expected_good", "fit_expected_total", "fit_bad_low", "fit_bad_total"]
+                 "fit_expected_good", "fit_expected_total", "fit_bad_low", "fit_bad_total",
+                 "dead_end_flagged", "dead_end_ok", "workflow_hits", "workflow_total"]
 COLUMNS = ["question_id", "category", "status", "run"] + SCORE_COLUMNS + store.ANSWER_COLUMNS
 TRANSIENT = re.compile(r"\b(429|500|502|503|504)\b|rate.?limit|quota|unavailable|overloaded|timed? ?out",
                        re.IGNORECASE)
@@ -96,6 +97,38 @@ def fit_scores(question: dict, result: dict) -> dict:
             "fit_bad_low": sum(f == "low" for f in bad), "fit_bad_total": len(bad)}
 
 
+def workflow_scores(question: dict, result: dict) -> dict:
+    """Dead ends and prerequisite instruments (optional test fields expect_dead_end and workflow_ids).
+
+    A dead end counts as flagged when code marked one (annotated mode) or, for a question that expects
+    one, when the answer names the missing next step (an expected_not_available pattern), so all modes
+    can be compared. Avoiding a false dead end (expect_dead_end false) can only be checked in annotated
+    mode: no expected instrument may be marked a dead end. Prerequisite instruments count as named when
+    recommended, mentioned in the text, or listed in an annotated card's workflow.
+    """
+    expect = question.get("expect_dead_end")
+    annotated = result["mode"] == "annotated"
+    marked = [r["id"] for r in result["recommendations"] if r.get("dead_end")]
+    names_missing = count_matches(result["raw"], question["expected_not_available"]) > 0
+    if expect:
+        flagged = bool(marked) or names_missing
+    else:
+        flagged = bool(marked) if annotated else None
+    if expect is None:
+        ok = None
+    elif expect:
+        ok = flagged
+    else:
+        ok = not set(marked) & set(question["expected_ids"]) if annotated else None
+    wanted = set(question.get("workflow_ids", []))
+    workflow_text = " ".join(line for r in result["recommendations"] for line in r.get("workflow", []))
+    named = (set(result["instrument_ids"]) | set(core.instrument_ids_in_text(result["raw"]))
+             | set(re.findall(r"\bEQ\d+\b", workflow_text)))
+    return {"dead_end_flagged": flagged, "dead_end_ok": ok,
+            "workflow_hits": len(wanted & named) if wanted else None,
+            "workflow_total": len(wanted) if wanted else None}
+
+
 def score(question: dict, result: dict) -> dict:
     """Scores for one answer. Answers with an error get no scores (they are counted separately).
 
@@ -140,6 +173,7 @@ def score(question: dict, result: dict) -> dict:
         "contacts_ok": sum(contact_name(eq_id) in result["raw"] for eq_id in found) if naive else None,
         "contacts_total": len(found) if naive else None,
         **fit_scores(question, result),
+        **workflow_scores(question, result),
     }
 
 
@@ -167,7 +201,7 @@ def consistency(id_sets: list[frozenset]) -> dict:
 
 SUMMARY_COLUMNS = ["scope", "question_id", "mode", "answers", "errors", "json_ok_rate", "repaired_rate", "mean_recall",
                    "unacceptable_rate", "false_primary_rate", "objective_met_ok_rate", "fit_expected_good_rate",
-                   "fit_bad_low_rate", "na_rate", "accessory_rate", "clarifying_ok_rate", "contacts_rate",
+                   "fit_bad_low_rate", "dead_end_ok_rate", "workflow_rate", "na_rate", "accessory_rate", "clarifying_ok_rate", "contacts_rate",
                    "mean_seconds", "mean_output_tokens", "total_cost_usd", "stable_runs", "mean_jaccard",
                    "id_frequency"]
 
@@ -212,6 +246,8 @@ def summarize_group(rows: list[dict]) -> dict:
         # Annotated only: share of expected instruments rated high/medium, of bad picks rated low.
         "fit_expected_good_rate": _ratio(scored, "fit_expected_good", "fit_expected_total"),
         "fit_bad_low_rate": _ratio(scored, "fit_bad_low", "fit_bad_total"),
+        "dead_end_ok_rate": _mean(r.get("dead_end_ok") for r in scored),
+        "workflow_rate": _ratio(scored, "workflow_hits", "workflow_total"),
         "na_rate": _ratio(scored, "na_hits", "na_total"),
         "accessory_rate": _ratio(scored, "accessory_hits", "accessory_total"),
         "clarifying_ok_rate": _mean(r["clarifying_ok"] for r in scored),
@@ -399,6 +435,8 @@ def review_sheet(questions: list[dict]) -> str:
             f"- **Should be flagged as not available:** {terms(q['expected_not_available'])}",
             f"- **Accessories to confirm:** {accessories}",
             f"- **Should ask a clarifying question:** {'yes' if q.get('expect_clarifying') else 'no'}",
+            *([f"- **Dead end expected:** {'yes' if q['expect_dead_end'] else 'no'}"] if "expect_dead_end" in q else []),
+            *([f"- **Prerequisite instruments to name:** {names(q['workflow_ids'])}"] if q.get("workflow_ids") else []),
             f"- **Notes:** {q.get('notes', '')}",
             "- **Reviewer comments:** ", "",
         ]

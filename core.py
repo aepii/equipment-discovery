@@ -373,6 +373,63 @@ def check_against_annotations(rec: dict, technique_id) -> dict:
     return rec
 
 
+PREPARING_KINDS = ("sample_preparation", "fabrication")  # measure nothing; only useful before another step
+
+
+def _either(items: list[str]) -> str:
+    """"A", "A or B", "A, B or C"."""
+    return " or ".join([", ".join(items[:-1]), items[-1]]) if len(items) > 1 else "".join(items)
+
+
+def _who(eq_ids: list[str]) -> str:
+    """"Ultramicrotome (EQ16), Jamie Collins (SOP)" for up to two instruments, from the dataset."""
+    known = equipment_by_id()
+    return "; ".join(f"{known[i]['instrument']} ({i}), {known[i]['contact']}" for i in eq_ids[:2])
+
+
+def _step_line(step: dict) -> str:
+    where = {"available": _who(step["instruments"]),
+             "bench_step": "a lab bench step, no instrument needed",
+             "missing": "not available in the dataset"}[step["status"]]
+    need = "May need" if step["conditional"] else "Needs"
+    when = f" ({step['when']})" if step["when"] and step["conditional"] else ""
+    return f"{need} {step['name']} first{when}: {where}."
+
+
+def check_workflow(rec: dict, recommendations: list[dict]) -> dict:
+    """Annotated mode, after check_against_annotations: the steps around the recommended technique.
+
+    Adds "workflow" (lines for the card: prerequisites with instrument and contact; for preparation and
+    fabrication, what the result is used for) and "dead_end" (a reason, or ""). A dead end is a
+    preparation or fabrication step whose follow-up is not available or not among the recommended
+    instruments, or a step whose unconditional prerequisite is missing. A dead end is never primary.
+    """
+    tid = rec.get("technique_id", "")
+    rec.update(workflow=[], dead_end="")
+    if tid not in knowledge.techniques_of(rec["id"]):
+        return rec
+    flow = knowledge.workflow_for(tid)
+    rec["workflow"] = [_step_line(step) for step in flow["requires"]]
+    blocking = [s for s in flow["requires"] if s["status"] == "missing" and not s["conditional"]]
+    if blocking:
+        rec["dead_end"] = (f"Dead end: {blocking[0]['name']} must come first, "
+                           "which is not available in the dataset.")
+    elif knowledge.techniques()[tid]["kind"] in PREPARING_KINDS and flow["leads_to"]:
+        others = {r["id"] for r in recommendations if r is not rec}
+        followed = [s for s in flow["leads_to"] if set(s["instruments"]) & others]
+        missing = [s["name"] for s in flow["leads_to"] if s["status"] == "missing"]
+        available = [f"{s['name']} ({', '.join(s['instruments'])})" for s in flow["leads_to"] if s["instruments"]]
+        rec["workflow"].append("Leads to: " + "; ".join(available + [f"{m} (not available)" for m in missing]) + ".")
+        if not followed:
+            rec["dead_end"] = (f"Dead end: this step is only useful if {_either(missing)} follows, which is not "
+                               "available in the dataset." if missing else
+                               f"Dead end here: this step is only useful if {_either(available)} follows, "
+                               "and none of those instruments is recommended in this answer.")
+    if rec["dead_end"]:
+        rec["role"] = "supplementary"
+    return rec
+
+
 FIT_LEVELS = ("high", "medium", "low")
 
 
@@ -391,6 +448,8 @@ def assign_fit(rec: dict) -> dict:
 
     tid, eq_id = rec.get("technique_id", ""), rec["id"]
     own = knowledge.techniques_of(eq_id)
+    if rec.get("dead_end"):  # first: a dead end is also made supplementary, but this reason is more specific
+        return fit("low", rec["dead_end"])
     if rec.get("role") == "supplementary":
         return fit("low", "Complementary only: cannot perform the main measurement.")
     if not tid:
@@ -403,8 +462,6 @@ def assign_fit(rec: dict) -> dict:
     if own[tid]["confidence"] == "low":
         hardware = _listing(knowledge.accessories_for(eq_id, tid)) or "extra hardware"
         return fit("low", f"Needs optional hardware ({hardware}) not listed in the dataset.")
-    if rec.get("dead_end"):
-        return fit("low", rec["dead_end"])
     technique = knowledge.techniques()[tid]
     prop = rec.get("property_id", "")
     if prop in technique.get("partial", {}) and prop not in technique["measures"]:
@@ -456,10 +513,6 @@ def read_structured(result: dict) -> dict:
     recommendations = parsed.get("recommendations")
     result["recommendations"], result["removed"] = check_recommendations(recommendations)
     result["instrument_ids"] = [rec["id"] for rec in result["recommendations"]]
-    result["primary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "primary"]
-    result["supplementary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "supplementary"]
-    # Met only if some instrument is primary; the model can also say false itself.
-    result["objective_met"] = bool(result["primary_ids"]) and parsed.get("objective_met") is not False
     result["ids_source"] = "json"
     result["measurement_needs"] = list(parsed.get("measurement_needs") or [])
     result["not_available"] = [n for n in parsed.get("not_available") or [] if isinstance(n, dict)]
@@ -469,8 +522,15 @@ def read_structured(result: dict) -> dict:
         for rec in result["recommendations"]:
             check_against_annotations(rec, given[rec["id"]].get("technique_id"))
             rec["property_id"] = str(given[rec["id"]].get("property_id") or "").strip()
+        for rec in result["recommendations"]:  # after all are checked: the workflow looks at the others
+            check_workflow(rec, result["recommendations"])
             assign_fit(rec)
         result["not_available"] = check_not_available(result["not_available"])
+    # Roles are read last: the workflow check can turn a dead end into a supplementary recommendation.
+    result["primary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "primary"]
+    result["supplementary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "supplementary"]
+    # Met only if some instrument is primary; the model can also say false itself.
+    result["objective_met"] = bool(result["primary_ids"]) and parsed.get("objective_met") is not False
     result["clarifying_question"] = parsed.get("clarifying_question")
     result["summary"] = parsed.get("summary", "")
     return result

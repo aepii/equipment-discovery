@@ -142,9 +142,10 @@ def render_details(rec: dict) -> None:
             st.markdown(badge("Installed", "green") + " " + "; ".join(rec["installed_accessories"]))
         if rec["accessories_to_confirm"]:
             st.markdown(badge("Confirm with contact", "orange") + " " + "; ".join(rec["accessories_to_confirm"]))
+        if rec.get("dead_end"):
+            st.warning(rec["dead_end"])
         if rec.get("workflow"):
-            style = st.warning if rec.get("dead_end") else st.markdown
-            style("**Workflow:** " + " ".join(rec["workflow"]))
+            st.markdown("**Workflow**\n" + "\n".join(f"- {line}" for line in rec["workflow"]))
         for caution in rec.get("cautions", []):
             st.markdown(f"- {caution}")
         if rec.get("notes_status") == "draft":

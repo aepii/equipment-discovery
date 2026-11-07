@@ -297,3 +297,76 @@ def test_eval_fit_scores_separate_good_and_bad_picks():
     assert (s["fit_expected_good"], s["fit_expected_total"]) == (1, 1)
     assert (s["fit_bad_low"], s["fit_bad_total"]) == (1, 2)  # EQ01 is low; EQ18 as primary is medium
     assert run_eval.score(question, core.read_answer("naive", "Recommended: EQ15"))["fit_expected_total"] is None
+
+
+# --- workflow check and dead ends (annotated mode) ---
+
+def test_workflow_for_labels_steps():
+    tem = knowledge.workflow_for("transmission_electron_microscopy")["requires"]
+    by_step = {s["technique"]: s for s in tem}
+    assert by_step["ultramicrotomy"]["status"] == "available" and by_step["ultramicrotomy"]["instruments"] == ["EQ16"]
+    assert by_step["negative_staining"]["status"] == "bench_step"
+    assert all(s["conditional"] for s in tem)  # "for tissue, ..." is a condition, never a blocker
+    assert knowledge.workflow_for("dynamic_light_scattering")["requires"][0]["conditional"] is False  # "always"
+    milling = {s["technique"]: s["status"] for s in knowledge.workflow_for("milling")["leads_to"]}
+    assert milling["x_ray_diffraction"] == "missing" and milling["thermogravimetric_analysis"] == "available"
+
+
+def rec_for(eq_id, technique_id) -> dict:
+    return {"instrument_id": eq_id, "role": "primary", "technique_id": technique_id, "technique": "t", "why": "w"}
+
+
+def test_tem_workflow_names_the_ultramicrotome_and_its_contact():
+    tem = annotated([rec_for("EQ11", "transmission_electron_microscopy")])["recommendations"][0]
+    contact = core.equipment_by_id()["EQ16"]["contact"]
+    assert any("May need Ultramicrotomy" in line and f"(EQ16), {contact}" in line for line in tem["workflow"])
+    assert tem["dead_end"] == "" and tem["role"] == "primary"
+
+
+def test_milling_alone_is_a_dead_end_and_not_primary():
+    result = annotated([rec_for("EQ05", "milling")], objective_met=True)
+    mill = result["recommendations"][0]
+    assert mill["dead_end"].startswith("Dead end: this step is only useful if")
+    assert "X-ray diffraction" in mill["dead_end"]
+    assert mill["role"] == "supplementary" and mill["fit"] == "low" and mill["fit_reason"] == mill["dead_end"]
+    assert result["primary_ids"] == [] and result["objective_met"] is False
+
+
+def test_milling_followed_by_a_recommended_measurement_is_not_a_dead_end():
+    result = annotated([rec_for("EQ05", "milling"), rec_for("EQ17", "thermogravimetric_analysis")])
+    assert result["recommendations"][0]["dead_end"] == "" and result["primary_ids"] == ["EQ05", "EQ17"]
+
+
+def test_bioprinter_alone_is_a_dead_end_here():
+    printer = annotated([rec_for("EQ01", "extrusion_bioprinting")])["recommendations"][0]
+    assert printer["dead_end"].startswith("Dead end here") and "(EQ15)" in printer["dead_end"]
+
+
+def test_conditional_missing_prerequisite_is_not_a_dead_end():
+    esem = annotated([rec_for("EQ10", "environmental_sem")])["recommendations"][0]  # sputter coating is optional
+    assert esem["dead_end"] == "" and "not available in the dataset" in esem["workflow"][0]
+
+
+def test_unconditional_missing_prerequisite_is_a_dead_end(monkeypatch):
+    techs = copy.deepcopy(knowledge.techniques())
+    techs["thermogravimetric_analysis"]["requires_before"] = [{"technique": "x_ray_diffraction", "when": "always"}]
+    monkeypatch.setattr(knowledge, "techniques", lambda: techs)
+    tga = annotated([rec_for("EQ17", "thermogravimetric_analysis")])["recommendations"][0]
+    assert tga["dead_end"].startswith("Dead end: X-ray diffraction") and tga["role"] == "supplementary"
+
+
+def test_eval_dead_end_and_workflow_scores():
+    q23 = run_eval.select_questions(run_eval.load_questions(), ["Q23"], None)[0]
+    s = run_eval.score(q23, annotated([rec_for("EQ05", "milling")]))
+    assert s["dead_end_flagged"] is True and s["dead_end_ok"] is True and s["false_primary_hits"] == 0
+    naive = core.read_answer("naive", "Grind it in the IKA A11. Identifying phases needs XRD, not listed.\nRecommended: EQ05")
+    assert run_eval.score(q23, naive)["dead_end_ok"] is True  # names the missing next step
+    assert run_eval.score(q23, core.read_answer("naive", "Use the mill.\nRecommended: EQ05"))["dead_end_ok"] is False
+
+    q24 = run_eval.select_questions(run_eval.load_questions(), ["Q24"], None)[0]
+    assert run_eval.score(q24, annotated([rec_for("EQ10", "environmental_sem")]))["dead_end_ok"] is True
+    assert run_eval.score(q24, core.read_answer("naive", "Recommended: EQ10"))["dead_end_ok"] is None
+
+    q14 = run_eval.select_questions(run_eval.load_questions(), ["Q14"], None)[0]
+    s = run_eval.score(q14, annotated([rec_for("EQ11", "transmission_electron_microscopy")]))
+    assert (s["workflow_hits"], s["workflow_total"]) == (1, 1)  # EQ16 is named in the TEM workflow

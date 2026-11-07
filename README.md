@@ -84,6 +84,19 @@ reason below, and destructive (**Destroys sample** / **Non-destructive** / **Dep
 instrument) is in a collapsed **Details** section. Structured mode has no technique IDs, so it shows
 no fit level, only the role and a highlighted "Confirm with the contact" line; naive mode shows text only.
 
+**Workflow check and dead ends** (annotated mode only). `techniques.json` links techniques with
+`requires_before` (with a `when` condition) and `leads_to`. `knowledge.workflow_for()` labels each step
+`available` (with instruments), `bench_step` (a lab procedure, no instrument needed) or `missing`. For each
+recommendation, code adds a **Workflow** list to the card's Details, e.g. "May need Ultramicrotomy first
+(for tissue, cells or bulk polymer samples): Ultramicrotome (EQ16), Jamie Collins (SOP)". Steps with a
+condition are "may need", never blockers. It is a **dead end** (red badge, fit low, role forced to
+supplementary) when:
+- a preparation or fabrication step (mill, printer, sectioning) has no available follow-up among the
+  answer's recommendations, e.g. milling bone when phase identification needs XRD, which is not listed; or
+- an unconditional prerequisite is missing from the dataset (and is not a bench step).
+
+The dead-end rule is checked before the "supplementary" fit rule, so the card shows the specific reason.
+
 If `APP_PASSWORD` is set, the app asks for that password before showing anything.
 
 ## Speed, cost and resilience
@@ -209,6 +222,15 @@ app's log (including `primary_ids`, `supplementary_ids` and `objective_met`) plu
 The answer columns include `fit_levels` (e.g. `EQ15:medium;EQ18:low`). The summary has
 `fit_expected_good_rate` and `fit_bad_low_rate` (printed as `fit+` and `fit-`): together they show
 whether the fit level separates good picks from bad ones.
+
+| Column | Meaning |
+|---|---|
+| `dead_end_flagged` | code marked a dead end (annotated), or, for a question with `expect_dead_end: true`, the answer names the missing next step (any mode, so modes can be compared) |
+| `dead_end_ok` | matches `expect_dead_end`; for `false` only checked in annotated mode (no expected instrument marked a dead end) |
+| `workflow_hits` / `workflow_total` | `workflow_ids` (prerequisite instruments, e.g. EQ16 for TEM) recommended, mentioned or listed in a workflow |
+
+The summary adds `dead_end_ok_rate` and `workflow_rate`. Test questions can set the optional fields
+`expect_dead_end` (bool) and `workflow_ids`.
 
 `results/run_<time>_summary.csv` has one row per question x mode with consistency across runs
 (`stable_runs` = runs that gave the most common instrument set, e.g. `3/3`; `mean_jaccard` = average

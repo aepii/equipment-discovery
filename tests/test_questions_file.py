@@ -36,6 +36,8 @@ def test_question_is_well_formed(q):
     supplementary_only = set(q.get("supplementary_only_ids", []))
     assert supplementary_only <= KNOWN
     assert not supplementary_only & (expected | acceptable | unacceptable)
+    assert set(q.get("workflow_ids", [])) <= KNOWN
+    assert isinstance(q.get("expect_dead_end", False), bool)
     assert set(q["expected_accessories"]) <= expected | acceptable
     for pattern in q["expected_not_available"] + [p for ps in q["expected_accessories"].values() for p in ps]:
         re.compile(pattern)

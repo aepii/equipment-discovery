@@ -179,6 +179,7 @@
     "expected_not_available": [],
     "expected_accessories": {"EQ16": ["knife"], "EQ11": ["grid"]},
     "expect_clarifying": false,
+    "workflow_ids": ["EQ16"],
     "notes": "Draft. Ultrathin sectioning (ultramicrotome) then TEM. Fixation/embedding equipment is not in the dataset."
   },
   {
@@ -275,5 +276,37 @@
     "expected_accessories": {"EQ15": ["temperature|environmental chamber|heat|thermal", "load cell"]},
     "expect_clarifying": false,
     "notes": "From Stefan's app feedback (Nov 5), rated Good. Constrained recovery-force testing on the universal testing system with temperature control to confirm. DSC is complementary: it finds thermal transitions, not necessarily the exact activation temperature. Ideally the answer notes it assumed thermal activation, since the activation mechanism was not stated."
+  },
+  {
+    "id": "Q23",
+    "category": "multi-step",
+    "status": "draft",
+    "question": "I want to grind my bone samples into a fine powder and then identify the crystalline mineral phases. What equipment can I use?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "supplementary_only_ids": ["EQ05"],
+    "unacceptable_ids": ["EQ17", "EQ18"],
+    "expected_not_available": ["X.?ray diffract|\\bXRD\\b"],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": true,
+    "workflow_ids": [],
+    "notes": "Draft. The analytical mill can grind the bone, but phase identification needs XRD, which is not in the dataset: milling alone is a dead end."
+  },
+  {
+    "id": "Q24",
+    "category": "multi-step",
+    "status": "draft",
+    "question": "I want to gold-coat my non-conductive polymer sample and image it in high vacuum at high magnification. What equipment can I use?",
+    "expected_ids": ["EQ10"],
+    "acceptable_ids": [],
+    "supplementary_only_ids": [],
+    "unacceptable_ids": [],
+    "expected_not_available": ["sputter|coater|coating"],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "notes": "Draft. No sputter coater is listed, so high-vacuum imaging of a non-conductive sample is blocked; the ESEM's low-vacuum (environmental) mode avoids coating. A good answer names the missing coater and suggests ESEM mode."
   }
 ]
