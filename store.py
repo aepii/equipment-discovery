@@ -27,7 +27,7 @@ ANSWER_COLUMNS = [
     "json_ok", "repaired", "schema_problems", "clarifying_question", "instrument_ids", "ids_source", "mentioned_ids", "removed_ids", "not_available", "error",
     "question", "raw_output",
     # Added later; appended at the end so existing sheets keep their column order.
-    "primary_ids", "supplementary_ids", "objective_met",
+    "primary_ids", "supplementary_ids", "objective_met", "fit_levels",
 ]
 FEEDBACK_COLUMNS = [
     "timestamp", "answer_id", "session_id", "rater", "mode", "question",
@@ -87,6 +87,7 @@ def answer_row(question: str, result: dict, source: str = "app", session_id: str
         "primary_ids": " ".join(result.get("primary_ids", [])),
         "supplementary_ids": " ".join(result.get("supplementary_ids", [])),
         "objective_met": result.get("objective_met"),
+        "fit_levels": core.fit_levels(result),
     }
 
 

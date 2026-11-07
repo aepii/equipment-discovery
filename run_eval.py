@@ -39,7 +39,8 @@ CATEGORIES = ["named-instrument", "problem-only", "no-suitable-equipment", "acce
 SCORE_COLUMNS = ["expected_hits", "expected_total", "recall", "unacceptable_hits", "unacceptable_ids",
                  "false_primary_hits", "false_primary_ids", "objective_met_ok",
                  "unclassified_ids", "expected_only_mentioned", "na_hits", "na_total", "accessory_hits", "accessory_total",
-                 "asked_clarifying", "clarifying_ok", "contacts_ok", "contacts_total"]
+                 "asked_clarifying", "clarifying_ok", "contacts_ok", "contacts_total",
+                 "fit_expected_good", "fit_expected_total", "fit_bad_low", "fit_bad_total"]
 COLUMNS = ["question_id", "category", "status", "run"] + SCORE_COLUMNS + store.ANSWER_COLUMNS
 TRANSIENT = re.compile(r"\b(429|500|502|503|504)\b|rate.?limit|quota|unavailable|overloaded|timed? ?out",
                        re.IGNORECASE)
@@ -79,6 +80,20 @@ def asked_clarifying(result: dict) -> bool:
 def contact_name(eq_id: str) -> str:
     """The contact's name without the affiliation: "Avery Bennett (SOD)" -> "Avery Bennett"."""
     return re.sub(r"\s*\(.*\)\s*$", "", core.equipment_by_id()[eq_id]["contact"])
+
+
+def fit_scores(question: dict, result: dict) -> dict:
+    """Does the fit level separate good picks from bad ones? (annotated mode only; None otherwise)
+    Good: expected instruments rated high or medium. Bad: unacceptable or supplementary-only
+    instruments rated low."""
+    fits = {r["id"]: r["fit"] for r in result["recommendations"] if r.get("fit")}
+    if result["mode"] != "annotated":
+        return {"fit_expected_good": None, "fit_expected_total": None, "fit_bad_low": None, "fit_bad_total": None}
+    good = [fits[i] for i in question["expected_ids"] if i in fits]
+    bad_ids = set(question.get("unacceptable_ids", [])) | set(question.get("supplementary_only_ids", []))
+    bad = [fits[i] for i in bad_ids if i in fits]
+    return {"fit_expected_good": sum(f in ("high", "medium") for f in good), "fit_expected_total": len(good),
+            "fit_bad_low": sum(f == "low" for f in bad), "fit_bad_total": len(bad)}
 
 
 def score(question: dict, result: dict) -> dict:
@@ -124,6 +139,7 @@ def score(question: dict, result: dict) -> dict:
         # Only naive answers write contacts themselves; structured contacts come from the dataset.
         "contacts_ok": sum(contact_name(eq_id) in result["raw"] for eq_id in found) if naive else None,
         "contacts_total": len(found) if naive else None,
+        **fit_scores(question, result),
     }
 
 
@@ -150,7 +166,8 @@ def consistency(id_sets: list[frozenset]) -> dict:
 # --- summary ---
 
 SUMMARY_COLUMNS = ["scope", "question_id", "mode", "answers", "errors", "json_ok_rate", "repaired_rate", "mean_recall",
-                   "unacceptable_rate", "false_primary_rate", "objective_met_ok_rate", "na_rate", "accessory_rate", "clarifying_ok_rate", "contacts_rate",
+                   "unacceptable_rate", "false_primary_rate", "objective_met_ok_rate", "fit_expected_good_rate",
+                   "fit_bad_low_rate", "na_rate", "accessory_rate", "clarifying_ok_rate", "contacts_rate",
                    "mean_seconds", "mean_output_tokens", "total_cost_usd", "stable_runs", "mean_jaccard",
                    "id_frequency"]
 
@@ -177,8 +194,8 @@ def _total(values) -> float | None:
 
 
 def _ratio(rows: list[dict], hits: str, total: str) -> float | None:
-    totals = sum(_num(r[total]) or 0 for r in rows)
-    return round(sum(_num(r[hits]) or 0 for r in rows) / totals, 3) if totals else None
+    totals = sum(_num(r.get(total)) or 0 for r in rows)
+    return round(sum(_num(r.get(hits)) or 0 for r in rows) / totals, 3) if totals else None
 
 
 def summarize_group(rows: list[dict]) -> dict:
@@ -192,6 +209,9 @@ def summarize_group(rows: list[dict]) -> dict:
         "unacceptable_rate": _mean(int((_num(r["unacceptable_hits"]) or 0) > 0) for r in scored),
         "false_primary_rate": _mean(int((_num(r.get("false_primary_hits")) or 0) > 0) for r in scored),
         "objective_met_ok_rate": _mean(r.get("objective_met_ok") for r in scored),
+        # Annotated only: share of expected instruments rated high/medium, of bad picks rated low.
+        "fit_expected_good_rate": _ratio(scored, "fit_expected_good", "fit_expected_total"),
+        "fit_bad_low_rate": _ratio(scored, "fit_bad_low", "fit_bad_total"),
         "na_rate": _ratio(scored, "na_hits", "na_total"),
         "accessory_rate": _ratio(scored, "accessory_hits", "accessory_total"),
         "clarifying_ok_rate": _mean(r["clarifying_ok"] for r in scored),
@@ -221,7 +241,8 @@ def summarize(rows: list[dict]) -> list[dict]:
 
 
 PRINTED = [("mean_recall", "recall"), ("unacceptable_rate", "unacc"), ("false_primary_rate", "falseP"),
-           ("objective_met_ok_rate", "no-obj"), ("na_rate", "n/a"),
+           ("objective_met_ok_rate", "no-obj"), ("fit_expected_good_rate", "fit+"),
+           ("fit_bad_low_rate", "fit-"), ("na_rate", "n/a"),
            ("accessory_rate", "acc"), ("clarifying_ok_rate", "clar"), ("contacts_rate", "contact"),
            ("mean_seconds", "sec")]
 
@@ -316,7 +337,7 @@ def rescore(path: Path, questions: list[dict]) -> list[dict]:
         answer.update({key: fresh[key] for key in ("json_ok", "schema_problems", "clarifying_question",
                                                    "instrument_ids", "ids_source", "mentioned_ids", "removed_ids",
                                                    "not_available", "error", "primary_ids", "supplementary_ids",
-                                                   "objective_met")})
+                                                   "objective_met", "fit_levels")})
         rows.append(eval_row(q, int(old["run"]), answer, result))
     return rows
 

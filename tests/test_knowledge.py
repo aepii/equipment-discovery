@@ -222,3 +222,78 @@ def test_export_writes_one_row_per_instrument(tmp_path):
     assert printer["What it measures"] == "nothing (makes or prepares samples)"
     techniques = {r[0]: r for r in wb["Techniques"].iter_rows(min_row=2, values_only=True)}
     assert techniques["micro_computed_tomography"][8] == "NOT AVAILABLE in the dataset"
+
+
+# --- fit level (annotated mode; computed by code) ---
+
+def fitted(eq_id, technique_id, role="primary", property_id=None, accessories=None) -> dict:
+    rec = {"instrument_id": eq_id, "role": role, "technique_id": technique_id, "property_id": property_id,
+           "technique": "t", "why": "w", "accessories_to_confirm": accessories or []}
+    return annotated([rec])["recommendations"][0]
+
+
+@pytest.mark.parametrize("rec, level, reason", [
+    # Q20: the ESEM is only complementary for quantitative RMS roughness
+    (lambda: fitted("EQ10", "environmental_sem", role="supplementary"), "low", "Complementary only"),
+    (lambda: fitted("EQ15", None), "low", "No technique given"),
+    (lambda: fitted("EQ15", "made_up"), "low", "Unknown technique"),
+    (lambda: fitted("EQ01", "compression_testing"), "low", "not among this instrument's typical techniques"),
+    # Q10: EDS on the ESEM needs a detector the dataset does not list
+    (lambda: fitted("EQ10", "energy_dispersive_xray_spectroscopy"), "low", "Needs optional hardware (EDS detector"),
+    (lambda: fitted("EQ07", "confocal_microscopy", property_id="internal_3d_structure"), "low",
+     "Partial: only for transparent or fluorescent samples"),
+    # Q2: the Instron's load cell and platens are to confirm
+    (lambda: fitted("EQ15", "compression_testing", property_id="compressive_modulus"), "medium",
+     "Confirm with the contact: load cell"),
+    # Q18: the second HR20 has the Environmental Test Chamber installed
+    (lambda: fitted("EQ21", "rotational_rheometry", property_id="viscosity_vs_temperature",
+                    accessories=["parallel-plate geometry"]), "high", "Environmental Test Chamber (ETC)"),
+])
+def test_fit_rules(rec, level, reason):
+    rec = rec()
+    assert rec["fit"] == level and reason in rec["fit_reason"], rec["fit_reason"]
+
+
+def test_fit_high_when_nothing_needs_confirming_and_low_for_dead_ends():
+    rec = {**core.equipment_by_id()["EQ17"], "role": "primary", "technique_id": "thermogravimetric_analysis",
+           "accessories_to_confirm": []}
+    assert core.assign_fit(dict(rec))["fit_reason"] == "Standard technique; no accessories to confirm."
+    dead = core.assign_fit({**rec, "dead_end": "Dead end: X-ray diffraction is not available."})
+    assert dead["fit"] == "low" and dead["fit_reason"].startswith("Dead end")
+
+
+def test_a_measured_property_is_not_partial():
+    assert fitted("EQ07", "confocal_microscopy", property_id="cell_morphology")["fit"] != "low"
+
+
+def test_fit_only_in_annotated_mode_and_logged():
+    recs = [{"instrument_id": "EQ15", "role": "primary", "technique_id": "compression_testing", "technique": "t",
+             "why": "w"},
+            {"instrument_id": "EQ18", "role": "supplementary", "technique_id": "differential_scanning_calorimetry",
+             "technique": "t", "why": "w"}]
+    result = annotated(recs)
+    assert core.fit_levels(result) == "EQ15:medium;EQ18:low"
+    import store
+    assert store.answer_row("q", result)["fit_levels"] == "EQ15:medium;EQ18:low"
+    plain = core.read_answer("structured", json.dumps({"recommendations": recs, "summary": "s"}))
+    assert "fit" not in plain["recommendations"][0] and core.fit_levels(plain) == ""
+
+
+def test_property_id_must_be_a_string_or_null():
+    problems = core.validate_structured({"summary": "s", "recommendations": [
+        {"instrument_id": "EQ15", "role": "primary", "technique": "t", "why": "w", "property_id": 3}]})
+    assert any('"property_id"' in p for p in problems)
+
+
+def test_eval_fit_scores_separate_good_and_bad_picks():
+    question = {"expected_ids": ["EQ15"], "unacceptable_ids": ["EQ01"], "supplementary_only_ids": ["EQ18"],
+                "expected_not_available": [], "expected_accessories": {}}
+    result = annotated([
+        {"instrument_id": "EQ15", "role": "primary", "technique_id": "compression_testing", "technique": "t", "why": "w"},
+        {"instrument_id": "EQ01", "role": "primary", "technique_id": "compression_testing", "technique": "t", "why": "w"},
+        {"instrument_id": "EQ18", "role": "primary", "technique_id": "differential_scanning_calorimetry",
+         "technique": "t", "why": "w", "accessories_to_confirm": ["pans"]}])
+    s = run_eval.score(question, result)
+    assert (s["fit_expected_good"], s["fit_expected_total"]) == (1, 1)
+    assert (s["fit_bad_low"], s["fit_bad_total"]) == (1, 2)  # EQ01 is low; EQ18 as primary is medium
+    assert run_eval.score(question, core.read_answer("naive", "Recommended: EQ15"))["fit_expected_total"] is None

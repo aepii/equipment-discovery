@@ -63,6 +63,27 @@ measurement" with the techniques that are not available. A missing or invalid ro
 (so the repair call fixes it); if it is still missing it counts as primary. Naive mode gets no role
 instructions (it is the baseline), and every instrument it recommends counts as primary.
 
+**Fit level** (annotated mode only). Each recommendation gets `fit` (high / medium / low) and a
+one-sentence `fit_reason`, assigned by **code** from the knowledge files and the dataset, never by the
+model (a model's own confidence number is not calibrated). The first rule that matches wins:
+
+| Fit | Rule |
+|---|---|
+| low | role is supplementary |
+| low | no or unknown technique ID, a technique not in the instrument's notes, or one with `low` confidence (needs optional hardware) |
+| low | the workflow check found a dead end |
+| low | the property the model names (`property_id`) is only `partial` for that technique (e.g. confocal for internal structure) |
+| high | standard technique and the dataset lists an installed accessory for it (e.g. EQ21's Environmental Test Chamber); smaller items such as geometries are still listed to confirm under Details |
+| medium | standard technique with accessories to confirm (e.g. load cell and platens for the Instron) |
+| high | standard technique and nothing to confirm |
+
+Each card has at most three badges, always with a text label: role (**Can perform this** /
+**Complementary only**), fit level (green high, amber medium, grey low, red only for dead ends) with its
+reason below, and destructive (**Destroys sample** / **Non-destructive** / **Depends**). Everything else
+(installed accessories, accessories to confirm, workflow, cautions, draft-notes status, fictional test
+instrument) is in a collapsed **Details** section. Structured mode has no technique IDs, so it shows
+no fit level, only the role and a highlighted "Confirm with the contact" line; naive mode shows text only.
+
 If `APP_PASSWORD` is set, the app asks for that password before showing anything.
 
 ## Speed, cost and resilience
@@ -182,6 +203,12 @@ app's log (including `primary_ids`, `supplementary_ids` and `objective_met`) plu
 | `accessory_hits` / `accessory_total` | expected accessories named for the recommended instruments (structured and annotated: in that instrument's `accessories_to_confirm`; naive: anywhere in the answer) |
 | `asked_clarifying`, `clarifying_ok` | asked a clarifying question, and whether that was expected (naive is a heuristic: no instruments, and a `?` or a phrase like "more information is needed"; check by hand) |
 | `contacts_ok` / `contacts_total` | naive only: the correct contact name appears for each recommended instrument |
+| `fit_expected_good` / `fit_expected_total` | annotated only: expected instruments rated high or medium fit |
+| `fit_bad_low` / `fit_bad_total` | annotated only: recommended instruments in `unacceptable_ids` or `supplementary_only_ids` rated low fit |
+
+The answer columns include `fit_levels` (e.g. `EQ15:medium;EQ18:low`). The summary has
+`fit_expected_good_rate` and `fit_bad_low_rate` (printed as `fit+` and `fit-`): together they show
+whether the fit level separates good picks from bad ones.
 
 `results/run_<time>_summary.csv` has one row per question x mode with consistency across runs
 (`stable_runs` = runs that gave the most common instrument set, e.g. `3/3`; `mean_jaccard` = average
