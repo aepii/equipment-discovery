@@ -130,3 +130,47 @@ def test_api_errors_are_returned_not_raised(monkeypatch):
         result = run("anything")
         assert "Unknown LLM_PROVIDER" in result["error"]
         assert result["instrument_ids"] == []
+
+
+# --- primary vs. supplementary ---
+
+def test_prompts_define_roles_but_naive_stays_unguided():
+    for system in (core.STRUCTURED_SYSTEM, core.ANNOTATED_SYSTEM):
+        assert '"role": "primary"' in system and '"objective_met"' in system and "supplementary" in system
+    assert "supplementary" not in core.NAIVE_SYSTEM + core.NAIVE_REQUEST
+
+
+def test_read_structured_splits_roles_and_sets_objective_met():
+    recs = [{"instrument_id": "EQ15", "role": "primary", "technique": "t", "why": "w"},
+            {"instrument_id": "EQ10", "role": "supplementary", "technique": "t", "why": "w"}]
+    result = core.read_answer("structured", json.dumps({"recommendations": recs, "summary": "s"}))
+    assert (result["primary_ids"], result["supplementary_ids"]) == (["EQ15"], ["EQ10"])
+    assert result["instrument_ids"] == ["EQ15", "EQ10"] and result["objective_met"] is True
+    assert result["recommendations"][1]["role"] == "supplementary"
+
+
+@pytest.mark.parametrize("roles, claimed, met", [
+    (["supplementary"], True, False),  # no primary instrument: never met, whatever the model says
+    (["primary"], False, False),       # the model itself says it is not met
+    (["primary"], None, True),         # not given: met because an instrument is primary
+    ([], None, False),
+])
+def test_objective_met(roles, claimed, met):
+    recs = [{"instrument_id": "EQ10", "role": r, "technique": "t", "why": "w"} for r in roles]
+    answer = {"recommendations": recs, "summary": "s"}
+    if claimed is not None:
+        answer["objective_met"] = claimed
+    assert core.read_answer("structured", json.dumps(answer))["objective_met"] is met
+
+
+def test_naive_recommendations_all_count_as_primary():
+    result = core.read_answer("naive", "Use the DSC.\nRecommended: EQ18, EQ19")
+    assert result["primary_ids"] == ["EQ18", "EQ19"] and result["supplementary_ids"] == []
+    assert result["objective_met"] is True
+    assert core.read_answer("naive", "Nothing fits.\nRecommended: none")["objective_met"] is False
+
+
+def test_mock_roughness_answer_is_supplementary_only():
+    result = core.run_structured("I want to quantify the RMS roughness of a scaffold surface.")
+    assert result["primary_ids"] == [] and result["supplementary_ids"] == ["EQ10"]
+    assert result["objective_met"] is False and not result["schema_problems"]

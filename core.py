@@ -19,6 +19,9 @@ SHEET = "Equipment list"
 FIELDS = ["instrument", "manufacturer", "model", "notes", "location", "contact"]
 # Modes whose answer is JSON in the structured schema. "annotated" = structured + instrument annotations.
 JSON_MODES = ("structured", "annotated")
+# A recommendation's role: "primary" = the instrument can itself perform the measurement that answers
+# the question; "supplementary" = useful context, preparation or a partial view only.
+ROLES = ("primary", "supplementary")
 
 
 # --- dataset ---
@@ -137,12 +140,21 @@ Rules:
 5. Point out limitations honestly (e.g. a method that is destructive or only works on certain samples).
 6. If the question is too vague to answer, set "clarifying_question" and return no recommendations.
 7. Do not give locations or contact names; the application adds them.
+8. Give every recommendation a "role":
+   - "primary": this instrument can itself perform the measurement that answers the question.
+   - "supplementary": it gives useful context, sample preparation or a partial or qualitative view,
+     but it cannot meet the stated objective on its own.
+   Never mark an instrument primary just because it is the closest available option. Set
+   "objective_met" to true only if at least one recommendation is primary. If none is primary, the
+   summary must first say plainly that no listed instrument can perform the requested measurement,
+   name the right technique under "not_available", and only then mention supplementary instruments.
 
 Return ONLY a JSON object with exactly this shape:
 {
   "measurement_needs": ["what needs to be measured"],
+  "objective_met": true,
   "recommendations": [
-    {"instrument_id": "EQ17", "technique": "...", "why": "one or two sentences",
+    {"instrument_id": "EQ17", "role": "primary", "technique": "...", "why": "one or two sentences",
      "accessories_to_confirm": ["..."]}
   ],
   "not_available": [{"technique": "...", "why_useful": "..."}],
@@ -165,14 +177,14 @@ End your answer with one line "Recommended: <IDs>" listing the IDs of the instru
 # reference list of techniques no listed instrument performs. The model also names technique IDs, so
 # code can check each recommendation against the instrument's notes.
 ANNOTATED_SYSTEM = STRUCTURED_SYSTEM.split("\n\nReturn ONLY")[0] + """
-8. Each instrument comes with draft notes: its typical techniques (with IDs such as
+9. Each instrument comes with draft notes: its typical techniques (with IDs such as
    "compression_testing"), what they measure, whether they are destructive, typical samples,
    limitations and accessories to confirm. The notes describe what this TYPE of instrument typically
    does and are not yet reviewed. Use them, but do not treat accessories as installed unless the notes
    say "Installed per the dataset". Techniques marked "only with optional hardware" need confirming.
-9. Instruments whose techniques measure nothing (printers, mills, sectioning) only make or prepare
+10. Instruments whose techniques measure nothing (printers, mills, sectioning) only make or prepare
    samples. Recommend them only when the researcher needs that step.
-10. "Techniques not available on any listed instrument" supports rule 4. Whenever one of them is the
+11. "Techniques not available on any listed instrument" supports rule 4. Whenever one of them is the
    standard method for the problem, or would answer it better than the listed instruments, list it in
    "not_available" with its ID, even if you also recommend a partial option. You may also name a
    technique that is not on the list, with "technique_id": null.
@@ -180,8 +192,9 @@ ANNOTATED_SYSTEM = STRUCTURED_SYSTEM.split("\n\nReturn ONLY")[0] + """
 Return ONLY a JSON object with exactly this shape:
 {
   "measurement_needs": ["what needs to be measured"],
+  "objective_met": true,
   "recommendations": [
-    {"instrument_id": "EQ17", "technique_id": "thermogravimetric_analysis", "technique": "...",
+    {"instrument_id": "EQ17", "role": "primary", "technique_id": "thermogravimetric_analysis", "technique": "...",
      "why": "one or two sentences", "accessories_to_confirm": ["..."]}
   ],
   "not_available": [{"technique_id": "micro_computed_tomography", "technique": "...", "why_useful": "..."}],
@@ -243,6 +256,8 @@ def validate_structured(parsed: dict) -> list[str]:
     for key in ("recommendations", "not_available"):
         if key in parsed and not isinstance(parsed[key], list):
             problems.append(f'"{key}" must be a list')
+    if parsed.get("objective_met") is not None and not isinstance(parsed["objective_met"], bool):
+        problems.append('"objective_met" must be true or false')
     for i, rec in enumerate(_list_of(parsed, "recommendations"), start=1):
         if not isinstance(rec, dict):
             problems.append(f"recommendation {i} must be an object")
@@ -250,6 +265,8 @@ def validate_structured(parsed: dict) -> list[str]:
         for field in ("instrument_id", "technique", "why"):
             if not isinstance(rec.get(field), str):
                 problems.append(f'recommendation {i}: "{field}" must be a string')
+        if rec.get("role") not in ROLES:
+            problems.append(f'recommendation {i}: "role" must be "primary" or "supplementary"')
         if not _is_str_list(rec.get("accessories_to_confirm", [])):
             problems.append(f'recommendation {i}: "accessories_to_confirm" must be a list of strings')
         if not isinstance(rec.get("technique_id"), (str, type(None))):
@@ -271,6 +288,7 @@ def structured_problems(raw: str) -> list[str]:
 def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]:
     """Keep only recommendations whose ID is in the dataset and fill in the dataset fields.
 
+    A missing or invalid role counts as primary (validate_structured reports it as a schema problem).
     Returns (checked recommendations, removed IDs).
     """
     known = equipment_by_id()
@@ -282,8 +300,10 @@ def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]
         if eq_id not in known:
             removed.append(eq_id or "(missing ID)")
             continue
+        role = rec.get("role")
         checked.append({
             **known[eq_id],
+            "role": role if role in ROLES else "primary",
             "technique": rec.get("technique", ""),
             "why": rec.get("why", ""),
             "accessories_to_confirm": list(rec.get("accessories_to_confirm") or []),
@@ -333,6 +353,7 @@ def check_not_available(items: list) -> list[dict]:
 def new_result(mode: str, raw: str = "") -> dict:
     return {"mode": mode, "raw": raw, "error": None, "usage": {}, "json_ok": None,
             "recommendations": [], "removed": [], "instrument_ids": [], "mentioned_ids": [],
+            "primary_ids": [], "supplementary_ids": [], "objective_met": None,
             "ids_source": "", "not_available": [], "clarifying_question": None,
             "repaired": False, "first_raw": "", "schema_problems": [], "source": "live", "demo": None}
 
@@ -350,6 +371,10 @@ def read_structured(result: dict) -> dict:
     recommendations = parsed.get("recommendations")
     result["recommendations"], result["removed"] = check_recommendations(recommendations)
     result["instrument_ids"] = [rec["id"] for rec in result["recommendations"]]
+    result["primary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "primary"]
+    result["supplementary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "supplementary"]
+    # Met only if some instrument is primary; the model can also say false itself.
+    result["objective_met"] = bool(result["primary_ids"]) and parsed.get("objective_met") is not False
     result["ids_source"] = "json"
     result["measurement_needs"] = list(parsed.get("measurement_needs") or [])
     result["not_available"] = [n for n in parsed.get("not_available") or [] if isinstance(n, dict)]
@@ -365,7 +390,10 @@ def read_structured(result: dict) -> dict:
 
 
 def read_naive(result: dict) -> dict:
-    """Find the instruments in a naive answer: from its "Recommended:" line if present, else by mention."""
+    """Find the instruments in a naive answer: from its "Recommended:" line if present, else by mention.
+
+    Naive mode has no roles (it is the unguided baseline), so every recommended instrument counts as primary.
+    """
     known = equipment_by_id()
     result["mentioned_ids"] = instrument_ids_in_text(result["raw"])
     listed = recommended_line_ids(result["raw"])
@@ -375,6 +403,8 @@ def read_naive(result: dict) -> dict:
         result["instrument_ids"] = [eq_id for eq_id in known if eq_id in listed]
         result["removed"] = [eq_id for eq_id in listed if eq_id not in known]
         result["ids_source"] = "recommended_line"
+    result["primary_ids"], result["supplementary_ids"] = list(result["instrument_ids"]), []
+    result["objective_met"] = bool(result["instrument_ids"]) if not result["error"] else None
     return result
 
 

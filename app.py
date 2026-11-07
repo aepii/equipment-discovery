@@ -158,12 +158,18 @@ def render_structured(result: dict) -> None:
         if result["removed"]:
             st.error("Removed recommendation(s) naming an instrument not in the dataset: "
                      + ", ".join(result["removed"]))
-        if result["recommendations"]:
-            st.markdown("**Recommended equipment**")
-            for rec in result["recommendations"]:
-                render_recommendation(rec)
-        elif not result.get("clarifying_question"):
-            st.warning("No suitable equipment was found in the dataset.")
+        if not result.get("objective_met") and not result.get("clarifying_question"):
+            missing = ", ".join(n.get("technique", "") for n in result.get("not_available", []))
+            st.warning("**No instrument in the dataset can perform this measurement.**"
+                       + (f" Suitable technique(s) not available: {missing}." if missing else ""))
+        sections = [("primary", "Can perform this measurement"),
+                    ("supplementary", "Complementary only: cannot perform the main measurement")]
+        for role, heading in sections:
+            recs = [rec for rec in result["recommendations"] if rec.get("role", "primary") == role]
+            if recs:
+                st.markdown(f"**{heading}**")
+                for rec in recs:
+                    render_recommendation(rec)
         if result.get("not_available"):
             st.markdown("**Suitable techniques not available in the dataset**")
             st.markdown("\n".join(f"- **{n.get('technique', '')}**: {n.get('why_useful', '')}"

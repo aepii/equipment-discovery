@@ -33,6 +33,31 @@ def test_score_structured():
     assert s["contacts_ok"] is None
 
 
+def test_score_counts_only_primary_ids_for_recall():
+    question = {**QUESTION, "supplementary_only_ids": ["EQ10"], "acceptable_ids": []}
+    result = structured([
+        {"instrument_id": "EQ15", "role": "primary"}, {"instrument_id": "EQ19", "role": "supplementary"},
+        {"instrument_id": "EQ10", "role": "primary"}, {"instrument_id": "EQ01", "role": "supplementary"}])
+    s = run_eval.score(question, result)
+    assert (s["expected_hits"], s["recall"]) == (1, 0.5)  # EQ19 is expected but only supplementary
+    assert (s["false_primary_hits"], s["false_primary_ids"]) == (1, "EQ10")  # EQ01 is unacceptable but not primary
+    assert s["unacceptable_hits"] == 1 and s["unclassified_ids"] == ""
+    assert s["objective_met_ok"] is None  # only scored when no instrument is expected
+
+
+def test_score_objective_met_ok_when_nothing_is_expected():
+    question = {**QUESTION, "expected_ids": [], "expected_accessories": {}, "supplementary_only_ids": ["EQ10"]}
+    honest = structured([{"instrument_id": "EQ10", "role": "supplementary"}], objective_met=False)
+    overclaims = structured([{"instrument_id": "EQ10", "role": "primary"}])
+    assert run_eval.score(question, honest)["objective_met_ok"] is True
+    assert run_eval.score(question, honest)["false_primary_hits"] == 0
+    s = run_eval.score(question, overclaims)
+    assert s["objective_met_ok"] is False and s["false_primary_ids"] == "EQ10"
+    naive = core.read_answer("naive", "The ESEM could help.\nRecommended: EQ10")
+    assert run_eval.score(question, naive)["false_primary_hits"] == 1  # naive: every recommendation is primary
+    assert run_eval.score({**question, "expect_clarifying": True}, honest)["objective_met_ok"] is None
+
+
 def test_score_accessories_only_for_found_instruments():
     s = run_eval.score(QUESTION, structured([{"instrument_id": "EQ19"}]))
     assert s["accessory_total"] == 0
@@ -123,7 +148,8 @@ def test_run_then_rescore_round_trip(tmp_path):
     assert {s["scope"] for s in summary} == {"question", "draft", "all"}
 
     rescored = run_eval.rescore(out, run_eval.load_questions())
-    key = ("question_id", "mode", "run", "instrument_ids", "recall", "na_hits", "clarifying_ok")
+    key = ("question_id", "mode", "run", "instrument_ids", "primary_ids", "objective_met", "recall", "na_hits",
+           "clarifying_ok", "false_primary_hits")
     assert [tuple(str(r[k]) for k in key) for r in rescored] == [tuple(str(r[k]) for k in key) for r in rows]
 
 
