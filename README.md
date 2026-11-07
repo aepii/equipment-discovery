@@ -63,6 +63,40 @@ measurement" with the techniques that are not available. A missing or invalid ro
 (so the repair call fixes it); if it is still missing it counts as primary. Naive mode gets no role
 instructions (it is the baseline), and every instrument it recommends counts as primary.
 
+**Fit level** (annotated mode only). Each recommendation gets `fit` (high / medium / low) and a
+one-sentence `fit_reason`, assigned by **code** from the knowledge files and the dataset, never by the
+model (a model's own confidence number is not calibrated). The first rule that matches wins:
+
+| Fit | Rule |
+|---|---|
+| low | role is supplementary |
+| low | no or unknown technique ID, a technique not in the instrument's notes, or one with `low` confidence (needs optional hardware) |
+| low | the workflow check found a dead end |
+| low | the property the model names (`property_id`) is only `partial` for that technique (e.g. confocal for internal structure) |
+| high | standard technique and the dataset lists an installed accessory for it (e.g. EQ21's Environmental Test Chamber); smaller items such as geometries are still listed to confirm under Details |
+| medium | standard technique with accessories to confirm (e.g. load cell and platens for the Instron) |
+| high | standard technique and nothing to confirm |
+
+Each card has at most three badges, always with a text label: role (**Can perform this** /
+**Complementary only**), fit level (green high, amber medium, grey low, red only for dead ends) with its
+reason below, and destructive (**Destroys sample** / **Non-destructive** / **Depends**). Everything else
+(installed accessories, accessories to confirm, workflow, cautions, draft-notes status, fictional test
+instrument) is in a collapsed **Details** section. Structured mode has no technique IDs, so it shows
+no fit level, only the role and a highlighted "Confirm with the contact" line; naive mode shows text only.
+
+**Workflow check and dead ends** (annotated mode only). `techniques.json` links techniques with
+`requires_before` (with a `when` condition) and `leads_to`. `knowledge.workflow_for()` labels each step
+`available` (with instruments), `bench_step` (a lab procedure, no instrument needed) or `missing`. For each
+recommendation, code adds a **Workflow** list to the card's Details, e.g. "May need Ultramicrotomy first
+(for tissue, cells or bulk polymer samples): Ultramicrotome (EQ16), Jamie Collins (SOP)". Steps with a
+condition are "may need", never blockers. It is a **dead end** (red badge, fit low, role forced to
+supplementary) when:
+- a preparation or fabrication step (mill, printer, sectioning) has no available follow-up among the
+  answer's recommendations, e.g. milling bone when phase identification needs XRD, which is not listed; or
+- an unconditional prerequisite is missing from the dataset (and is not a bench step).
+
+The dead-end rule is checked before the "supplementary" fit rule, so the card shows the specific reason.
+
 If `APP_PASSWORD` is set, the app asks for that password before showing anything.
 
 ## Speed, cost and resilience
@@ -155,6 +189,20 @@ python run_eval.py --rescore results/run_<time>.csv   # re-score saved answers, 
 python run_eval.py --review-sheet                 # results/expected_answers_review.md for Stefan
 ```
 
+Poster results (`pip install -r requirements-dev.txt` for matplotlib):
+
+```
+python scripts/make_charts.py                     # newest results/run_*_summary.csv -> results/charts/*.png (300 dpi)
+python scripts/make_charts.py --summary results/run_<time>_rescored_summary.csv
+python scripts/before_after.py --before rows.json --question-id Q20   # results/before_afm.json, after_afm.json
+```
+
+`make_charts.py` draws one grouped bar chart per mode (expected instruments found, wrong main picks,
+unavailable techniques flagged, accessories named) and a table of median response time and cost, and
+writes the same numbers as CSV next to them. `before_after.py` saves logged answers of an older version
+(rows exported from the answers tab) next to fresh answers from the current code, for a before/after
+example. A short write-up of the latest run is in `results/FINDINGS.md` (not committed, like all of `results/`).
+
 Use `LLM_PROVIDER=mock` to try it without spending API credits. Rate-limit and server errors are
 retried inside each call (see "Speed, cost and resilience"), then the whole answer is retried twice more
 after 10 and 20 s; other errors are kept and counted separately (they are left out of the averages).
@@ -182,6 +230,21 @@ app's log (including `primary_ids`, `supplementary_ids` and `objective_met`) plu
 | `accessory_hits` / `accessory_total` | expected accessories named for the recommended instruments (structured and annotated: in that instrument's `accessories_to_confirm`; naive: anywhere in the answer) |
 | `asked_clarifying`, `clarifying_ok` | asked a clarifying question, and whether that was expected (naive is a heuristic: no instruments, and a `?` or a phrase like "more information is needed"; check by hand) |
 | `contacts_ok` / `contacts_total` | naive only: the correct contact name appears for each recommended instrument |
+| `fit_expected_good` / `fit_expected_total` | annotated only: expected instruments rated high or medium fit |
+| `fit_bad_low` / `fit_bad_total` | annotated only: recommended instruments in `unacceptable_ids` or `supplementary_only_ids` rated low fit |
+
+The answer columns include `fit_levels` (e.g. `EQ15:medium;EQ18:low`). The summary has
+`fit_expected_good_rate` and `fit_bad_low_rate` (printed as `fit+` and `fit-`): together they show
+whether the fit level separates good picks from bad ones.
+
+| Column | Meaning |
+|---|---|
+| `dead_end_flagged` | code marked a dead end (annotated), or, for a question with `expect_dead_end: true`, the answer names the missing next step (any mode, so modes can be compared) |
+| `dead_end_ok` | matches `expect_dead_end`; for `false` only checked in annotated mode (no expected instrument marked a dead end) |
+| `workflow_hits` / `workflow_total` | `workflow_ids` (prerequisite instruments, e.g. EQ16 for TEM) recommended, mentioned or listed in a workflow |
+
+The summary adds `dead_end_ok_rate` and `workflow_rate`. Test questions can set the optional fields
+`expect_dead_end` (bool) and `workflow_ids`.
 
 `results/run_<time>_summary.csv` has one row per question x mode with consistency across runs
 (`stable_runs` = runs that gave the most common instrument set, e.g. `3/3`; `mean_jaccard` = average
@@ -255,5 +318,6 @@ The tests always use the mock model, so they need no API key and cost nothing. T
 | `data/demo_answers.json` | Saved answers shown when the live model can't be used (`run_eval.py --record-demo`) |
 | `store.py` | Answer and feedback rows; saves them to the Google Sheet or `results/log.jsonl` |
 | `run_eval.py` | Batch evaluation: scores, consistency summary, re-scoring, review sheet, recording saved demo answers |
+| `scripts/make_charts.py`, `scripts/before_after.py` | Poster charts and the before/after example from evaluation results |
 | `test_questions.json` | Test questions with expected, acceptable and unacceptable instruments |
 | `tests/` | Unit tests (pytest, mock model) |

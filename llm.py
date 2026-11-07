@@ -337,7 +337,7 @@ _MOCK_ANSWERS = {
         "measurement_needs": ["viscosity vs. temperature and shear rate", "thermal transitions", "thermal degradation / moisture"],
         "objective_met": True,
         "recommendations": [
-            {"instrument_id": "EQ19", "role": "primary", "technique_id": "rotational_rheometry", "technique": "Rotational rheology (temperature and shear-rate sweeps)",
+            {"instrument_id": "EQ19", "role": "primary", "technique_id": "rotational_rheometry", "property_id": "viscosity_vs_temperature", "technique": "Rotational rheology (temperature and shear-rate sweeps)",
              "why": "Shows how viscosity changes with temperature and shear rate.",
              "accessories_to_confirm": ["Temperature-control accessory (e.g. Peltier or environmental test chamber)", "Parallel-plate or cone-and-plate geometry"]},
             {"instrument_id": "EQ18", "role": "primary", "technique_id": "differential_scanning_calorimetry", "technique": "Differential scanning calorimetry",
@@ -357,7 +357,7 @@ _MOCK_ANSWERS = {
         "measurement_needs": ["compressive modulus of a porous scaffold"],
         "objective_met": True,
         "recommendations": [
-            {"instrument_id": "EQ15", "role": "primary", "technique_id": "compression_testing", "technique": "Uniaxial compression testing",
+            {"instrument_id": "EQ15", "role": "primary", "technique_id": "compression_testing", "property_id": "compressive_modulus", "technique": "Uniaxial compression testing",
              "why": "Measures the stress-strain response; stiffness is the slope of the linear region.",
              "accessories_to_confirm": ["Load cell with a suitable (low) capacity", "Compression platens"]},
             {"instrument_id": "EQ99", "role": "primary", "technique": "Made-up instrument (tests the removal notice)",
@@ -371,7 +371,7 @@ _MOCK_ANSWERS = {
         "measurement_needs": ["non-destructive 3D imaging of internal pore structure"],
         "objective_met": False,
         "recommendations": [
-            {"instrument_id": "EQ08", "role": "supplementary", "technique_id": "multiphoton_microscopy", "technique": "Multiphoton microscopy (partial option)",
+            {"instrument_id": "EQ08", "role": "supplementary", "technique_id": "multiphoton_microscopy", "property_id": "internal_3d_structure", "technique": "Multiphoton microscopy (partial option)",
              "why": "Can image some depth into transparent or fluorescent samples only.",
              "accessories_to_confirm": ["Suitable objectives and laser lines"]},
         ],

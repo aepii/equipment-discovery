@@ -216,13 +216,16 @@ ANNOTATED_SYSTEM = STRUCTURED_SYSTEM.split("\n\nReturn ONLY")[0] + """
    standard method for the problem, or would answer it better than the listed instruments, list it in
    "not_available" with its ID, even if you also recommend a partial option. You may also name a
    technique that is not on the list, with "technique_id": null.
+12. For each recommendation give "property_id": the ID (in square brackets in the notes) of the main
+   property this technique would measure for the question, or null if none fits.
 
 Return ONLY a JSON object with exactly this shape:
 {
   "measurement_needs": ["what needs to be measured"],
   "objective_met": true,
   "recommendations": [
-    {"instrument_id": "EQ17", "role": "primary", "technique_id": "thermogravimetric_analysis", "technique": "...",
+    {"instrument_id": "EQ17", "role": "primary", "technique_id": "thermogravimetric_analysis",
+     "property_id": "thermal_stability", "technique": "...",
      "why": "one or two sentences", "accessories_to_confirm": ["..."]}
   ],
   "not_available": [{"technique_id": "micro_computed_tomography", "technique": "...", "why_useful": "..."}],
@@ -297,8 +300,9 @@ def validate_structured(parsed: dict) -> list[str]:
             problems.append(f'recommendation {i}: "role" must be "primary" or "supplementary"')
         if not _is_str_list(rec.get("accessories_to_confirm", [])):
             problems.append(f'recommendation {i}: "accessories_to_confirm" must be a list of strings')
-        if not isinstance(rec.get("technique_id"), (str, type(None))):
-            problems.append(f'recommendation {i}: "technique_id" must be a string or null')
+        for field in ("technique_id", "property_id"):
+            if not isinstance(rec.get(field), (str, type(None))):
+                problems.append(f'recommendation {i}: "{field}" must be a string or null')
     for i, item in enumerate(_list_of(parsed, "not_available"), start=1):
         if not (isinstance(item, dict) and isinstance(item.get("technique"), str)):
             problems.append(f'not_available {i} must be an object with a "technique" string')
@@ -348,7 +352,8 @@ def check_against_annotations(rec: dict, technique_id) -> dict:
     """
     tid = str(technique_id or "").strip()
     own = knowledge.techniques_of(rec["id"])
-    rec.update(technique_id=tid, destructive="", cautions=[], notes_status=knowledge.review_status(rec["id"]))
+    rec.update(technique_id=tid, destructive="", destructive_level="", cautions=[],
+               notes_status=knowledge.review_status(rec["id"]))
     if not tid:
         rec["cautions"].append("No technique ID given, so this was not checked against the instrument notes.")
     elif tid not in knowledge.techniques():
@@ -358,6 +363,7 @@ def check_against_annotations(rec: dict, technique_id) -> dict:
                                "techniques in the instrument notes; confirm with the contact that it can be done.")
     else:
         technique = knowledge.techniques()[tid]
+        rec["destructive_level"] = technique["destructive"]
         rec["destructive"] = technique["destructive"].replace("_", " ") + (
             f" ({technique['destructive_note']})" if technique.get("destructive_note") else "")
         if own[tid]["confidence"] == "low":
@@ -365,6 +371,114 @@ def check_against_annotations(rec: dict, technique_id) -> dict:
         if not rec["accessories_to_confirm"]:
             rec["accessories_to_confirm"] = knowledge.accessories_for(rec["id"], tid)
     return rec
+
+
+PREPARING_KINDS = ("sample_preparation", "fabrication")  # measure nothing; only useful before another step
+
+
+def _either(items: list[str]) -> str:
+    """"A", "A or B", "A, B or C"."""
+    return " or ".join([", ".join(items[:-1]), items[-1]]) if len(items) > 1 else "".join(items)
+
+
+def _who(eq_ids: list[str]) -> str:
+    """"Ultramicrotome (EQ16), Jamie Collins (SOP)" for up to two instruments, from the dataset."""
+    known = equipment_by_id()
+    return "; ".join(f"{known[i]['instrument']} ({i}), {known[i]['contact']}" for i in eq_ids[:2])
+
+
+def _step_line(step: dict) -> str:
+    where = {"available": _who(step["instruments"]),
+             "bench_step": "a lab bench step, no instrument needed",
+             "missing": "not available in the dataset"}[step["status"]]
+    need = "May need" if step["conditional"] else "Needs"
+    when = f" ({step['when']})" if step["when"] and step["conditional"] else ""
+    return f"{need} {step['name']} first{when}: {where}."
+
+
+def check_workflow(rec: dict, recommendations: list[dict]) -> dict:
+    """Annotated mode, after check_against_annotations: the steps around the recommended technique.
+
+    Adds "workflow" (lines for the card: prerequisites with instrument and contact; for preparation and
+    fabrication, what the result is used for) and "dead_end" (a reason, or ""). A dead end is a
+    preparation or fabrication step whose follow-up is not available or not among the recommended
+    instruments, or a step whose unconditional prerequisite is missing. A dead end is never primary.
+    """
+    tid = rec.get("technique_id", "")
+    rec.update(workflow=[], dead_end="")
+    if tid not in knowledge.techniques_of(rec["id"]):
+        return rec
+    flow = knowledge.workflow_for(tid)
+    rec["workflow"] = [_step_line(step) for step in flow["requires"]]
+    blocking = [s for s in flow["requires"] if s["status"] == "missing" and not s["conditional"]]
+    if blocking:
+        rec["dead_end"] = (f"Dead end: {blocking[0]['name']} must come first, "
+                           "which is not available in the dataset.")
+    elif knowledge.techniques()[tid]["kind"] in PREPARING_KINDS and flow["leads_to"]:
+        others = {r["id"] for r in recommendations if r is not rec}
+        followed = [s for s in flow["leads_to"] if set(s["instruments"]) & others]
+        missing = [s["name"] for s in flow["leads_to"] if s["status"] == "missing"]
+        available = [f"{s['name']} ({', '.join(s['instruments'])})" for s in flow["leads_to"] if s["instruments"]]
+        rec["workflow"].append("Leads to: " + "; ".join(available + [f"{m} (not available)" for m in missing]) + ".")
+        if not followed:
+            rec["dead_end"] = (f"Dead end: this step is only useful if {_either(missing)} follows, which is not "
+                               "available in the dataset." if missing else
+                               f"Dead end here: this step is only useful if {_either(available)} follows, "
+                               "and none of those instruments is recommended in this answer.")
+    if rec["dead_end"]:
+        rec["role"] = "supplementary"
+    return rec
+
+
+FIT_LEVELS = ("high", "medium", "low")
+
+
+def _listing(items: list[str], limit: int = 3) -> str:
+    more = f" and {len(items) - limit} more" if len(items) > limit else ""
+    return ", ".join(items[:limit]) + more
+
+
+def assign_fit(rec: dict) -> dict:
+    """Annotated mode: the fit level (high / medium / low) and a one-sentence reason, from facts in the
+    knowledge files and the dataset, never from the model. Runs after check_against_annotations (and the
+    workflow check). The first rule that matches wins."""
+    def fit(level: str, reason: str) -> dict:
+        rec.update(fit=level, fit_reason=reason)
+        return rec
+
+    tid, eq_id = rec.get("technique_id", ""), rec["id"]
+    own = knowledge.techniques_of(eq_id)
+    if rec.get("dead_end"):  # first: a dead end is also made supplementary, but this reason is more specific
+        return fit("low", rec["dead_end"])
+    if rec.get("role") == "supplementary":
+        return fit("low", "Complementary only: cannot perform the main measurement.")
+    if not tid:
+        return fit("low", "No technique given, so the fit could not be checked against the instrument notes.")
+    if tid not in knowledge.techniques():
+        return fit("low", f"Unknown technique '{tid}': not checked against the instrument notes.")
+    name = knowledge.technique_name(tid)
+    if tid not in own:
+        return fit("low", f"{name} is not among this instrument's typical techniques.")
+    if own[tid]["confidence"] == "low":
+        hardware = _listing(knowledge.accessories_for(eq_id, tid)) or "extra hardware"
+        return fit("low", f"Needs optional hardware ({hardware}) not listed in the dataset.")
+    technique = knowledge.techniques()[tid]
+    prop = rec.get("property_id", "")
+    if prop in technique.get("partial", {}) and prop not in technique["measures"]:
+        return fit("low", f"Partial: {technique['partial'][prop]}.")
+    # An installed accessory for this technique settles the configuration question; smaller items
+    # (e.g. geometries) are still listed to confirm in the card's details.
+    installed = knowledge.installed_for(eq_id, tid)
+    if installed:
+        return fit("high", f"Standard technique; {_listing(installed)} installed.")
+    if rec["accessories_to_confirm"]:
+        return fit("medium", f"Confirm with the contact: {_listing(rec['accessories_to_confirm'])}.")
+    return fit("high", "Standard technique; no accessories to confirm.")
+
+
+def fit_levels(result: dict) -> str:
+    """For the log: "EQ15:medium;EQ18:low" (annotated mode; empty otherwise)."""
+    return ";".join(f"{r['id']}:{r['fit']}" for r in result.get("recommendations", []) if r.get("fit"))
 
 
 def check_not_available(items: list) -> list[dict]:
@@ -399,19 +513,24 @@ def read_structured(result: dict) -> dict:
     recommendations = parsed.get("recommendations")
     result["recommendations"], result["removed"] = check_recommendations(recommendations)
     result["instrument_ids"] = [rec["id"] for rec in result["recommendations"]]
-    result["primary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "primary"]
-    result["supplementary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "supplementary"]
-    # Met only if some instrument is primary; the model can also say false itself.
-    result["objective_met"] = bool(result["primary_ids"]) and parsed.get("objective_met") is not False
     result["ids_source"] = "json"
     result["measurement_needs"] = list(parsed.get("measurement_needs") or [])
     result["not_available"] = [n for n in parsed.get("not_available") or [] if isinstance(n, dict)]
     if result["mode"] == "annotated":
-        technique_ids = {str(r.get("instrument_id", "")).strip().upper(): r.get("technique_id")
-                         for r in recommendations or [] if isinstance(r, dict)}
+        given = {str(r.get("instrument_id", "")).strip().upper(): r
+                 for r in recommendations or [] if isinstance(r, dict)}
         for rec in result["recommendations"]:
-            check_against_annotations(rec, technique_ids.get(rec["id"]))
+            check_against_annotations(rec, given[rec["id"]].get("technique_id"))
+            rec["property_id"] = str(given[rec["id"]].get("property_id") or "").strip()
+        for rec in result["recommendations"]:  # after all are checked: the workflow looks at the others
+            check_workflow(rec, result["recommendations"])
+            assign_fit(rec)
         result["not_available"] = check_not_available(result["not_available"])
+    # Roles are read last: the workflow check can turn a dead end into a supplementary recommendation.
+    result["primary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "primary"]
+    result["supplementary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "supplementary"]
+    # Met only if some instrument is primary; the model can also say false itself.
+    result["objective_met"] = bool(result["primary_ids"]) and parsed.get("objective_met") is not False
     result["clarifying_question"] = parsed.get("clarifying_question")
     result["summary"] = parsed.get("summary", "")
     return result

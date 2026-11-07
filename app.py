@@ -110,23 +110,62 @@ def render_sidebar() -> str:
     return mode
 
 
-def render_recommendation(rec: dict) -> None:
-    with st.container(border=True):
-        label = f" · :orange[**{FICTIONAL_LABEL}**]" if rec.get("fictional_test_instrument") else ""
-        st.markdown(f"**{rec['instrument']}** · {rec['manufacturer']} {rec['model']} · `{rec['id']}`{label}")
-        st.markdown(f"**Technique:** {rec['technique']}")
-        st.markdown(rec["why"])
+# Badges always carry a text label, never color alone. Fit: high green, medium amber, low grey;
+# red only for dead ends.
+FIT_COLORS = {"high": "green", "medium": "orange", "low": "gray"}
+DESTRUCTIVE_BADGES = {"yes": ("Destroys sample", "violet"), "no": ("Non-destructive", "blue"),
+                      "depends": ("Depends", "gray")}
+
+
+def badge(text: str, color: str) -> str:
+    return f":{color}-background[**{text}**]"
+
+
+def card_badges(rec: dict) -> list[str]:
+    """At most three badges: role, fit level (annotated mode) and destructive."""
+    primary = rec.get("role", "primary") == "primary"
+    badges = [badge("Can perform this", "blue") if primary else badge("Complementary only", "gray")]
+    if rec.get("fit"):
+        color = "red" if rec.get("dead_end") else FIT_COLORS[rec["fit"]]
+        badges.append(badge(f"{rec['fit'].capitalize()} fit", color))
+    if rec.get("destructive_level") in DESTRUCTIVE_BADGES:
+        badges.append(badge(*DESTRUCTIVE_BADGES[rec["destructive_level"]]))
+    return badges
+
+
+def render_details(rec: dict) -> None:
+    """Everything that is not a card badge, collapsed."""
+    with st.expander("Details"):
         if rec.get("destructive"):
             st.markdown(f"**Destructive:** {rec['destructive']}")
-        st.markdown(f"**Location:** {rec['location']}  \n**Contact (fictional):** {rec['contact']}")
         if rec.get("installed_accessories"):
-            st.success("**Installed (listed in the dataset):** " + "; ".join(rec["installed_accessories"]))
+            st.markdown(badge("Installed", "green") + " " + "; ".join(rec["installed_accessories"]))
         if rec["accessories_to_confirm"]:
-            st.warning("**Confirm with the contact:** " + "; ".join(rec["accessories_to_confirm"]))
+            st.markdown(badge("Confirm with contact", "orange") + " " + "; ".join(rec["accessories_to_confirm"]))
+        if rec.get("dead_end"):
+            st.warning(rec["dead_end"])
+        if rec.get("workflow"):
+            st.markdown("**Workflow**\n" + "\n".join(f"- {line}" for line in rec["workflow"]))
         for caution in rec.get("cautions", []):
-            st.error(caution)
+            st.markdown(f"- {caution}")
         if rec.get("notes_status") == "draft":
-            st.caption("Instrument notes are a draft and not yet reviewed by the faculty mentor.")
+            st.markdown(badge("Draft notes", "gray") + " not yet reviewed by Stefan (faculty mentor).")
+        if rec.get("fictional_test_instrument"):
+            st.markdown(badge(FICTIONAL_LABEL, "gray") + " added for model-specific testing.")
+
+
+def render_recommendation(rec: dict) -> None:
+    with st.container(border=True):
+        st.markdown(f"**{rec['instrument']}** · {rec['manufacturer']} {rec['model']} · `{rec['id']}`")
+        st.markdown(" ".join(card_badges(rec)))
+        if rec.get("fit_reason"):
+            st.caption(rec["fit_reason"])
+        elif rec["accessories_to_confirm"]:  # structured mode has no fit level
+            st.warning("**Confirm with the contact:** " + "; ".join(rec["accessories_to_confirm"]))
+        st.markdown(f"**Technique:** {rec['technique']}")
+        st.markdown(rec["why"])
+        st.markdown(f"**Location:** {rec['location']}  \n**Contact (fictional):** {rec['contact']}")
+        render_details(rec)
 
 
 def render_source(result: dict) -> None:
