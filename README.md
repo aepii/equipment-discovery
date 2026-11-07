@@ -97,6 +97,13 @@ supplementary) when:
 
 The dead-end rule is checked before the "supplementary" fit rule, so the card shows the specific reason.
 
+**How this answer was reached** (annotated mode only). An expander under each annotated answer draws the
+part of the knowledge graph behind it (`answer_graph.py`, rendered with `st.graphviz_chart`, no extra
+dependency): question -> property asked about -> technique (measured by / partly measured by / uses) ->
+instrument with contact, role and fit level, plus accessories to confirm, steps that must or may come
+first, and suitable techniques marked NOT IN DATASET. Nothing in it is new: it is drawn from the
+knowledge files and the checked answer.
+
 If `APP_PASSWORD` is set, the app asks for that password before showing anything.
 
 ## Speed, cost and resilience
@@ -269,7 +276,7 @@ multi-step, vague, model-specific), `status` (`draft` until Stefan has reviewed 
 
 ## Knowledge layer
 
-The capability data that annotated mode uses now, and graph mode will use later. Details and the list
+A lightweight knowledge graph, stored as JSON: typed entities (instruments, techniques, properties, accessories) and typed relations (performs, measures / partly measures, must come first, leads to, accessory to confirm or installed), each with a source and confidence. Annotated mode reasons over it in code (fit levels, workflow, dead ends), and "How this answer was reached" draws the part used for one answer. Details and the list
 of corrections to the first draft are in [`data/README.md`](data/README.md).
 
 | File | Holds |
@@ -311,6 +318,7 @@ The tests always use the mock model, so they need no API key and cost nothing. T
 | `app.py` | Streamlit interface |
 | `core.py` | Load dataset (IDs EQ01-EQ20 in row order) and test instruments (EQ21-EQ23), prompts, JSON parsing, answer checks |
 | `knowledge.py` | Load and check the knowledge files; lookups; instrument notes for the annotated prompt |
+| `answer_graph.py` | The knowledge-graph view of one annotated answer (Graphviz DOT) |
 | `scripts/draft_annotations.py` | Draft annotations with the LLM, check the knowledge files, export the review spreadsheet |
 | `data/vocabulary.json`, `data/techniques.json`, `data/annotations.json` | Knowledge layer (see above) |
 | `llm.py` | `complete(system, user, json_mode)` for gemini / openai / ollama / mock, with timeouts, retries and fallback model; `complete_with_meta` adds tokens, time and cost; `stream_with_meta` streams text |

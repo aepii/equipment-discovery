@@ -6,7 +6,6 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 
 def load_secrets() -> None:
@@ -22,6 +21,7 @@ def load_secrets() -> None:
 
 load_secrets()
 
+import answer_graph  # noqa: E402
 import core  # noqa: E402  (imported after secrets so llm sees the deployed settings)
 import knowledge  # noqa: E402
 import llm  # noqa: E402
@@ -225,6 +225,14 @@ def render_structured(result: dict) -> None:
                 if n.get("available_on"):
                     st.error(f"{n.get('technique', '')} is listed as not available, but the instrument notes "
                              f"list it for {', '.join(n['available_on'])}.")
+        dot = answer_graph.build_dot(result)
+        if dot:
+            with st.expander("How this answer was reached (knowledge graph)"):
+                st.caption("The part of the knowledge graph behind this answer: what you asked about, the "
+                           "techniques that measure it, the instruments and contacts that perform them, the steps "
+                           "that must or may come first, and what is not in the dataset. Dashed boxes: "
+                           "complementary only or not in the dataset; dotted arrows: workflow steps.")
+                st.graphviz_chart(dot, use_container_width=True)
     with st.expander("Raw model output"):
         st.code(result["raw"] or "(empty)", language="json")
 
@@ -391,48 +399,36 @@ def main() -> None:
     st.session_state.setdefault("cost", 0.0)
     mode = render_sidebar()
 
-    tab1, tab2 = st.tabs(["Equipment Discovery", "Knowledge Graph Explorer"])
+    st.title("UMKC Research Equipment Discovery")
+    st.write("Describe your research or measurement problem in plain language. "
+             "You do not need to know which technique or instrument you need.")
+    st.caption("Questions, answers and feedback are logged to help evaluate this prototype. "
+               "Please do not enter confidential information.")
 
-    with tab1:
-        st.title("UMKC Research Equipment Discovery")
-        st.write("Describe your research or measurement problem in plain language. "
-                 "You do not need to know which technique or instrument you need.")
-        st.caption("Questions, answers and feedback are logged to help evaluate this prototype. "
-                   "Please do not enter confidential information.")
+    cols = st.columns(len(EXAMPLES))
+    for col, (label, text) in zip(cols, EXAMPLES.items()):
+        col.button(label, on_click=set_question, args=(text,), use_container_width=True)
 
-        cols = st.columns(len(EXAMPLES))
-        for col, (label, text) in zip(cols, EXAMPLES.items()):
-            col.button(label, on_click=set_question, args=(text,), use_container_width=True)
+    question = st.text_area("Your question", key="question", height=100)
+    if st.button("Find equipment", type="primary"):
+        if not question.strip():
+            st.warning("Please enter a question.")
+            return
+        modes = MODES[mode]
+        stream_box = stream_box_for(modes)
+        with st.spinner("Asking the model..."):
+            st.session_state["answers"] = ask(question.strip(), modes, stream_box)
+        st.rerun()  # redraw from the session so the streamed text is replaced by the full answer
 
-        question = st.text_area("Your question", key="question", height=100)
-        if st.button("Find equipment", type="primary"):
-            if not question.strip():
-                st.warning("Please enter a question.")
-                return
-            modes = MODES[mode]
-            stream_box = stream_box_for(modes)
-            with st.spinner("Asking the model..."):
-                st.session_state["answers"] = ask(question.strip(), modes, stream_box)
-            st.rerun()  # redraw from the session so the streamed text is replaced by the full answer
-
-        # Answers are kept in the session so they stay on screen while feedback is given.
-        answers = st.session_state.get("answers", [])
-        if len(answers) > 1:
-            for column, answer in zip(st.columns(len(answers)), answers):
-                with column:
-                    st.subheader(MODE_LABELS[answer["result"]["mode"]])
-                    render_answer(answer)
-        elif answers:
-            render_answer(answers[0])
-
-    with tab2:
-        st.subheader("Interactive Equipment Knowledge Graph")
-        st.caption("Explore relationships between instruments, manufacturers, locations, and research domains.")
-        components.iframe(
-            "https://granite-harrier-1qezz.ship.place/",
-            height=850,
-            scrolling=True,
-        )
+    # Answers are kept in the session so they stay on screen while feedback is given.
+    answers = st.session_state.get("answers", [])
+    if len(answers) > 1:
+        for column, answer in zip(st.columns(len(answers)), answers):
+            with column:
+                st.subheader(MODE_LABELS[answer["result"]["mode"]])
+                render_answer(answer)
+    elif answers:
+        render_answer(answers[0])
 
 
 main()
