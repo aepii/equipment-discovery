@@ -389,6 +389,74 @@
         {"item": "autotitrator for zeta potential vs. pH", "for": ["electrophoretic_light_scattering"], "status": "to_confirm", "source": "llm_draft"}
       ],
       "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
+    },
+    {
+      "id": "EQ21",
+      "instrument": "Hybrid rheometer",
+      "techniques": [
+        {"technique": "rotational_rheometry", "source": "llm_draft", "confidence": "high"},
+        {"technique": "oscillatory_rheometry", "source": "llm_draft", "confidence": "high"},
+        {"technique": "dynamic_mechanical_analysis", "source": "llm_draft", "confidence": "low"}
+      ],
+      "typical_samples": ["Polymer melts and blends", "Hydrogels and biological matrices", "Solutions, suspensions, and emulsions", "Thermoset resins and curing adhesives", "Solid polymer bars, strips, or films"],
+      "limitations": [
+        "Cannot reach high processing shear rates typical of industrial injection molding or extrusion (requires capillary rheometry)",
+        "Not a replacement for high-load universal mechanical testing machines for standard tensile or compressive failure testing",
+        "Requires proper geometry selection and solvent trap / environmental control to prevent sample evaporation or edge fracture during testing"
+      ],
+      "accessories": [
+        {"item": "Environmental Test Chamber (ETC), P/N 534040.901", "for": ["rotational_rheometry", "oscillatory_rheometry", "dynamic_mechanical_analysis"], "status": "listed_in_dataset", "source": "dataset"},
+        {"item": "Parallel plate or cone-and-plate measuring geometries", "for": ["rotational_rheometry", "oscillatory_rheometry"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "Solid torsion / tension DMA clamps for ETC", "for": ["dynamic_mechanical_analysis"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": "Drafted by the LLM from manufacturer, model and installed accessories only (fictional test instrument)."}
+    },
+    {
+      "id": "EQ22",
+      "instrument": "Upright optical microscope",
+      "techniques": [
+        {"technique": "brightfield_microscopy", "source": "llm_draft", "confidence": "high"},
+        {"technique": "widefield_fluorescence_microscopy", "source": "llm_draft", "confidence": "low"},
+        {"technique": "phase_contrast_microscopy", "source": "llm_draft", "confidence": "medium"}
+      ],
+      "typical_samples": ["Histological tissue sections mounted on glass slides", "Fixed cell smears and cytospins on slides", "Microparticle dispersions or thin polymer films mounted under a coverslip", "Stained biological specimens"],
+      "limitations": [
+        "Upright configuration requires samples to be mounted on glass slides with coverslips; not suitable for viewing live cells in standard culture flasks or thick culture dishes.",
+        "Spatial resolution is diffraction-limited to approximately 200 nm lateral resolution.",
+        "Lacks optical sectioning capability for thick, light-scattering specimens.",
+        "Epifluorescence and phase contrast capabilities require specific optional hardware (light source, filter cubes, phase condenser/objectives) not listed in the dataset."
+      ],
+      "accessories": [
+        {"item": "Brightfield objectives and standard condenser", "for": ["brightfield_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "Digital microscope camera and acquisition software", "for": ["brightfield_microscopy", "widefield_fluorescence_microscopy", "phase_contrast_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "Fluorescence light source and filter cubes", "for": ["widefield_fluorescence_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "Phase-contrast condenser annulus and phase objectives", "for": ["phase_contrast_microscopy"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": "Drafted by the LLM from manufacturer, model and installed accessories only (fictional test instrument)."}
+    },
+    {
+      "id": "EQ23",
+      "instrument": "Inverted optical microscope",
+      "techniques": [
+        {"technique": "brightfield_microscopy", "source": "llm_draft", "confidence": "high"},
+        {"technique": "phase_contrast_microscopy", "source": "llm_draft", "confidence": "medium"},
+        {"technique": "widefield_fluorescence_microscopy", "source": "llm_draft", "confidence": "low"},
+        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low"}
+      ],
+      "typical_samples": ["Adherent or suspension cell cultures in culture flasks, dishes, or multi-well plates", "Histological tissue sections mounted on glass slides", "Transparent hydrogels, biomaterial films, or microfluidic chips containing cells"],
+      "limitations": [
+        "Resolution is restricted by the optical diffraction limit (approximately 200 nm lateral)",
+        "Limited depth of field and optical penetration in thick, non-cleared, or opaque specimens without confocal sectioning",
+        "Advanced imaging modalities (fluorescence, phase contrast, live-cell environmental incubation) require specific modular components that are not confirmed in this dataset"
+      ],
+      "accessories": [
+        {"item": "Microscope objectives (e.g., 4x, 10x, 20x, 40x, 60x/100x oil)", "for": ["brightfield_microscopy", "phase_contrast_microscopy", "widefield_fluorescence_microscopy", "live_cell_time_lapse_imaging"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "Digital camera (CMOS / sCMOS / CCD)", "for": ["brightfield_microscopy", "phase_contrast_microscopy", "widefield_fluorescence_microscopy", "live_cell_time_lapse_imaging"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "Fluorescence excitation light source and filter cubes", "for": ["widefield_fluorescence_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "Phase contrast condenser rings and phase-compatible objectives", "for": ["phase_contrast_microscopy"], "status": "to_confirm", "source": "llm_draft"},
+        {"item": "Stage-top environmental incubation chamber (CO2, temperature, and humidity control)", "for": ["live_cell_time_lapse_imaging"], "status": "to_confirm", "source": "llm_draft"}
+      ],
+      "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": "Drafted by the LLM from manufacturer, model and installed accessories only (fictional test instrument)."}
     }
   ]
 }

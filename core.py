@@ -14,6 +14,7 @@ import knowledge
 from llm import complete_with_meta, stream_with_meta
 
 DATA_PATH = Path(__file__).parent / "data" / "dataset.xlsx"
+TEST_INSTRUMENTS_PATH = Path(__file__).parent / "data" / "test_instruments.json"
 DEMO_ANSWERS_PATH = Path(__file__).parent / "data" / "demo_answers.json"
 SHEET = "Equipment list"
 FIELDS = ["instrument", "manufacturer", "model", "notes", "location", "contact"]
@@ -27,8 +28,13 @@ ROLES = ("primary", "supplementary")
 # --- dataset ---
 
 @lru_cache(maxsize=1)
-def load_equipment(path: Path = DATA_PATH) -> tuple[dict, ...]:
-    """Read the equipment sheet. Each row gets a stable ID in row order: EQ01 ... EQ20."""
+def load_equipment(path: Path = DATA_PATH, test_path: Path = TEST_INSTRUMENTS_PATH) -> tuple[dict, ...]:
+    """The equipment sheet (stable IDs in row order: EQ01 ... EQ20), then the fictional test instruments
+    from test_path (EQ21, EQ22, ... in file order).
+
+    Every instrument has "installed_accessories" (a list; empty for the dataset rows, which don't record
+    them) and "fictional_test_instrument".
+    """
     sheet = openpyxl.load_workbook(path, read_only=True)[SHEET]
     rows = [r for r in sheet.iter_rows(min_row=2, values_only=True) if r and r[0]]
     equipment = []
@@ -36,12 +42,24 @@ def load_equipment(path: Path = DATA_PATH) -> tuple[dict, ...]:
         item = {"id": f"EQ{i:02d}"}
         for field, value in zip(FIELDS, row):
             item[field] = str(value).strip() if value is not None else ""
-        equipment.append(item)
+        equipment.append({**item, "installed_accessories": [], "fictional_test_instrument": False})
+    extras = json.loads(test_path.read_text(encoding="utf-8"))["instruments"] if test_path.exists() else []
+    for extra in extras:
+        equipment.append({"id": f"EQ{len(equipment) + 1:02d}",
+                          **{field: str(extra.get(field) or "").strip() for field in FIELDS},
+                          "installed_accessories": list(extra.get("installed_accessories", [])),
+                          "fictional_test_instrument": bool(extra.get("fictional_test_instrument"))})
     return tuple(equipment)
 
 
 def equipment_by_id() -> dict[str, dict]:
     return {item["id"]: item for item in load_equipment()}
+
+
+def prompt_notes(item: dict) -> str:
+    """The notes the model sees. A fictional test instrument's notes only say that it is fictional, which
+    would let the model treat it differently from the real ones, so they are left out of prompts."""
+    return "" if item.get("fictional_test_instrument") else item["notes"]
 
 
 def format_equipment_list(include_contacts: bool = False) -> str:
@@ -55,8 +73,10 @@ def format_equipment_list(include_contacts: bool = False) -> str:
         line = f"{e['id']} | {e['instrument']} | {e['manufacturer']} {e['model']} | {e['location']}"
         if include_contacts:
             line += f" | Contact: {e['contact']}"
-        if e["notes"]:
-            line += f" | Notes: {e['notes']}"
+        if e["installed_accessories"]:
+            line += f" | Installed accessories: {'; '.join(e['installed_accessories'])}"
+        if prompt_notes(e):
+            line += f" | Notes: {prompt_notes(e)}"
         lines.append(line)
     return "\n".join(lines)
 
@@ -83,10 +103,14 @@ def recommended_line_ids(text: str) -> list[str] | None:
 
 @lru_cache(maxsize=1)
 def _instrument_patterns() -> dict[str, re.Pattern]:
-    patterns = {}
+    """A name shared with an earlier instrument stays with that one (e.g. "Hybrid rheometer" is EQ19;
+    the test instrument EQ21 has the same name), so the later one is found by its ID or model only."""
+    patterns, claimed = {}, set()
     for e in load_equipment():
-        names = [e["id"], e["model"], e["instrument"]]
+        names = [e["model"], e["instrument"]]
         names += re.findall(r"\(([A-Z]{2,})\)", e["instrument"])  # e.g. TGA, DSC, ESEM
+        names = [e["id"]] + [n for n in names if n and n.lower() not in claimed]
+        claimed.update(n.lower() for n in names)
         alternatives = "|".join(re.escape(n) for n in names if n)
         patterns[e["id"]] = re.compile(rf"\b(?:{alternatives})\b", re.IGNORECASE)
     return patterns
@@ -107,7 +131,8 @@ def prompt_version(mode: str) -> str:
 
 @lru_cache(maxsize=1)
 def dataset_version() -> str:
-    return _short_hash(DATA_PATH.read_bytes())
+    test_instruments = TEST_INSTRUMENTS_PATH.read_bytes() if TEST_INSTRUMENTS_PATH.exists() else b""
+    return _short_hash(DATA_PATH.read_bytes() + test_instruments)
 
 
 @lru_cache(maxsize=1)
@@ -132,9 +157,12 @@ Rules:
    in instrument names alone.
 2. Recommend ONLY instruments from the equipment list, referenced by their ID (e.g. "EQ15").
    Never invent instruments or IDs.
-3. The list does NOT record installed accessories, fixtures or configurations. Never assume they
-   are installed. In "accessories_to_confirm", name the accessories the measurement typically needs
-   (e.g. a suitable load cell and compression platens) so the researcher can confirm them.
+3. The list records installed accessories only where an instrument says "Installed accessories: ...";
+   those count as confirmed. Never assume any other accessory, fixture or configuration is installed.
+   In "accessories_to_confirm", name the other accessories the measurement typically needs (e.g. a
+   suitable load cell and compression platens) so the researcher can confirm them. Prefer an
+   instrument whose installed configuration fits the measurement over an identical model whose
+   configuration is unknown.
 4. If a well-suited technique is not available on any listed instrument (e.g. micro-CT), list it
    in "not_available" and say why it would be useful.
 5. Point out limitations honestly (e.g. a method that is destructive or only works on certain samples).
@@ -180,8 +208,8 @@ ANNOTATED_SYSTEM = STRUCTURED_SYSTEM.split("\n\nReturn ONLY")[0] + """
 9. Each instrument comes with draft notes: its typical techniques (with IDs such as
    "compression_testing"), what they measure, whether they are destructive, typical samples,
    limitations and accessories to confirm. The notes describe what this TYPE of instrument typically
-   does and are not yet reviewed. Use them, but do not treat accessories as installed unless the notes
-   say "Installed per the dataset". Techniques marked "only with optional hardware" need confirming.
+   does and are not yet reviewed. Use them, but do not treat accessories as installed unless the list
+   says "Installed accessories" or "Installed per the dataset". Techniques marked "only with optional hardware" need confirming.
 10. Instruments whose techniques measure nothing (printers, mills, sectioning) only make or prepare
    samples. Recommend them only when the researcher needs that step.
 11. "Techniques not available on any listed instrument" supports rule 4. Whenever one of them is the

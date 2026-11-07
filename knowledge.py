@@ -2,7 +2,7 @@
 
 data/vocabulary.json   allowed property ids, kinds, sources, confidence levels and statuses
 data/techniques.json   what each technique measures, whether it is destructive, workflow steps
-data/annotations.json  which techniques each instrument (EQ01-EQ20) typically performs, accessories, limits
+data/annotations.json  which techniques each instrument (EQ01-EQ23) typically performs, accessories, limits
 
 Annotations describe what this TYPE of instrument typically does. They never say an accessory is
 installed unless the dataset itself lists it.
@@ -179,14 +179,18 @@ def format_annotated_equipment(equipment: list[dict]) -> str:
     for e in equipment:
         a = annotations().get(e["id"])
         lines = [f"{e['id']} | {e['instrument']} | {e['manufacturer']} {e['model']}"]
-        if e["notes"]:
+        installed = e.get("installed_accessories", [])
+        if installed:
+            lines.append(f"  Installed accessories: {'; '.join(installed)}")
+        if e["notes"] and not e.get("fictional_test_instrument"):  # see core.prompt_notes
             lines.append(f"  Dataset notes: {e['notes']}")
         if a:
             lines.append("  Typical techniques:")
             lines += [f"    - {_technique_line(tid, entry)}" for tid, entry in techniques_of(e["id"]).items()]
             lines.append(f"  Typical samples: {'; '.join(a['typical_samples'])}")
             lines.append(f"  Limitations: {'; '.join(a['limitations'])}")
-            listed = [x["item"] for x in a["accessories"] if x["status"] == "listed_in_dataset"]
+            listed = [x["item"] for x in a["accessories"]
+                      if x["status"] == "listed_in_dataset" and x["item"] not in installed]
             confirm = [f"{x['item']} (for {', '.join(x['for'])})" for x in a["accessories"]
                        if x["status"] == "to_confirm"]
             if listed:

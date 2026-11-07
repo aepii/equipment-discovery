@@ -7,10 +7,32 @@ import core
 
 # --- dataset ---
 
-def test_dataset_has_20_instruments_with_ids_in_row_order():
+def test_dataset_has_20_instruments_then_3_test_instruments():
     equipment = core.load_equipment()
-    assert [e["id"] for e in equipment] == [f"EQ{i:02d}" for i in range(1, 21)]
+    assert [e["id"] for e in equipment] == [f"EQ{i:02d}" for i in range(1, 24)]
     assert all(e["instrument"] and e["location"] and e["contact"] for e in equipment)
+    assert [e["fictional_test_instrument"] for e in equipment] == [False] * 20 + [True] * 3
+    assert all(e["installed_accessories"] == [] for e in equipment[:20])
+    assert core.equipment_by_id()["EQ21"]["installed_accessories"] == ["Environmental Test Chamber (ETC), P/N 534040.901"]
+
+
+def test_without_the_test_file_only_the_dataset_is_loaded(tmp_path):
+    equipment = core.load_equipment.__wrapped__(core.DATA_PATH, tmp_path / "missing.json")
+    assert len(equipment) == 20
+
+
+def test_installed_accessories_are_in_every_prompt_but_fictional_notes_are_not():
+    for mode in ("structured", "naive", "annotated"):
+        prompt = core.build_user_prompt("q", mode)
+        assert "Installed accessories: Environmental Test Chamber (ETC), P/N 534040.901" in prompt
+        assert "model-specific testing" not in prompt
+    assert '"Installed accessories: ...' in core.STRUCTURED_SYSTEM
+    assert "identical model" in core.STRUCTURED_SYSTEM and "identical model" in core.ANNOTATED_SYSTEM
+
+
+def test_test_instruments_found_by_id_or_model_not_by_shared_name():
+    assert core.instrument_ids_in_text("the hybrid rheometer") == ["EQ19"]
+    assert core.instrument_ids_in_text("the Discovery HR20 or EQ22, and an Olympus IX83") == ["EQ21", "EQ22", "EQ23"]
 
 
 def test_known_instruments_are_where_the_test_set_expects_them():

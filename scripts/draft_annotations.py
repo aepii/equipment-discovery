@@ -34,8 +34,8 @@ EXPORT_PATH = ROOT / "data" / "instrument_capabilities.xlsx"
 # --- draft ---
 
 DRAFT_SYSTEM = """You draft notes about one research instrument for an equipment-discovery tool.
-Describe what this TYPE of instrument typically does. The dataset does not list installed accessories,
-fixtures or configurations: never say an accessory is installed unless the dataset notes say so.
+Describe what this TYPE of instrument typically does. The dataset lists installed accessories only
+where the row says "installed accessories"; never say any other accessory is installed.
 
 Rules:
 1. Use ONLY technique IDs from the technique list. If the instrument performs a technique that is not
@@ -46,8 +46,10 @@ Rules:
 3. Instruments that make or prepare samples (printers, mills, sectioning) measure nothing; say so in
    "limitations".
 4. Accessories: what a measurement typically needs. "for" lists the technique IDs it is needed for.
-   "status" is "listed_in_dataset" (with "source": "dataset") only if the dataset notes list it,
-   else "to_confirm" (with "source": "llm_draft").
+   "status" is "listed_in_dataset" (with "source": "dataset") only if the dataset row lists it (as an
+   installed accessory or in the notes), else "to_confirm" (with "source": "llm_draft"). Include every
+   installed accessory, with the techniques it enables, and use it to judge what this specific
+   configuration can do (e.g. its temperature range).
 
 Return ONLY a JSON object with this shape:
 {
@@ -70,8 +72,11 @@ def technique_list() -> str:
 
 
 def draft_prompt(item: dict) -> str:
+    """The dataset row: name, manufacturer, model, installed accessories and notes (a fictional test
+    instrument's notes are left out, see core.prompt_notes)."""
+    installed = "; ".join(item.get("installed_accessories", [])) or "(none listed)"
     row = (f"{item['id']} | {item['instrument']} | {item['manufacturer']} | {item['model']} | "
-           f"notes: {item['notes'] or '(none)'}")
+           f"installed accessories: {installed} | notes: {core.prompt_notes(item) or '(none)'}")
     return f"Technique list:\n{technique_list()}\n\nDataset row:\n{row}"
 
 

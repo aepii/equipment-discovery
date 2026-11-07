@@ -46,6 +46,7 @@ MODES = {
 MODE_LABELS = {"structured": "Structured", "annotated": "Structured + annotations", "naive": "Naive"}
 RUNNERS = {"structured": core.run_structured, "annotated": core.run_annotated, "naive": core.run_naive}
 RATINGS = ["Good", "Partly", "Wrong"]
+FICTIONAL_LABEL = "Fictional test instrument"
 
 
 def set_question(text: str) -> None:
@@ -96,7 +97,10 @@ def render_sidebar() -> str:
                    + (f" of ${runtime.daily_budget_usd():.2f}" if runtime.daily_budget_usd() else ""))
         with st.expander(f"Equipment in the dataset ({len(core.load_equipment())})"):
             st.dataframe(
-                [{"ID": e["id"], "Instrument": e["instrument"], "Location": e["location"],
+                [{"ID": e["id"],
+                  "Instrument": e["instrument"] + (f" ({FICTIONAL_LABEL})" if e["fictional_test_instrument"] else ""),
+                  "Location": e["location"],
+                  "Installed accessories": "; ".join(e["installed_accessories"]),
                   "Typical techniques (draft)": "; ".join(knowledge.technique_name(t)
                                                           for t in knowledge.techniques_of(e["id"]))}
                  for e in core.load_equipment()],
@@ -107,12 +111,15 @@ def render_sidebar() -> str:
 
 def render_recommendation(rec: dict) -> None:
     with st.container(border=True):
-        st.markdown(f"**{rec['instrument']}** · {rec['manufacturer']} {rec['model']} · `{rec['id']}`")
+        label = f" · :orange[**{FICTIONAL_LABEL}**]" if rec.get("fictional_test_instrument") else ""
+        st.markdown(f"**{rec['instrument']}** · {rec['manufacturer']} {rec['model']} · `{rec['id']}`{label}")
         st.markdown(f"**Technique:** {rec['technique']}")
         st.markdown(rec["why"])
         if rec.get("destructive"):
             st.markdown(f"**Destructive:** {rec['destructive']}")
         st.markdown(f"**Location:** {rec['location']}  \n**Contact (fictional):** {rec['contact']}")
+        if rec.get("installed_accessories"):
+            st.success("**Installed (listed in the dataset):** " + "; ".join(rec["installed_accessories"]))
         if rec["accessories_to_confirm"]:
             st.warning("**Confirm with the contact:** " + "; ".join(rec["accessories_to_confirm"]))
         for caution in rec.get("cautions", []):

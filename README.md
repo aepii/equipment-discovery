@@ -4,6 +4,13 @@ Type a research or measurement question in plain language; the app suggests tech
 to instruments in the built-in dataset (`data/dataset.xlsx`), and shows location and contact for each.
 Contact names in the dataset are fictional.
 
+The dataset has Stefan's 20 instruments (EQ01-EQ20) plus 3 fictional test instruments (EQ21-EQ23,
+`data/test_instruments.json`) for testing whether the AI understands specific models and their installed
+accessories, e.g. a second Discovery HR20 rheometer with the Environmental Test Chamber installed.
+Instruments can list `installed_accessories`; those count as confirmed in every prompt, and anything else
+is still "confirm with the contact". The app labels test instruments "Fictional test instrument". See
+[`data/README.md`](data/README.md).
+
 ## Setup
 
 ```
@@ -198,7 +205,7 @@ of corrections to the first draft are in [`data/README.md`](data/README.md).
 |---|---|
 | `data/vocabulary.json` | Controlled vocabulary: property ids (e.g. `compressive_modulus`), technique kinds, sources, confidence levels, accessory and review statuses |
 | `data/techniques.json` | Technique knowledge base: what each technique measures (fully or `partial`ly), destructive or not, `requires_before` / `leads_to` workflow steps. Includes techniques not in the dataset (micro-CT, GPC, capillary rheometry, ...) |
-| `data/annotations.json` | Per instrument (EQ01-EQ20): techniques it typically performs (each with `source` and `confidence`), typical samples, limitations, accessories (`to_confirm` unless the dataset lists them), review status |
+| `data/annotations.json` | Per instrument (EQ01-EQ23): techniques it typically performs (each with `source` and `confidence`), typical samples, limitations, accessories (`to_confirm` unless the dataset lists them), review status |
 | `data/instrument_capabilities.xlsx` | Review copy for Stefan, generated from the JSON files |
 
 Annotations describe what this **type** of instrument typically does, never what is installed. Every
@@ -231,7 +238,7 @@ The tests always use the mock model, so they need no API key and cost nothing. T
 | File | Purpose |
 |---|---|
 | `app.py` | Streamlit interface |
-| `core.py` | Load dataset (IDs EQ01-EQ20 in row order), prompts, JSON parsing, answer checks |
+| `core.py` | Load dataset (IDs EQ01-EQ20 in row order) and test instruments (EQ21-EQ23), prompts, JSON parsing, answer checks |
 | `knowledge.py` | Load and check the knowledge files; lookups; instrument notes for the annotated prompt |
 | `scripts/draft_annotations.py` | Draft annotations with the LLM, check the knowledge files, export the review spreadsheet |
 | `data/vocabulary.json`, `data/techniques.json`, `data/annotations.json` | Knowledge layer (see above) |
