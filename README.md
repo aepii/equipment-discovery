@@ -102,9 +102,12 @@ output, so they are checked like live ones (unknown IDs removed, contact and loc
   answer is shown, labelled with the recording date and model and the live error.
 - `DEMO_OFFLINE=1`: never call the model; only saved answers (e.g. no internet at the venue).
 
-A warning appears if the prompt or dataset changed since the answer was recorded.
+A warning appears if the prompt or dataset changed since the answer was recorded. The prompts and the
+dataset version changed with the primary/supplementary roles and the test instruments (Nov 7), so
+re-record with the real model: `python run_eval.py --record-demo`.
 
-For UI work with `LLM_PROVIDER=mock`: `MOCK_DELAY_S=3` makes each answer take 3 s, and `MOCK_FAIL=429:2`
+For UI work with `LLM_PROVIDER=mock` (canned answers for questions mentioning viscous, compress,
+internal or roughness; the roughness one shows the "Complementary only" section): `MOCK_DELAY_S=3` makes each answer take 3 s, and `MOCK_FAIL=429:2`
 makes the next 2 calls fail with error 429 (try `503:99` to see the saved-answer backup).
 
 ## Deploy (Streamlit Community Cloud)
@@ -157,7 +160,12 @@ retried inside each call (see "Speed, cost and resilience"), then the whole answ
 after 10 and 20 s; other errors are kept and counted separately (they are left out of the averages).
 The summary also has `repaired_rate` (structured answers that needed the repair call),
 `false_primary_rate` (answers with at least one false primary), `objective_met_ok_rate` and
-`total_cost_usd` (when prices are set).
+`total_cost_usd` (when prices are set). In the printed table these are `falseP` and `no-obj`, and each
+printed answer line shows the primary IDs, then `+supplementary [...]` if there are any.
+
+Recall changed meaning with the roles (it now counts primary instruments only), so runs from before
+Nov 7 are not directly comparable; `--rescore` re-reads old answers, but those have no roles, so every
+recommendation counts as primary there.
 
 `results/run_<time>.csv` has one row per question x mode x run, with the same answer columns as the
 app's log (including `primary_ids`, `supplementary_ids` and `objective_met`) plus these scores:
