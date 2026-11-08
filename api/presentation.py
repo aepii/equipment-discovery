@@ -28,13 +28,6 @@ EXAMPLES = [
     {"field": "Imaging",
      "question": "I need to examine the internal structure of a porous specimen without destroying it. "
                  "What characterization methods are available?"},
-    {"field": "Particles",
-     "question": "I synthesized nanoparticles in water and need to know their size distribution. "
-                 "How can I measure it?"},
-    {"field": "Cell biology",
-     "question": "How can I check whether cells are alive and spreading inside a 3D hydrogel?"},
-    {"field": "Dental materials",
-     "question": "How can I measure the flexural strength of dental composite bars?"},
 ]
 
 # Wording the model sometimes copies from its instructions about the instrument notes.
