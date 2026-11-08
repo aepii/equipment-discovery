@@ -14,6 +14,8 @@ FORBIDDEN = ["stefan", "lohfeld", "expert", "mentor", "faculty", "reviewed", "dr
              "test question", "poster", "streamlit"]
 _FORBIDDEN = re.compile(r"\b(" + "|".join(re.escape(w) for w in FORBIDDEN) + r")", re.I)
 DIST = Path(__file__).parent.parent / "web" / "dist"
+# Library code in the bundle, never shown: the HTML <video poster> attribute in react-markdown's tables.
+BUNDLE_IGNORE = re.compile(r"\bposter:(?=null|\[)")
 
 
 def forbidden_in(text: str) -> list[str]:
@@ -87,7 +89,7 @@ def test_built_frontend_is_clean():
     found = {}
     for path in DIST.rglob("*"):
         if path.suffix in (".js", ".html", ".css", ".json", ".txt", ".svg"):
-            words = forbidden_in(path.read_text(encoding="utf-8", errors="ignore"))
+            words = forbidden_in(BUNDLE_IGNORE.sub("", path.read_text(encoding="utf-8", errors="ignore")))
             if words:
                 found[str(path.relative_to(DIST))] = words
     assert found == {}

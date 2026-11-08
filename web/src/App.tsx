@@ -69,7 +69,7 @@ export default function App() {
             <StartScreen composer={composer} examples={examples.data ?? []} onExample={submit} />
           ) : (
             <>
-              <div className="thread">
+              <div className={`thread${turns.some((t) => t.compare) ? " thread--wide" : ""}`}>
                 {turns.map((turn, i) => (
                   <TurnView
                     key={turn.id}

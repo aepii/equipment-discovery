@@ -5,6 +5,8 @@ import { useState, type ReactNode } from "react";
 import { ask, type AskInput } from "../api";
 import type { AskResponse, Mode, Stage, Turn } from "../types";
 import { AnswerDocument } from "./AnswerDocument";
+import { CompareView } from "./CompareView";
+import { ReasoningButton } from "./Reasoning";
 import { AnswerSkeleton, StageList } from "./Thinking";
 
 export interface AskContext {
@@ -40,6 +42,8 @@ export function useAnswer(turn: Turn, mode: Mode, ctx: AskContext, onAnswered: (
   });
   return { answer: saved ?? query.data, stage, error: query.error, retry: () => void query.refetch(), loading: query.isFetching };
 }
+
+export type AnswerState = ReturnType<typeof useAnswer>;
 
 export function Pending({ stage }: { stage: Stage | null }) {
   return (
@@ -87,7 +91,7 @@ export function RewriteLine({ answer }: { answer?: AskResponse }) {
 
 /** The main answer slot: progress, error with retry, or the answer document (cross-faded). */
 export function AnswerSlot({ state, render }: {
-  state: ReturnType<typeof useAnswer>;
+  state: AnswerState;
   render: (answer: AskResponse) => ReactNode;
 }) {
   const { answer, stage, error, retry, loading } = state;
@@ -118,12 +122,30 @@ export function TurnView({ turn, ctx, onAnswered }: {
   ctx: AskContext;
   onAnswered: (turnId: string, mode: Mode, answer: AskResponse) => void;
 }) {
-  const main = useAnswer(turn, turn.mode, ctx, (mode, a) => onAnswered(turn.id, mode, a));
+  const save = (mode: Mode, a: AskResponse) => onAnswered(turn.id, mode, a);
+  const main = useAnswer(turn, turn.mode, ctx, save);
+  // Compare asks General AI in parallel; the hook is always called but only fetches when comparing.
+  const general = useAnswer(turn.compare ? turn : { ...turn, answers: { naive: SKIP } }, "naive", ctx, save);
   return (
     <section className="turn" aria-label="Question and answer">
       <QuestionBubble text={turn.question} />
       <RewriteLine answer={main.answer} />
-      <AnswerSlot state={main} render={(answer) => <AnswerDocument answer={answer} />} />
+      {turn.compare ? (
+        <CompareView finder={main} general={general} />
+      ) : (
+        <AnswerSlot
+          state={main}
+          render={(answer) => (
+            <AnswerDocument
+              answer={answer}
+              actions={answer.graph_dot ? <ReasoningButton dot={answer.graph_dot} /> : undefined}
+            />
+          )}
+        />
+      )}
     </section>
   );
 }
+
+/** Placeholder that keeps the General AI query disabled when not comparing. */
+const SKIP = {} as AskResponse;
