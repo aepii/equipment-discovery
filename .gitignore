@@ -10,3 +10,4 @@ PLAN.md
 CLAUDE.md
 web/node_modules/
 web/dist/
+*.tsbuildinfo
