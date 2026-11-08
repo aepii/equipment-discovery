@@ -296,8 +296,15 @@ vague questions.
 - **Only the wording is written by Claude Code**, from each brief, without the technique or instrument
   names that would give the answer away. Gemini, the model being tested, never sees the plan.
 - `scripts/generate_questions.py check` verifies the questions against the plan: same answer keys, no
-  forbidden terms, no near-duplicates, no close paraphrase of a curated question, and a plan built from
-  the current knowledge files (if they changed: rerun `plan`, update the questions, re-check).
+  forbidden terms, no near-duplicates, no close paraphrase of a curated question (stricter when the
+  generated question has the same rule inputs), and a plan built from the current knowledge files (if
+  they changed: rerun `plan`, update the questions, re-check).
+- **Cross-checks without an expert.** `compare` maps each curated question to a rule and its inputs
+  (`CURATED_INPUTS`), builds the generated key for it and writes `results/key_comparison.md`: agreement
+  for Stefan-sourced (Q18-Q21) and other questions, and each difference per instrument as a conflict
+  (good pick in one key, wrong in the other), a level difference or one-sided. `facts` writes
+  `results/knowledge_facts.md`, the technique and instrument facts the generated keys rest on, with the
+  most-used rows marked to check first (against manufacturer pages or with Stefan).
 - **Bias:** annotated mode reads the same annotations that produced these answer keys, so it has a
   built-in advantage on this set; and the annotations are still drafts. Report generated results next to,
   not instead of, the curated ones.
@@ -305,6 +312,8 @@ vague questions.
 ```
 python scripts/generate_questions.py plan
 python scripts/generate_questions.py check
+python scripts/generate_questions.py compare       # results/key_comparison.md
+python scripts/generate_questions.py facts         # results/knowledge_facts.md
 python run_eval.py --question-file test_questions_generated.json --review-sheet --sample 20   # spot-check sheet
 python run_eval.py --question-file test_questions_generated.json --sample 15 --runs 1 --yes   # a fixed subset first
 python run_eval.py --question-file test_questions_generated.json --runs 1 --yes               # all 99 (~300 calls)

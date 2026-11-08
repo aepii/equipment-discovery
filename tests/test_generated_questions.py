@@ -85,3 +85,40 @@ def test_check_catches_missing_items_and_stale_knowledge():
     problems = gq.question_problems(QUESTIONS[1:], {**PLAN, "knowledge_version": "old"}, CURATED)
     assert any("not in the questions" in p for p in problems)
     assert any("knowledge version" in p for p in problems)
+
+
+# --- cross-checks: compare, facts, curated overlap ---
+
+def test_every_curated_question_is_mapped_or_skipped_with_a_reason():
+    ids = {q["id"] for q in CURATED}
+    assert ids == set(gq.CURATED_INPUTS) | set(gq.CURATED_SKIPPED)
+    assert all(gq.CURATED_SKIPPED.values())
+
+
+def test_compare_finds_agreement_and_conflicts():
+    rows = {r["id"]: r for r in gq.comparisons(CURATED)}
+    assert rows["Q4"]["differs"] == [] and rows["Q10"]["differs"] == []
+    assert any(d["kind"] == "conflict" for d in rows["Q3"]["ids"])
+    report = gq.comparison_report(list(rows.values()))
+    assert report.index("### Q3") < report.index("### Q1:")  # conflicts first
+    assert "Stefan-sourced or reviewed" in report
+
+
+def test_workflow_with_a_missing_prep_step_flags_it():
+    key = gq.key_workflow("sputter_coating", "environmental_sem", "surface_morphology")
+    assert key["expected_ids"] == ["EQ10"]
+    assert gq.missing_techniques_named(key["expected_not_available"]) == ["sputter_coating"]
+
+
+def test_facts_report_lists_every_instrument_and_marks_rows_to_check_first():
+    report = gq.facts_report(ITEMS)
+    assert all(f"| {eq} |" in report for eq in knowledge.annotations())
+    assert "★" in report and "**none listed**" in report
+
+
+def test_check_rejects_a_paraphrase_of_a_curated_question_with_the_same_inputs():
+    vague = next(i for i, q in enumerate(QUESTIONS) if q["id"] == "G096")
+    text = "Do you have anything for testing materials?"  # a paraphrase of Q16, not a copy
+    assert gq.SAME_INPUTS_PARAPHRASE <= gq.similarity(text, CURATED[15]["question"]) < gq.CURATED_PARAPHRASE
+    problems = gq.question_problems(_with(vague, question=text), PLAN, CURATED)
+    assert any("same rule inputs" in p for p in problems)

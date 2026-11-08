@@ -3,6 +3,8 @@
 Usage (from the project folder):
   python scripts/generate_questions.py plan    writes data/generated/question_plan.json
   python scripts/generate_questions.py check   checks test_questions_generated.json against the plan
+  python scripts/generate_questions.py compare results/key_comparison.md: curated keys vs. the same rules
+  python scripts/generate_questions.py facts   results/knowledge_facts.md: the facts the keys rest on
 
 The plan holds one item per question to write: the full answer key (same fields as test_questions.json),
 `derived_from` (the rule and inputs that produced it), a `brief` for the question writer and
@@ -32,6 +34,7 @@ import knowledge as k  # noqa: E402
 PLAN_PATH = ROOT / "data" / "generated" / "question_plan.json"
 QUESTIONS_PATH = ROOT / "test_questions_generated.json"
 CURATED_PATH = ROOT / "test_questions.json"
+RESULTS_DIR = ROOT / "results"
 NEAR_DUPLICATE = 0.85  # text similarity (0-1) at which two generated questions count as the same question
 CURATED_PARAPHRASE = 0.7  # lower bar against curated questions: a close paraphrase is enough to reject
 ANSWER_KEY_FIELDS = ["category", "expected_ids", "acceptable_ids", "unacceptable_ids", "supplementary_only_ids",
@@ -310,17 +313,23 @@ class Samples:
         return options[self.used[prop] - 1]
 
 
-# --- building items ---
+# --- answer keys: one function per rule, for one input (used by the plan and by `compare`) ---
 
-def item(category: str, derived_from: dict, brief: str, forbidden: list[str], **key) -> dict:
+def spec(category: str, derived_from: dict, forbidden: list[str], **key) -> dict:
+    """One answer key with its derivation and the terms its question must avoid."""
     answer = {"category": category, "expected_ids": [], "acceptable_ids": [], "unacceptable_ids": [],
               "supplementary_only_ids": [], "expected_not_available": [], "expected_accessories": {},
               "expect_clarifying": False, "expect_dead_end": False, "workflow_ids": []}
     answer.update(key)
     for field in ("expected_ids", "acceptable_ids", "unacceptable_ids", "supplementary_only_ids", "workflow_ids"):
         answer[field] = sorted(set(answer[field]))
-    return {**answer, "derived_from": derived_from, "brief": brief,
-            "forbidden_terms": sorted(dict.fromkeys(forbidden), key=str.lower)}
+    return {**answer, "derived_from": derived_from, "forbidden_terms": sorted(dict.fromkeys(forbidden), key=str.lower)}
+
+
+def item(s: dict, brief: str) -> dict:
+    """A plan item: the answer key and derivation, then the brief and forbidden terms for the writer."""
+    forbidden = s.pop("forbidden_terms")
+    return {**s, "brief": brief, "forbidden_terms": forbidden}
 
 
 def property_key(prop: str) -> dict:
@@ -337,221 +346,242 @@ def answer_forbidden(techs: list[str], eqs: list[str]) -> list[str]:
     return [term for t in techs for term in technique_terms(t)] + [term for eq in eqs for term in instrument_terms(eq)]
 
 
-def available_property_items(samples: Samples, skipped: list) -> list[dict]:
-    items = []
-    for prop in sorted(k.vocabulary()["properties"]):
-        full = available_full(prop)
-        if not full:
-            skipped.append((prop, "available-property", "no listed instrument measures it (no-match rule)"))
-            continue
-        key = property_key(prop)
-        if not key["expected_ids"]:
-            skipped.append((prop, "available-property", "only low-confidence instruments (optional-hardware rule)"))
-            continue
-        sample = samples.next(prop)
-        items.append(item("problem-only",
-                          {"rule": "available-property", "property": prop, "techniques": key["techniques"]},
-                          f"{label(prop)}; sample: {sample}",
-                          answer_forbidden(key["techniques"], key["expected_ids"]),
-                          expected_ids=key["expected_ids"], acceptable_ids=key["acceptable_ids"]))
-    return items
-
-
-def no_match_items(samples: Samples) -> list[dict]:
-    items = []
-    for prop in sorted(k.vocabulary()["properties"]):
-        if available_full(prop):
-            continue
-        missing = missing_full(prop)
-        for _ in range(2):
-            sample = samples.next(prop)
-            items.append(item("no-suitable-equipment",
-                              {"rule": "no-match-property", "property": prop, "techniques": missing},
-                              f"{label(prop)}; sample: {sample}",
-                              [term for t in missing for term in technique_terms(t)],
-                              expected_not_available=[term_regex([x for t in missing for x in technique_terms(t)])],
-                              supplementary_only_ids=list(available_partial(prop))))
-    return items
+def missing_regex(techs: list[str]) -> list[str]:
+    return [term_regex([x for t in techs for x in technique_terms(t)])] if techs else []
 
 
 def destructive(tid: str) -> str:
     return k.techniques()[tid]["destructive"]
 
 
-def non_destructive_items(samples: Samples, skipped: list) -> list[dict]:
-    """Only properties where 'without damaging the sample' changes the answer: some candidate instrument
-    has only destructive techniques for it, and a non-destructive alternative exists (listed or not).
-    'depends' counts as possible without damage (see destructive_note in techniques.json)."""
-    items = []
-    for prop in sorted(k.vocabulary()["properties"]):
-        full, partial = available_full(prop), available_partial(prop)
-        techs_of = {eq: [t for t, _ in ts] for eq, ts in full.items()}
-        for eq, ts in partial.items():
-            techs_of.setdefault(eq, []).extend(ts)
-        damaging = [eq for eq, ts in techs_of.items() if all(destructive(t) == "yes" for t in ts)]
-        gentle_missing = [t for t in missing_full(prop) if destructive(t) != "yes"]
-        gentle_full = {eq: [(t, c) for t, c in ts if destructive(t) != "yes"] for eq, ts in full.items()}
-        gentle_full = {eq: ts for eq, ts in gentle_full.items() if ts}
-        if not damaging:
-            continue
-        if not gentle_full and not gentle_missing:
-            skipped.append((prop, "non-destructive", "every technique for it is destructive"))
-            continue
-        confident = [eq for eq, ts in gentle_full.items() if any(c in CONFIDENT for _, c in ts)]
-        expected = confident or list(gentle_full)  # low-confidence only: still the right answer (optional hardware)
-        gentle_partial = [eq for eq, ts in partial.items() if eq not in damaging and eq not in gentle_full]
-        acceptable = [eq for eq in gentle_full if eq not in expected] + (gentle_partial if expected else [])
-        techs = sorted({t for eq in expected for t, _ in gentle_full[eq]})
-        accessories = {eq: pats for eq in expected for t in techs
-                       for pats in [OVERRIDES["accessory_patterns"].get((eq, t))] if pats}
-        sample = samples.next(prop)
-        items.append(item("problem-only" if expected else "no-suitable-equipment",
-                          {"rule": "non-destructive", "property": prop, "techniques": techs or gentle_missing},
-                          f"{label(prop)}, without damaging or using up the sample; sample: {sample}",
-                          answer_forbidden(techs, expected) + [term for t in gentle_missing for term in technique_terms(t)],
-                          expected_ids=expected, acceptable_ids=acceptable, unacceptable_ids=damaging,
-                          supplementary_only_ids=[] if expected else gentle_partial,
-                          expected_not_available=[] if expected else
-                          [term_regex([x for t in gentle_missing for x in technique_terms(t)])],
-                          expected_accessories=accessories))
-    return items
-
-
 def accessory_regex_ok(eq: str, tech: str, pattern: str) -> bool:
     return any(re.search(pattern, acc, re.IGNORECASE) for acc in k.accessories_for(eq, tech))
 
 
-def optional_hardware_items(samples: Samples) -> list[dict]:
+def key_available(prop: str) -> dict | None:
+    """None if no confident instrument measures it (no-match or optional-hardware rule instead)."""
+    key = property_key(prop)
+    if not key["expected_ids"]:
+        return None
+    return spec("problem-only", {"rule": "available-property", "property": prop, "techniques": key["techniques"]},
+                answer_forbidden(key["techniques"], key["expected_ids"]),
+                expected_ids=key["expected_ids"], acceptable_ids=key["acceptable_ids"])
+
+
+def key_no_match(prop: str) -> dict:
+    missing = missing_full(prop)
+    return spec("no-suitable-equipment", {"rule": "no-match-property", "property": prop, "techniques": missing},
+                [term for t in missing for term in technique_terms(t)],
+                expected_not_available=missing_regex(missing), supplementary_only_ids=list(available_partial(prop)))
+
+
+def key_non_destructive(prop: str) -> dict | str:
+    """Only where 'without damaging the sample' changes the answer: some candidate instrument has only
+    destructive techniques for it, and a non-destructive alternative exists (listed or not). 'depends'
+    counts as possible without damage (see destructive_note in techniques.json). Returns the reason
+    (a string) when the rule does not apply."""
+    full, partial = available_full(prop), available_partial(prop)
+    techs_of = {eq: [t for t, _ in ts] for eq, ts in full.items()}
+    for eq, ts in partial.items():
+        techs_of.setdefault(eq, []).extend(ts)
+    damaging = [eq for eq, ts in techs_of.items() if all(destructive(t) == "yes" for t in ts)]
+    gentle_missing = [t for t in missing_full(prop) if destructive(t) != "yes"]
+    gentle_full = {eq: [(t, c) for t, c in ts if destructive(t) != "yes"] for eq, ts in full.items()}
+    gentle_full = {eq: ts for eq, ts in gentle_full.items() if ts}
+    if not damaging:
+        return "no instrument for it is destructive"
+    if not gentle_full and not gentle_missing:
+        return "every technique for it is destructive"
+    confident = [eq for eq, ts in gentle_full.items() if any(c in CONFIDENT for _, c in ts)]
+    expected = confident or list(gentle_full)  # low-confidence only: still the right answer (optional hardware)
+    gentle_partial = [eq for eq in partial if eq not in damaging and eq not in gentle_full]
+    acceptable = [eq for eq in gentle_full if eq not in expected] + (gentle_partial if expected else [])
+    techs = sorted({t for eq in expected for t, _ in gentle_full[eq]})
+    accessories = {eq: pats for eq in expected for t in techs
+                   for pats in [OVERRIDES["accessory_patterns"].get((eq, t))] if pats}
+    return spec("problem-only" if expected else "no-suitable-equipment",
+                {"rule": "non-destructive", "property": prop, "techniques": techs or gentle_missing},
+                answer_forbidden(techs, expected) + [term for t in gentle_missing for term in technique_terms(t)],
+                expected_ids=expected, acceptable_ids=acceptable, unacceptable_ids=damaging,
+                supplementary_only_ids=[] if expected else gentle_partial,
+                expected_not_available=[] if expected else missing_regex(gentle_missing),
+                expected_accessories=accessories)
+
+
+def key_low_confidence(prop: str) -> dict | None:
+    """Optional hardware: a property whose only full instruments are low confidence (e.g. elemental
+    composition -> EDS on EQ10). None if the rule does not apply."""
+    full = available_full(prop)
+    if not full or property_key(prop)["expected_ids"]:
+        return None
+    techs = sorted({t for ts in full.values() for t, _ in ts})
+    accessories = {}
+    for eq, ts in full.items():
+        for t, _ in ts:
+            pats = OVERRIDES["accessory_patterns"].get((eq, t))
+            if not pats:
+                raise SystemExit(f"OVERRIDES['accessory_patterns'] has no entry for ({eq}, {t})")
+            accessories[eq] = pats
+    return spec("accessory-trap", {"rule": "optional-hardware", "property": prop, "techniques": techs,
+                                   "reason": "only low-confidence instruments"},
+                answer_forbidden(techs, list(full)), expected_ids=list(full),
+                acceptable_ids=list(available_partial(prop)), expected_accessories=accessories)
+
+
+def key_accessory(o: dict) -> dict:
+    """Optional hardware: a key to_confirm accessory decides (see OVERRIDES['accessory_items'])."""
+    prop, tech, pattern = o["property"], o["technique"], o["pattern"]
+    key = property_key(prop)
+    with_acc = [eq for eq in k.instruments_for(tech) if accessory_regex_ok(eq, tech, pattern)]
+    if not with_acc:
+        raise SystemExit(f"accessory pattern {pattern!r} matches no to_confirm accessory for {tech}")
+    expected = [eq for eq in key["expected_ids"] if eq in with_acc]
+    return spec("accessory-trap", {"rule": "optional-hardware", "property": prop, "techniques": [tech],
+                                   "reason": "key accessory to confirm", "condition": o["condition"]},
+                answer_forbidden([tech], expected), expected_ids=expected,
+                acceptable_ids=[eq for eq in key["expected_ids"] + key["acceptable_ids"] if eq not in expected],
+                expected_accessories={eq: [pattern] for eq in expected})
+
+
+def key_distractor(prop: str, eq: str) -> dict:
+    key = property_key(prop)
+    if set(k.techniques_of(eq)) & set(key["techniques"]) or eq in key["expected_ids"] + key["acceptable_ids"]:
+        raise SystemExit(f"distractor {eq} performs an expected technique for {prop}")
+    return spec("misleading-keyword",
+                {"rule": "distractor", "property": prop, "techniques": key["techniques"], "distractor": eq},
+                answer_forbidden(key["techniques"], key["expected_ids"]),
+                expected_ids=key["expected_ids"], acceptable_ids=key["acceptable_ids"], unacceptable_ids=[eq])
+
+
+def key_workflow(prep: str, goal: str, prop: str) -> dict:
+    """A (prep step, goal) pair. The goal technique's instruments are expected; if it is missing but the
+    property can be measured another way (encapsulation -> laser diffraction), the property's instruments
+    are. If the property cannot be measured at all, preparing the sample is a dead end."""
+    if goal not in k.techniques()[prep]["leads_to"] or prop not in k.techniques()[goal]["measures"]:
+        raise SystemExit(f"workflow ({prep}, {goal}, {prop}) does not follow techniques.json")
+    prep_eqs = k.instruments_for(prep)
+    derived = {"rule": "workflow", "prep": prep, "goal_technique": goal, "property": prop}
+    goal_eqs = [eq for eq in k.instruments_for(goal) if k.techniques_of(eq)[goal]["confidence"] in CONFIDENT]
+    if not available_full(prop):
+        return spec("multi-step", derived, technique_terms(goal), supplementary_only_ids=prep_eqs,
+                    expect_dead_end=True, expected_not_available=missing_regex([goal]))
+    if not prep_eqs:  # the prep step itself is missing (e.g. no sputter coater): say so
+        derived["prep_available"] = False
+    key = property_key(prop)
+    expected, techs = (goal_eqs, [goal]) if goal_eqs else (key["expected_ids"], key["techniques"])
+    return spec("multi-step", {**derived, "goal_available": bool(goal_eqs)}, answer_forbidden(techs, expected),
+                expected_ids=expected,
+                acceptable_ids=[eq for eq in key["expected_ids"] + key["acceptable_ids"] if eq not in expected],
+                workflow_ids=prep_eqs, expected_not_available=[] if prep_eqs else missing_regex([prep]))
+
+
+def key_named(eq: str, prop: str) -> dict:
+    full = available_full(prop)
+    if eq not in full:
+        raise SystemExit(f"named item: {eq} does not measure {prop}")
+    others = [x for x in list(full) + list(available_partial(prop)) if x != eq]
+    return spec("named-instrument", {"rule": "named", "property": prop, "instrument": eq,
+                                     "techniques": sorted(t for t, _ in full[eq])},
+                [], expected_ids=[eq], acceptable_ids=others)
+
+
+def key_model_specific(o: dict) -> dict:
+    """An installed accessory decides (o['expected']), or the instrument type does (o['suitable'])."""
+    prop = o["property"]
+    full = available_full(prop)
+    derived = {"rule": "model-specific", "property": prop, "condition": o["condition"]}
+    if "expected" in o:
+        expected = o["expected"]
+        techs = sorted({t for eq in expected for t, _ in full[eq]})
+        return spec("model-specific", {**derived, "techniques": techs}, answer_forbidden(techs, expected) + o["forbidden"],
+                    expected_ids=expected, supplementary_only_ids=o["supplementary_only"],
+                    expected_accessories=o["accessories"])
+    suitable = [eq for eq in full if eq in o["suitable"]]
+    expected = [eq for eq in suitable if any(c in CONFIDENT for _, c in full[eq])]
+    techs = sorted({t for eq in expected for t, c in full[eq] if c in CONFIDENT})
+    return spec("model-specific", {**derived, "techniques": techs}, answer_forbidden(techs, expected) + o["forbidden"],
+                expected_ids=expected, acceptable_ids=[eq for eq in suitable if eq not in expected],
+                unacceptable_ids=[eq for eq in full if eq not in suitable])
+
+
+def key_vague() -> dict:
+    return spec("vague", {"rule": "vague"}, [], expect_clarifying=True)
+
+
+# --- building the plan's items (answer key + brief) ---
+
+PROPERTIES = sorted(k.vocabulary()["properties"])
+
+
+def available_property_items(samples: Samples, skipped: list) -> list[dict]:
     items = []
-    # Properties whose only full instruments need optional hardware (e.g. elemental composition -> EDS on EQ10).
-    for prop in sorted(k.vocabulary()["properties"]):
-        full = available_full(prop)
-        if not full or property_key(prop)["expected_ids"]:
+    for prop in PROPERTIES:
+        if not available_full(prop):
+            skipped.append((prop, "available-property", "no listed instrument measures it (no-match rule)"))
+        elif (s := key_available(prop)) is None:
+            skipped.append((prop, "available-property", "only low-confidence instruments (optional-hardware rule)"))
+        else:
+            items.append(item(s, f"{label(prop)}; sample: {samples.next(prop)}"))
+    return items
+
+
+def no_match_items(samples: Samples) -> list[dict]:
+    return [item(key_no_match(prop), f"{label(prop)}; sample: {samples.next(prop)}")
+            for prop in PROPERTIES if not available_full(prop) for _ in range(2)]
+
+
+def non_destructive_items(samples: Samples, skipped: list) -> list[dict]:
+    items = []
+    for prop in PROPERTIES:
+        s = key_non_destructive(prop)
+        if isinstance(s, str):
+            if s != "no instrument for it is destructive":
+                skipped.append((prop, "non-destructive", s))
             continue
-        expected = list(full)
-        techs = sorted({t for ts in full.values() for t, _ in ts})
-        accessories = {}
-        for eq in expected:
-            for t, _ in full[eq]:
-                pats = OVERRIDES["accessory_patterns"].get((eq, t))
-                if not pats:
-                    raise SystemExit(f"OVERRIDES['accessory_patterns'] has no entry for ({eq}, {t})")
-                accessories[eq] = pats
-        sample = samples.next(prop)
-        items.append(item("accessory-trap",
-                          {"rule": "optional-hardware", "property": prop, "techniques": techs,
-                           "reason": "only low-confidence instruments"},
-                          f"{label(prop)}; sample: {sample}", answer_forbidden(techs, expected),
-                          expected_ids=expected, acceptable_ids=list(available_partial(prop)),
-                          expected_accessories=accessories))
-    # Key to_confirm accessory decides (hand-picked condition, see OVERRIDES).
+        items.append(item(s, f"{label(prop)}, without damaging or using up the sample; sample: {samples.next(prop)}"))
+    return items
+
+
+def optional_hardware_items(samples: Samples) -> list[dict]:
+    items = [item(s, f"{label(prop)}; sample: {samples.next(prop)}")
+             for prop in PROPERTIES for s in [key_low_confidence(prop)] if s]
     for o in OVERRIDES["accessory_items"]:
-        prop, tech, pattern = o["property"], o["technique"], o["pattern"]
-        key = property_key(prop)
-        with_acc = [eq for eq in k.instruments_for(tech) if accessory_regex_ok(eq, tech, pattern)]
-        if not with_acc:
-            raise SystemExit(f"accessory pattern {pattern!r} matches no to_confirm accessory for {tech}")
-        expected = [eq for eq in key["expected_ids"] if eq in with_acc]
-        sample = samples.next(prop)
-        items.append(item("accessory-trap",
-                          {"rule": "optional-hardware", "property": prop, "techniques": [tech],
-                           "reason": "key accessory to confirm", "condition": o["condition"]},
-                          f"{label(prop)}, {o['condition']}; sample: {sample}",
-                          answer_forbidden([tech], expected),
-                          expected_ids=expected,
-                          acceptable_ids=[eq for eq in key["expected_ids"] + key["acceptable_ids"] if eq not in expected],
-                          expected_accessories={eq: [pattern] for eq in expected}))
+        items.append(item(key_accessory(o), f"{label(o['property'])}, {o['condition']}; "
+                                            f"sample: {samples.next(o['property'])}"))
     return items
 
 
 def distractor_items(samples: Samples) -> list[dict]:
     items = []
     for prop, eq, how in OVERRIDES["distractors"]:
-        key = property_key(prop)
-        if set(k.techniques_of(eq)) & set(key["techniques"]) or eq in key["expected_ids"] + key["acceptable_ids"]:
-            raise SystemExit(f"distractor {eq} performs an expected technique for {prop}")
+        s = key_distractor(prop, eq)
         name = core.equipment_by_id()[eq]["instrument"]
-        sample = samples.next(prop)
-        items.append(item("misleading-keyword",
-                          {"rule": "distractor", "property": prop, "techniques": key["techniques"], "distractor": eq},
-                          f"{label(prop)}; sample: {sample}; mention the {name} ({how}) as a misleading lead",
-                          answer_forbidden(key["techniques"], key["expected_ids"]),
-                          expected_ids=key["expected_ids"], acceptable_ids=key["acceptable_ids"],
-                          unacceptable_ids=[eq]))
+        items.append(item(s, f"{label(prop)}; sample: {samples.next(prop)}; "
+                             f"mention the {name} ({how}) as a misleading lead"))
     return items
 
 
 def workflow_items() -> list[dict]:
     items = []
     for prep, goal, prop, sample in OVERRIDES["workflows"]:
-        if goal not in k.techniques()[prep]["leads_to"] or prop not in k.techniques()[goal]["measures"]:
-            raise SystemExit(f"workflow ({prep}, {goal}, {prop}) does not follow techniques.json")
-        prep_eqs = k.instruments_for(prep)
-        derived = {"rule": "workflow", "prep": prep, "goal_technique": goal, "property": prop}
         prep_name = split_name(k.technique_name(prep))[0].lower()
-        brief = f"first {prep_name} (they plan to do this step), then {label(prop)}; sample: {sample}"
-        goal_eqs = [eq for eq in k.instruments_for(goal) if k.techniques_of(eq)[goal]["confidence"] in CONFIDENT]
-        if available_full(prop):
-            # The goal technique's instruments are expected; if it is missing (encapsulation -> laser
-            # diffraction), the property's other instruments are, and it is not a dead end.
-            key = property_key(prop)
-            expected, techs = (goal_eqs, [goal]) if goal_eqs else (key["expected_ids"], key["techniques"])
-            derived["goal_available"] = bool(goal_eqs)
-            items.append(item("multi-step", derived, brief, answer_forbidden(techs, expected),
-                              expected_ids=expected,
-                              acceptable_ids=[eq for eq in key["expected_ids"] + key["acceptable_ids"]
-                                              if eq not in expected],
-                              workflow_ids=prep_eqs))
-        else:  # the goal cannot be measured with listed equipment: preparing the sample leads nowhere
-            items.append(item("multi-step", derived, brief, technique_terms(goal),
-                              supplementary_only_ids=prep_eqs, expect_dead_end=True,
-                              expected_not_available=[term_regex(technique_terms(goal))]))
+        items.append(item(key_workflow(prep, goal, prop),
+                          f"first {prep_name} (they plan to do this step), then {label(prop)}; sample: {sample}"))
     return items
 
 
 def named_items(samples: Samples) -> list[dict]:
-    items = []
-    for eq, prop, called in OVERRIDES["named"]:
-        full = available_full(prop)
-        if eq not in full:
-            raise SystemExit(f"named item: {eq} does not measure {prop}")
-        sample = samples.next(prop)
-        others = [x for x in list(full) + list(available_partial(prop)) if x != eq]
-        items.append(item("named-instrument",
-                          {"rule": "named", "property": prop, "instrument": eq,
-                           "techniques": sorted(t for t, _ in full[eq])},
-                          f"ask whether {called} can measure {label(prop)}; sample: {sample}", [],
-                          expected_ids=[eq], acceptable_ids=others))
-    return items
+    return [item(key_named(eq, prop), f"ask whether {called} can measure {label(prop)}; sample: {samples.next(prop)}")
+            for eq, prop, called in OVERRIDES["named"]]
 
 
 def model_specific_items() -> list[dict]:
-    items = []
-    for o in OVERRIDES["model_specific"]:
-        prop = o["property"]
-        full = available_full(prop)
-        derived = {"rule": "model-specific", "property": prop, "condition": o["condition"]}
-        brief = f"{label(prop)}, {o['condition']}"  # the condition names the sample
-        if "expected" in o:  # an installed accessory decides
-            expected = o["expected"]
-            techs = sorted({t for eq in expected for t, _ in full[eq]})
-            items.append(item("model-specific", {**derived, "techniques": techs}, brief,
-                              answer_forbidden(techs, expected) + o["forbidden"],
-                              expected_ids=expected, supplementary_only_ids=o["supplementary_only"],
-                              expected_accessories=o["accessories"]))
-        else:  # the instrument type decides (well plates need an inverted or plate-based microscope)
-            suitable = [eq for eq in full if eq in o["suitable"]]
-            expected = [eq for eq in suitable if any(c in CONFIDENT for _, c in full[eq])]
-            techs = sorted({t for eq in expected for t, c in full[eq] if c in CONFIDENT})
-            items.append(item("model-specific", {**derived, "techniques": techs}, brief,
-                              answer_forbidden(techs, expected) + o["forbidden"],
-                              expected_ids=expected, acceptable_ids=[eq for eq in suitable if eq not in expected],
-                              unacceptable_ids=[eq for eq in full if eq not in suitable]))
-    return items
+    # The condition names the sample.
+    return [item(key_model_specific(o), f"{label(o['property'])}, {o['condition']}") for o in OVERRIDES["model_specific"]]
 
 
 def vague_items() -> list[dict]:
-    return [item("vague", {"rule": "vague"}, brief, [], expect_clarifying=True) for brief in OVERRIDES["vague"]]
+    return [item(key_vague(), brief) for brief in OVERRIDES["vague"]]
 
 
 # --- checks (same rules as tests/test_questions_file.py, plus brief vs. forbidden terms) ---
@@ -636,16 +666,254 @@ def question_problems(questions: list[dict], plan: dict, curated: list[dict]) ->
             problems.append(f"{where}: notes must say 'Generated: answer key from <rule>; wording by Claude.'")
         problems += [f"{where}: uses forbidden term '{t}'" for t in it["forbidden_terms"]
                      if contains_term(q.get("question", ""), t)]
+    curated_inputs = {c["id"]: signature(curated_key(c["id"])["derived_from"]) for c in curated
+                      if c["id"] in CURATED_INPUTS}
     for i, a in enumerate(questions):
         for b in questions[i + 1:]:
             score = too_similar(a["question"], b["question"], NEAR_DUPLICATE)
             if score:
                 problems.append(f"{a['id']} and {b['id']}: near-duplicate questions ({score:.2f})")
         for c in curated:
-            score = too_similar(a["question"], c["question"], CURATED_PARAPHRASE)
+            same_inputs = curated_inputs.get(c["id"]) == signature(a.get("derived_from", {}))
+            threshold = SAME_INPUTS_PARAPHRASE if same_inputs else CURATED_PARAPHRASE
+            score = too_similar(a["question"], c["question"], threshold)
             if score:
-                problems.append(f"{a['id']}: too close to curated {c['id']} ({score:.2f})")
+                why = "same rule inputs and similar text" if same_inputs else "similar text"
+                problems.append(f"{a['id']}: too close to curated {c['id']} ({why}, {score:.2f})")
     return problems
+
+
+# --- cross-checks: curated vs. generated keys, and the knowledge facts behind them ---
+
+# Each curated question mapped to the rule and inputs that would generate it. The rules build a key from
+# one property or pair, so a question that asks for more (Q1 also wants the causes of high viscosity) or
+# names a group instead of one instrument (Q12: "which microscope") can only partly agree; see the notes.
+CURATED_INPUTS = {
+    "Q1": (key_available, ["viscosity_vs_temperature"],
+           "main property only; Q1 also asks why (thermal transitions, degradation: DSC, TGA)"),
+    "Q2": (key_available, ["compressive_modulus"], ""),
+    "Q3": (key_non_destructive, ["internal_3d_structure"], ""),
+    "Q4": (key_named, ["EQ20", "zeta_potential"], ""),
+    "Q5": (key_named, ["EQ17", "filler_content"], ""),
+    "Q6": (key_available, ["particle_size_distribution"], ""),
+    "Q7": (key_available, ["cell_morphology"], "the rule does not know the sample is a 3D hydrogel"),
+    "Q8": (key_no_match, ["chemical_functional_groups"], ""),
+    "Q9": (key_no_match, ["crystalline_phase"], ""),
+    "Q10": (key_low_confidence, ["elemental_composition"], ""),
+    "Q11": (key_accessory, [{"property": "flexural_strength", "technique": "flexural_testing",
+                             "pattern": r"bend|flexur|three.point|3.point|four.point",
+                             "condition": "composite bars"}], ""),
+    "Q12": (key_available, ["compressive_modulus"],
+            "the misleading lead is a group ('microscope'), not one instrument, so no unacceptable set"),
+    "Q13": (key_distractor, ["melting_temperature", "EQ01"], ""),
+    "Q14": (key_workflow, ["ultramicrotomy", "transmission_electron_microscopy", "ultrastructure"], ""),
+    "Q15": (key_workflow, ["vat_photopolymerization_printing", "environmental_sem", "surface_morphology"], ""),
+    "Q16": (key_vague, [], ""),
+    "Q17": (key_vague, [], ""),
+    "Q18": (key_model_specific, [{"property": "viscosity_vs_temperature", "condition": "melt at 280 °C",
+                                  "expected": ["EQ21"], "supplementary_only": ["EQ19"],
+                                  "accessories": {"EQ21": [r"parallel.plate|geometry|plate"]}, "forbidden": []}], ""),
+    "Q19": (key_model_specific, [{"property": "cell_morphology", "condition": "living cells in a well plate",
+                                  "suitable": ["EQ07", "EQ09", "EQ13", "EQ23"], "forbidden": []}],
+            "live-cell imaging itself is low confidence everywhere, so cell morphology stands in for it"),
+    "Q20": (key_no_match, ["surface_roughness"], ""),
+    "Q23": (key_workflow, ["milling", "x_ray_diffraction", "crystalline_phase"], ""),
+    "Q24": (key_workflow, ["sputter_coating", "environmental_sem", "surface_morphology"],
+            "the prep step itself (sputter coating) has no listed instrument"),
+}
+CURATED_SKIPPED = {
+    "Q21": "recovery force of a shape-memory polymer is not a property in the vocabulary",
+}
+STEFAN_IDS = ("Q18", "Q19", "Q20", "Q21")  # from Stefan's tests (Q18-Q19) or reviewed by him (Q20-Q21)
+COMPARED_FIELDS = ["expected_ids", "supplementary_only_ids", "unacceptable_ids", "not_available"]
+SAME_INPUTS_PARAPHRASE = 0.5  # same rule inputs as a curated question: a looser text match already rejects
+
+
+def signature(derived: dict) -> tuple:
+    """The rule inputs behind a key: two questions with the same signature ask the same thing."""
+    return tuple(derived.get(f) for f in ("rule", "property", "instrument", "distractor", "prep", "goal_technique"))
+
+
+def curated_key(qid: str) -> dict:
+    build, args, _ = CURATED_INPUTS[qid]
+    return build(*args)
+
+
+def missing_techniques_named(patterns: list[str]) -> list[str]:
+    """Techniques without a listed instrument that a list of not-available regexes would match."""
+    found = []
+    for tid, t in k.techniques().items():
+        if t["kind"] == "bench_step" or k.instruments_for(tid):
+            continue
+        if any(re.search(p, term, re.IGNORECASE) for p in patterns for term in technique_terms(tid)):
+            found.append(tid)
+    return sorted(found)
+
+
+def compared(key: dict) -> dict:
+    return {"expected_ids": key["expected_ids"], "supplementary_only_ids": key.get("supplementary_only_ids", []),
+            "unacceptable_ids": key.get("unacceptable_ids", []),
+            "not_available": missing_techniques_named(key["expected_not_available"])}
+
+
+ROLES = [("expected_ids", "expected"), ("acceptable_ids", "acceptable"),
+         ("supplementary_only_ids", "complementary only"), ("unacceptable_ids", "unacceptable")]
+POSITIVE, NEGATIVE = {"expected", "acceptable"}, {"complementary only", "unacceptable"}
+
+
+def role_of(key: dict, eq: str) -> str:
+    return next((name for field, name in ROLES if eq in key.get(field, [])), "not listed")
+
+
+def id_differences(cur: dict, gen: dict) -> list[dict]:
+    """Per instrument whose role differs: the two roles and how serious the difference is. A conflict is
+    a good pick on one side and a wrong (or complementary-only) one on the other; a level difference
+    stays on the same side; one-sided means one key does not list the instrument at all."""
+    ids = sorted({eq for field, _ in ROLES for key in (cur, gen) for eq in key.get(field, [])})
+    diffs = []
+    for eq in ids:
+        a, b = role_of(cur, eq), role_of(gen, eq)
+        if a == b:
+            continue
+        kind = ("one-sided" if "not listed" in (a, b) else
+                "conflict" if {a, b} & POSITIVE and {a, b} & NEGATIVE else "level")
+        diffs.append({"id": eq, "curated": a, "generated": b, "kind": kind})
+    return diffs
+
+
+def comparisons(curated: list[dict]) -> list[dict]:
+    rows = []
+    for q in curated:
+        if q["id"] not in CURATED_INPUTS:
+            continue
+        key = curated_key(q["id"])
+        cur, gen = compared(q), compared(key)
+        rows.append({"id": q["id"], "derived_from": key["derived_from"], "note": CURATED_INPUTS[q["id"]][2],
+                     "curated": cur, "generated": gen, "ids": id_differences(q, key),
+                     "differs": [f for f in COMPARED_FIELDS if set(cur[f]) != set(gen[f])]})
+    return rows
+
+
+def names(ids: list[str]) -> str:
+    known = core.equipment_by_id()
+    return ", ".join(f"{i} ({known[i]['instrument']})" for i in ids) or "none"
+
+
+def technique_list(values: list[str]) -> str:
+    return ", ".join(split_name(k.technique_name(t))[0] for t in values) or "none"
+
+
+def inputs_text(derived: dict) -> str:
+    parts = [derived["rule"]]
+    if derived.get("prep"):
+        parts.append(f"{split_name(k.technique_name(derived['prep']))[0]} -> "
+                     f"{split_name(k.technique_name(derived['goal_technique']))[0]}")
+    if derived.get("property"):
+        parts.append(k.property_label(derived["property"]))
+    for f in ("instrument", "distractor"):
+        if derived.get(f):
+            parts.append(f"{f} {derived[f]}")
+    return "; ".join(parts)
+
+
+def comparison_report(rows: list[dict]) -> str:
+    known = core.equipment_by_id()
+
+    def agreement(group: list[dict]) -> str:
+        return f"{sum(not r['differs'] for r in group)} of {len(group)} agree"
+
+    stefan = [r for r in rows if r["id"] in STEFAN_IDS]
+    rest = [r for r in rows if r["id"] not in STEFAN_IDS]
+    kinds = Counter(d["kind"] for r in rows for d in r["ids"])
+    na_diffs = sum("not_available" in r["differs"] for r in rows)
+    lines = ["# Curated vs. generated answer keys", "",
+             "Each curated question is mapped to the rule and inputs that would generate it "
+             "(`CURATED_INPUTS` in scripts/generate_questions.py). The generated key is compared with the "
+             "curated one on expected, complementary-only and unacceptable instruments and on the techniques "
+             "to flag as not available. A question agrees when all four match. Every disagreement is a "
+             "likely error in one of them: the curated keys are drafts (except Q18-Q21), and the generated "
+             "keys come from the draft knowledge layer.", "",
+             f"- Stefan-sourced or reviewed (compared: {', '.join(r['id'] for r in stefan)}): **{agreement(stefan)}**",
+             f"- Other curated questions: **{agreement(rest)}**",
+             f"- Not compared: {', '.join(f'{q} ({why})' for q, why in CURATED_SKIPPED.items())}",
+             f"- Instrument differences: **{kinds['conflict']} conflicts** (a good pick in one key, wrong or "
+             f"complementary-only in the other), {kinds['level']} level differences (e.g. expected vs. "
+             f"acceptable), {kinds['one-sided']} one-sided (listed in only one key); {na_diffs} questions "
+             "differ on the techniques to flag as not available.", "",
+             "## Differences", "",
+             "Conflicts first; they are the most likely errors. Differences in acceptable instruments are "
+             "listed too, but do not count against agreement.", ""]
+    order = {"conflict": 0, "level": 1, "one-sided": 2}
+    for r in sorted((r for r in rows if r["differs"] or r["ids"]),
+                    key=lambda r: min([order[d["kind"]] for d in r["ids"]] or [3])):
+        lines.append(f"### {r['id']}: {inputs_text(r['derived_from'])}")
+        if r["note"]:
+            lines.append(f"Note: {r['note']}.")
+        lines.append("")
+        for d in sorted(r["ids"], key=lambda d: order[d["kind"]]):
+            lines.append(f"- {d['kind']}: {d['id']} {known[d['id']]['instrument']} is **{d['curated']}** in the "
+                         f"curated key, **{d['generated']}** in the generated key")
+        if "not_available" in r["differs"]:
+            lines.append(f"- not available: curated flags {technique_list(r['curated']['not_available'])}; "
+                         f"generated flags {technique_list(r['generated']['not_available'])}")
+        lines.append("")
+    lines += ["## All compared questions", "",
+              "| Question | Rule and inputs | " + " | ".join(COMPARED_FIELDS) + " | Conflicts |",
+              "|---|---|" + "---|" * (len(COMPARED_FIELDS) + 1)]
+    for r in rows:
+        cells = ["agree" if f not in r["differs"] else "**differ**" for f in COMPARED_FIELDS]
+        conflicts = sum(d["kind"] == "conflict" for d in r["ids"])
+        lines.append(f"| {r['id']} | {inputs_text(r['derived_from'])} | " + " | ".join(cells) + f" | {conflicts} |")
+    return "\n".join(lines) + "\n"
+
+
+def usage(items: list[dict]) -> tuple[Counter, Counter]:
+    """How many generated items depend on each technique and on each instrument."""
+    techs, eqs = Counter(), Counter()
+    for it in items:
+        d = it["derived_from"]
+        techs.update(set(d.get("techniques", [])) | {d[f] for f in ("prep", "goal_technique") if d.get(f)})
+        eqs.update(set(it["expected_ids"] + it["acceptable_ids"] + it["unacceptable_ids"]
+                       + it["supplementary_only_ids"] + it["workflow_ids"]))
+    return techs, eqs
+
+
+def check_first(counts: Counter) -> set:
+    """The most-used quarter (ties included): check these rows first."""
+    values = sorted((n for n in counts.values() if n), reverse=True)
+    return {x for x, n in counts.items() if values and n >= values[max(0, len(values) // 4 - 1)]}
+
+
+def facts_report(items: list[dict]) -> str:
+    tech_use, eq_use = usage(items)
+    tech_first, eq_first = check_first(tech_use), check_first(eq_use)
+    known = core.equipment_by_id()
+    lines = ["# Knowledge facts behind the generated questions", "",
+             f"Knowledge version {k.knowledge_version()}. Generated questions use these facts, so checking them "
+             "(against manufacturer pages, or with Stefan) checks the generated answer keys. "
+             "**Check first** marks the most-used quarter of rows. Confidence: high = standard for the "
+             "instrument type; medium = depends on configuration; low = only with optional hardware the "
+             "dataset does not list.", "",
+             "## Techniques", "",
+             "| Check first | Technique | Kind | Measures | Partly (why) | Destructive | Instruments (confidence) "
+             "| Generated questions |",
+             "|---|---|---|---|---|---|---|---|"]
+    for tid, t in k.techniques().items():
+        partial = "; ".join(f"{k.property_label(p)} ({why})" for p, why in t.get("partial", {}).items())
+        eqs = ", ".join(f"{eq} ({k.techniques_of(eq)[tid]['confidence']})" for eq in k.instruments_for(tid))
+        lines.append(f"| {'★' if tid in tech_first else ''} | {t['name']} | {t['kind']} | "
+                     f"{'; '.join(k.property_label(p) for p in t['measures']) or '-'} | {partial or '-'} | "
+                     f"{t['destructive']} | {eqs or '**none listed**'} | {tech_use[tid]} |")
+    lines += ["", "## Instruments", "",
+              "| Check first | ID | Instrument | Techniques (confidence) | Accessories (status) | Generated questions |",
+              "|---|---|---|---|---|---|"]
+    for eq, a in k.annotations().items():
+        e = known[eq]
+        techs = "; ".join(f"{k.technique_name(t)} ({v['confidence']})" for t, v in k.techniques_of(eq).items())
+        accs = "; ".join(f"{x['item']} ({x['status'].replace('_', ' ')})" for x in a["accessories"])
+        lines.append(f"| {'★' if eq in eq_first else ''} | {eq} | {e['instrument']} ({e['manufacturer']} "
+                     f"{e['model']}) | {techs} | {accs} | {eq_use[eq]} |")
+    return "\n".join(lines) + "\n"
 
 
 # --- commands ---
@@ -696,13 +964,33 @@ def cmd_check(_args) -> None:
           f"no near-duplicates (closest to a curated question: {closest:.2f})")
 
 
+def cmd_compare(_args) -> None:
+    rows = comparisons(json.loads(CURATED_PATH.read_text(encoding="utf-8")))
+    path = RESULTS_DIR / "key_comparison.md"
+    path.parent.mkdir(exist_ok=True)
+    path.write_text(comparison_report(rows), encoding="utf-8")
+    for r in rows:
+        print(f"{r['id']:<4} {'agree' if not r['differs'] else 'DIFFER: ' + ', '.join(r['differs'])}")
+    print(f"\n{sum(not r['differs'] for r in rows)} of {len(rows)} agree. Wrote {path.relative_to(ROOT)}")
+
+
+def cmd_facts(_args) -> None:
+    items, _ = build_plan()
+    path = RESULTS_DIR / "knowledge_facts.md"
+    path.parent.mkdir(exist_ok=True)
+    path.write_text(facts_report(items), encoding="utf-8")
+    print(f"Wrote {path.relative_to(ROOT)}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("plan", help="write the question plan (answer keys from the knowledge layer)")
     sub.add_parser("check", help="check the written questions against the plan")
+    sub.add_parser("compare", help="compare curated answer keys with keys built by the same rules")
+    sub.add_parser("facts", help="write the knowledge facts the generated keys rest on")
     args = parser.parse_args()
-    {"plan": cmd_plan, "check": cmd_check}[args.command](args)
+    {"plan": cmd_plan, "check": cmd_check, "compare": cmd_compare, "facts": cmd_facts}[args.command](args)
 
 
 if __name__ == "__main__":
