@@ -166,6 +166,9 @@ A separate interface for presenting: FastAPI (`api/`) plus a React frontend (`we
 the same code as the Streamlit app (same prompts, cache, limits, saved answers and logging, with
 `source = web`), so the Streamlit app and the evaluation are unaffected. It shows Equipment Finder
 (annotated mode) by default, General AI (naive mode) in Compare, and the rules-only mode under Advanced.
+"Show reasoning" draws the answer's knowledge graph (`answer_graph.build_graph`, the same graph as the
+Streamlit view) with React Flow, revealed step by step from the question. The **Equipment** page
+(`#/equipment`) lists all instruments with search and filters by location and technique.
 
 Needs Node.js 20+ in addition to Python.
 

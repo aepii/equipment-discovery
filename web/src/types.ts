@@ -91,6 +91,18 @@ export interface AskResponse {
   graph?: GraphData | null;
 }
 
+export interface Instrument {
+  id: string;
+  name: string;
+  manufacturer: string;
+  model: string;
+  location: string;
+  contact: string;
+  demo_instrument: boolean;
+  installed: string[];
+  techniques: string[];
+}
+
 export interface Example {
   field: string;
   question: string;

@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getExamples, getHealth } from "./api";
 import { Composer } from "./components/Composer";
-import { Footer, Header } from "./components/Header";
+import { EquipmentPage } from "./components/EquipmentPage";
+import { Footer, Header, type View } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { StartScreen } from "./components/StartScreen";
 import { TurnView } from "./components/TurnView";
@@ -13,6 +14,10 @@ const SESSION = sessionId();
 const HISTORY_KEY = "ef.conversations";
 const MODE_KEY = "ef.mode";
 const MAX_CONVERSATIONS = 30;
+
+function viewFromHash(): View {
+  return window.location.hash.startsWith("#/equipment") ? "equipment" : "ask";
+}
 
 function newConversation(): Conversation {
   return { id: newId(), title: "", createdAt: Date.now(), turns: [] };
@@ -40,6 +45,20 @@ export default function App() {
     load<Mode>(MODE_KEY, "annotated") === "structured" ? "structured" : "annotated",
   );
   const threadEnd = useRef<HTMLDivElement>(null);
+  const [view, setView] = useState<View>(viewFromHash);
+
+  useEffect(() => {
+    const onHash = () => {
+      setView(viewFromHash());
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  const showAsk = () => {
+    if (view !== "ask") window.location.hash = "#/";
+  };
 
   const active = conversations.find((c) => c.id === activeId) ?? conversations[0];
   const turns = active.turns;
@@ -66,12 +85,13 @@ export default function App() {
     );
   }, []);
 
-  const startNew = () => {
+  const startNew = (draftText = "") => {
+    showAsk();
+    setDraft(draftText);
     if (active.turns.length === 0) return;
     const fresh = newConversation();
     setConversations((all) => [fresh, ...all.filter((c) => c.turns.length > 0)]);
     setActiveId(fresh.id);
-    setDraft("");
   };
 
   const clearHistory = () => {
@@ -121,19 +141,24 @@ export default function App() {
       <a href="#main" className="skip">
         Skip to content
       </a>
-      <Header />
+      <Header view={view} />
       <div className="layout layout--sidebar">
         <Sidebar
           conversations={conversations}
           activeId={active.id}
-          onSelect={setActiveId}
-          onNew={startNew}
+          onSelect={(id) => {
+            setActiveId(id);
+            showAsk();
+          }}
+          onNew={() => startNew()}
           onClear={clearHistory}
           mode={mode}
           onModeChange={setMode}
         />
         <main className="main" id="main">
-          {turns.length === 0 ? (
+          {view === "equipment" ? (
+            <EquipmentPage onAsk={(question) => startNew(question)} />
+          ) : turns.length === 0 ? (
             <StartScreen composer={composer} examples={examples.data ?? []} onExample={submit} />
           ) : (
             <>

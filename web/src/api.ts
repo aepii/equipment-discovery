@@ -1,4 +1,4 @@
-import type { AskResponse, Example, Health, Mode, Stage } from "./types";
+import type { AskResponse, Example, Health, Instrument, Mode, Stage } from "./types";
 
 export interface AskInput {
   question: string;
@@ -18,6 +18,7 @@ async function getJson<T>(path: string): Promise<T> {
 
 export const getHealth = () => getJson<Health>("/api/health");
 export const getExamples = () => getJson<Example[]>("/api/examples");
+export const getEquipment = () => getJson<Instrument[]>("/api/equipment");
 
 async function askPlain(input: AskInput): Promise<AskResponse> {
   let response: Response;
