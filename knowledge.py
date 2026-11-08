@@ -42,9 +42,15 @@ def annotations() -> dict[str, dict]:
     return {a["id"]: a for a in _read(ANNOTATIONS_PATH)["instruments"]}
 
 
+def text_bytes(path: Path) -> bytes:
+    """A text file's bytes with LF line endings, so a version hash is the same on Windows (where git may
+    check files out with CRLF) and on Linux."""
+    return path.read_bytes().replace(b"\r\n", b"\n")
+
+
 def knowledge_version() -> str:
     """Changes whenever any knowledge file changes (for prompt versions, the cache and demo answers)."""
-    data = b"".join(p.read_bytes() for p in (VOCABULARY_PATH, TECHNIQUES_PATH, ANNOTATIONS_PATH))
+    data = b"".join(text_bytes(p) for p in (VOCABULARY_PATH, TECHNIQUES_PATH, ANNOTATIONS_PATH))
     return hashlib.sha1(data).hexdigest()[:8]
 
 
