@@ -2,13 +2,17 @@
 
 Usage:
   python run_eval.py [--runs 3] [--modes structured annotated naive] [--questions Q1 Q4] [--category vague] [--log]
+  python run_eval.py --question-file test_questions_generated.json --sample 15 --runs 1 --yes
   python run_eval.py --rescore results/run_<time>.csv     re-score saved answers, no model calls
-  python run_eval.py --review-sheet                        expected answers as Markdown, for review
+  python run_eval.py --review-sheet [--sample 20]          expected answers as Markdown, for review
   python run_eval.py --record-demo [--questions Q1 Q2]     save one answer per question x mode as the
                                                            app's backup for the live demo (data/demo_answers.json)
 
 Writes results/run_<time>.csv (one row per answer: scores + the app's log columns, store.ANSWER_COLUMNS)
-and results/run_<time>_summary.csv (consistency per question x mode, averages per mode).
+and results/run_<time>_summary.csv (consistency per question x mode, averages per mode and per source
+group: reviewed, stefan (Q18-Q19), draft, generated; for generated questions also per rule).
+With another --question-file the set's name goes into the file name: results/run_generated_<time>.csv.
+Above MAX_CALLS_WITHOUT_YES model calls (questions x modes x runs) a run needs --yes.
 --log also appends each answer to the Google Sheet (or results/log.jsonl), with source "eval".
 --no-repair turns off the one repair call for structured and annotated answers that are not usable JSON
 (the "repaired" column shows where it was used, so first-try JSON validity can be reported either way).
@@ -17,6 +21,7 @@ and results/run_<time>_summary.csv (consistency per question x mode, averages pe
 import argparse
 import csv
 import json
+import random
 import re
 import time
 from collections import Counter
@@ -27,11 +32,16 @@ from pathlib import Path
 from statistics import mean
 
 import core
+import knowledge
 import llm
 import store
 
 ROOT = Path(__file__).parent
 QUESTIONS_PATH = ROOT / "test_questions.json"
+GENERATED_PATH = ROOT / "test_questions_generated.json"
+STEFAN_SOURCED = {"Q18", "Q19"}  # Stefan's own test questions (Oct 30), still marked draft
+SOURCE_GROUPS = ["reviewed", "stefan", "draft", "generated"]
+MAX_CALLS_WITHOUT_YES = 200
 RESULTS_DIR = ROOT / "results"
 RUNNERS = {"structured": core.run_structured, "annotated": core.run_annotated, "naive": core.run_naive}
 CATEGORIES = ["named-instrument", "problem-only", "no-suitable-equipment", "accessory-trap",
@@ -42,13 +52,28 @@ SCORE_COLUMNS = ["expected_hits", "expected_total", "recall", "unacceptable_hits
                  "asked_clarifying", "clarifying_ok", "contacts_ok", "contacts_total",
                  "fit_expected_good", "fit_expected_total", "fit_bad_low", "fit_bad_total",
                  "dead_end_flagged", "dead_end_ok", "workflow_hits", "workflow_total"]
-COLUMNS = ["question_id", "category", "status", "run"] + SCORE_COLUMNS + store.ANSWER_COLUMNS
+COLUMNS = ["question_id", "category", "status", "source_group", "rule", "run"] + SCORE_COLUMNS + store.ANSWER_COLUMNS
 TRANSIENT = re.compile(r"\b(429|500|502|503|504)\b|rate.?limit|quota|unavailable|overloaded|timed? ?out",
                        re.IGNORECASE)
 
 
 def load_questions(path: Path = QUESTIONS_PATH) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def question_set(path: Path) -> str:
+    """The set's name for file names and charts: "curated" for test_questions.json, else e.g. "generated"."""
+    if path.resolve() == QUESTIONS_PATH.resolve():
+        return "curated"
+    return path.stem.removeprefix("test_questions_") or path.stem
+
+
+def source_group(question: dict) -> str:
+    """reviewed (by Stefan), stefan (his own test questions), draft, or generated."""
+    status = question.get("status", "draft")
+    if status == "draft" and question["id"] in STEFAN_SOURCED:
+        return "stefan"
+    return status
 
 
 # --- scoring: pure functions of (question, result), so saved answers can be re-scored ---
@@ -260,7 +285,8 @@ def summarize_group(rows: list[dict]) -> dict:
 
 
 def summarize(rows: list[dict]) -> list[dict]:
-    """Per question x mode (with consistency), then per mode over reviewed, draft and all questions."""
+    """Per question x mode (with consistency), then per mode over each source group, each generation rule
+    (scope "rule:<rule>") and all questions."""
     summary = []
     keys = list(dict.fromkeys((r["question_id"], r["mode"]) for r in rows))
     for question_id, mode in keys:
@@ -269,8 +295,11 @@ def summarize(rows: list[dict]) -> list[dict]:
         summary.append({"scope": "question", "question_id": question_id, "mode": mode,
                         **summarize_group(group), **consistency(id_sets)})
     for mode in dict.fromkeys(r["mode"] for r in rows):
-        for scope in ("reviewed", "draft", "all"):
-            group = [r for r in rows if r["mode"] == mode and scope in ("all", r["status"])]
+        mode_rows = [r for r in rows if r["mode"] == mode]
+        groups = [(g, [r for r in mode_rows if r.get("source_group", r["status"]) == g]) for g in SOURCE_GROUPS]
+        rules = dict.fromkeys(r["rule"] for r in mode_rows if r.get("rule"))
+        groups += [(f"rule:{rule}", [r for r in mode_rows if r.get("rule") == rule]) for rule in rules]
+        for scope, group in groups + [("all", mode_rows)]:
             if group:
                 summary.append({"scope": scope, "question_id": "", "mode": mode, **summarize_group(group)})
     return summary
@@ -285,13 +314,14 @@ PRINTED = [("mean_recall", "recall"), ("unacceptable_rate", "unacc"), ("false_pr
 
 def print_summary(summary: list[dict]) -> None:
     """Per-mode averages as a table (the per-question rows are in the summary CSV)."""
-    print("\n" + f"{'scope':<9}{'mode':<11}{'n':>4}{'err':>5}" + "".join(f"{label:>9}" for _, label in PRINTED))
+    width = max([10] + [len(s["scope"]) + 1 for s in summary if s["scope"] != "question"])
+    print("\n" + f"{'scope':<{width}}{'mode':<11}{'n':>4}{'err':>5}" + "".join(f"{label:>9}" for _, label in PRINTED))
     for s in summary:
         if s["scope"] == "question":
             continue
         cells = ["-" if s[key] is None else f"{s[key]:.2f}" for key, _ in PRINTED]
         cost = "" if s["total_cost_usd"] is None else f"   ${s['total_cost_usd']:.4f}"
-        print(f"{s['scope']:<9}{s['mode']:<11}{s['answers']:>4}{s['errors']:>5}"
+        print(f"{s['scope']:<{width}}{s['mode']:<11}{s['answers']:>4}{s['errors']:>5}"
               + "".join(f"{c:>9}" for c in cells) + cost)
 
 
@@ -324,11 +354,30 @@ def run_with_retry(mode: str, question: str, retries: int = 2, wait: float = 10)
 
 def eval_row(question: dict, run: int, answer: dict, result: dict) -> dict:
     return {"question_id": question["id"], "category": question.get("category", ""),
-            "status": question.get("status", "draft"), "run": run, **score(question, result), **answer}
+            "status": question.get("status", "draft"), "source_group": source_group(question),
+            "rule": question.get("derived_from", {}).get("rule", ""), "run": run,
+            **score(question, result), **answer}
 
 
 def select_questions(questions: list[dict], ids: list[str] | None, category: str | None) -> list[dict]:
     return [q for q in questions if (not ids or q["id"] in ids) and (not category or q.get("category") == category)]
+
+
+def sample_questions(questions: list[dict], n: int | None, seed: int = 0) -> list[dict]:
+    """A fixed random subset of n questions (same seed -> same subset), kept in file order."""
+    if not n or n >= len(questions):
+        return questions
+    chosen = {q["id"] for q in random.Random(seed).sample(questions, n)}
+    return [q for q in questions if q["id"] in chosen]
+
+
+def check_budget(n_questions: int, modes: list[str], runs: int, yes: bool) -> None:
+    """Print how many model calls a run makes; above MAX_CALLS_WITHOUT_YES, stop unless --yes."""
+    calls = n_questions * len(modes) * runs
+    print(f"{n_questions} questions x {len(modes)} modes x {runs} runs = {calls} model calls "
+          "(plus a repair call for any unusable JSON answer)")
+    if calls > MAX_CALLS_WITHOUT_YES and not yes:
+        raise SystemExit(f"More than {MAX_CALLS_WITHOUT_YES} calls: add --yes to run, or use --sample / --runs.")
 
 
 def run(questions: list[dict], modes: list[str], runs: int, log: bool = False) -> list[dict]:
@@ -361,7 +410,7 @@ def rescore(path: Path, questions: list[dict]) -> list[dict]:
     for old in saved:
         q = by_id.get(old["question_id"])
         if q is None:
-            print(f"Skipping {old['question_id']}: no longer in {QUESTIONS_PATH.name}")
+            print(f"Skipping {old['question_id']}: no longer in the question file")
             continue
         if old["error"] and not old["raw_output"]:  # the model never answered; keep the error
             result = {**core.new_result(old["mode"], old["raw_output"]), "error": old["error"]}
@@ -408,8 +457,29 @@ def readable(pattern: str) -> str:
     return re.sub(r"(?<=\w)\.(?=\w)", " ", text).replace("|", " / ")
 
 
+def derivation(derived: dict) -> str:
+    """How a generated answer key was built, in plain words."""
+    known = core.equipment_by_id()
+    parts = [f"rule {derived['rule']}"]
+    if derived.get("property"):
+        parts.append(f"property: {knowledge.property_label(derived['property'])}")
+    if derived.get("prep"):
+        parts.append(f"first {knowledge.technique_name(derived['prep'])}, "
+                     f"then {knowledge.technique_name(derived['goal_technique'])}")
+    if derived.get("techniques"):
+        parts.append("techniques: " + ", ".join(knowledge.technique_name(t) for t in derived["techniques"]))
+    for key in ("instrument", "distractor"):
+        if derived.get(key):
+            parts.append(f"{key}: {known[derived[key]]['instrument']}")
+    for key in ("condition", "reason"):
+        if derived.get(key):
+            parts.append(f"{key}: {derived[key]}")
+    return "; ".join(parts)
+
+
 def review_sheet(questions: list[dict]) -> str:
-    """The expected answers in plain words (instrument names, not IDs), for the domain expert."""
+    """The expected answers in plain words (instrument names, not IDs), for the domain expert. Generated
+    questions also show how their answer key was derived, and a line for the spot-check verdict."""
     known = core.equipment_by_id()
 
     def names(ids: list[str]) -> str:
@@ -437,6 +507,8 @@ def review_sheet(questions: list[dict]) -> str:
             f"- **Should ask a clarifying question:** {'yes' if q.get('expect_clarifying') else 'no'}",
             *([f"- **Dead end expected:** {'yes' if q['expect_dead_end'] else 'no'}"] if "expect_dead_end" in q else []),
             *([f"- **Prerequisite instruments to name:** {names(q['workflow_ids'])}"] if q.get("workflow_ids") else []),
+            *([f"- **Derived from:** {derivation(q['derived_from'])}",
+               "- **Answer key:** correct / wrong / unsure, because "] if q.get("derived_from") else []),
             f"- **Notes:** {q.get('notes', '')}",
             "- **Reviewer comments:** ", "",
         ]
@@ -445,6 +517,11 @@ def review_sheet(questions: list[dict]) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--question-file", type=Path, default=QUESTIONS_PATH,
+                        help="questions to use (default test_questions.json; e.g. test_questions_generated.json)")
+    parser.add_argument("--sample", type=int, metavar="N", help="only a fixed random subset of N questions")
+    parser.add_argument("--seed", type=int, default=0, help="seed for --sample (default 0)")
+    parser.add_argument("--yes", action="store_true", help=f"allow more than {MAX_CALLS_WITHOUT_YES} model calls")
     parser.add_argument("--runs", type=int, default=3)
     parser.add_argument("--modes", nargs="+", choices=list(RUNNERS), default=list(RUNNERS))
     parser.add_argument("--questions", nargs="+", metavar="ID", help="only these question IDs")
@@ -459,19 +536,24 @@ def main() -> None:
         RUNNERS["structured"] = partial(core.run_structured, repair=False)
         RUNNERS["annotated"] = partial(core.run_annotated, repair=False)
 
-    questions = select_questions(load_questions(), args.questions, args.category)
+    questions = select_questions(load_questions(args.question_file), args.questions, args.category)
+    questions = sample_questions(questions, args.sample, args.seed)
+    name = question_set(args.question_file)
+    prefix = "run_" if name == "curated" else f"run_{name}_"
     RESULTS_DIR.mkdir(exist_ok=True)
     if args.review_sheet:
-        path = RESULTS_DIR / "expected_answers_review.md"
+        path = RESULTS_DIR / ("expected_answers_review.md" if name == "curated" else f"{name}_review_sheet.md")
         path.write_text(review_sheet(questions), encoding="utf-8")
-        print(f"Saved {path}")
+        print(f"Saved {path} ({len(questions)} questions)")
     elif args.record_demo:
+        check_budget(len(questions), args.modes, 1, args.yes)
         record_demo(questions, args.modes)
     elif args.rescore:
         write_outputs(rescore(args.rescore, questions), args.rescore.with_name(args.rescore.stem + "_rescored.csv"))
     else:
+        check_budget(len(questions), args.modes, args.runs, args.yes)
         rows = run(questions, args.modes, args.runs, args.log)
-        write_outputs(rows, RESULTS_DIR / f"run_{datetime.now():%Y%m%d_%H%M%S}.csv")
+        write_outputs(rows, RESULTS_DIR / f"{prefix}{datetime.now():%Y%m%d_%H%M%S}.csv")
 
 
 if __name__ == "__main__":

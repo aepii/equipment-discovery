@@ -187,7 +187,7 @@ Google Sheet setup (once):
 ## Run the evaluation
 
 ```
-python run_eval.py --runs 3                       # all questions, all three modes
+python run_eval.py --runs 3 --yes                 # all questions, all three modes (207 calls: needs --yes)
 python run_eval.py --runs 1 --modes structured annotated
 python run_eval.py --questions Q1 Q4 --runs 1     # a few questions
 python run_eval.py --category vague               # one category
@@ -196,17 +196,24 @@ python run_eval.py --rescore results/run_<time>.csv   # re-score saved answers, 
 python run_eval.py --review-sheet                 # results/expected_answers_review.md for Stefan
 ```
 
+Every run first prints how many model calls it will make (questions x modes x runs, plus a repair call
+for any unusable JSON answer) and stops above 200 unless `--yes` is given. The run CSV has a
+`source_group` column (reviewed, stefan = Q18-Q19, draft, generated), and the summary averages each mode
+per source group.
+
 Poster results (`pip install -r requirements-dev.txt` for matplotlib):
 
 ```
-python scripts/make_charts.py                     # newest results/run_*_summary.csv -> results/charts/*.png (300 dpi)
+python scripts/make_charts.py                     # newest curated run -> results/charts/curated_*.png (300 dpi)
+python scripts/make_charts.py --set generated     # newest generated run -> results/charts/generated_*.png
 python scripts/make_charts.py --summary results/run_<time>_rescored_summary.csv
 python scripts/before_after.py --before rows.json --question-id Q20   # results/before_afm.json, after_afm.json
 ```
 
 `make_charts.py` draws one grouped bar chart per mode (expected instruments found, wrong main picks,
-unavailable techniques flagged, accessories named) and a table of median response time and cost, and
-writes the same numbers as CSV next to them. `before_after.py` saves logged answers of an older version
+unavailable techniques flagged, accessories named), a table of median response time and cost, and the
+main score per question category, plus per source group (curated set) or per generation rule (generated
+set). It writes the same numbers as CSV next to them. `before_after.py` saves logged answers of an older version
 (rows exported from the answers tab) next to fresh answers from the current code, for a before/after
 example. A short write-up of the latest run is in `results/FINDINGS.md` (not committed, like all of `results/`).
 
@@ -256,7 +263,8 @@ The summary adds `dead_end_ok_rate` and `workflow_rate`. Test questions can set 
 `results/run_<time>_summary.csv` has one row per question x mode with consistency across runs
 (`stable_runs` = runs that gave the most common instrument set, e.g. `3/3`; `mean_jaccard` = average
 overlap of the instrument sets; `id_frequency` = how often each ID was recommended), then one row per
-mode for reviewed, draft and all questions. The per-mode table is also printed.
+mode for each source group (reviewed, stefan, draft, generated), each generation rule (`rule:<rule>`,
+generated questions only) and all questions. The per-mode table is also printed.
 
 **Naive mode** ends its answer with a line `Recommended: <IDs>`, and only those count as
 recommendations (an instrument mentioned as unsuitable doesn't count). The IDs it mentions anywhere are
@@ -273,6 +281,38 @@ multi-step, vague, model-specific), `status` (`draft` until Stefan has reviewed 
 `expected_not_available` and `expected_accessories` (regex patterns, case-insensitive),
 `expect_clarifying` and `notes`. After changing expected answers, re-score earlier runs with
 `--rescore` instead of running the model again.
+
+## Generated questions
+
+Besides the 23 curated questions in `test_questions.json` (which carry the accuracy claim), there are 99
+generated questions in `test_questions_generated.json` for coverage: every property in the knowledge
+layer, plus no-match, non-destructive, optional-hardware, distractor, workflow, named, model-specific and
+vague questions.
+
+- **The answer key comes from code, never from a model.** `scripts/generate_questions.py plan` derives
+  each expected answer from `data/techniques.json`, `data/annotations.json`, `data/vocabulary.json` and
+  the dataset, and writes `data/generated/question_plan.json` (answer key, `derived_from`, a brief and
+  forbidden terms per item). Hand-picked inputs are in a short, commented `OVERRIDES` dict.
+- **Only the wording is written by Claude Code**, from each brief, without the technique or instrument
+  names that would give the answer away. Gemini, the model being tested, never sees the plan.
+- `scripts/generate_questions.py check` verifies the questions against the plan: same answer keys, no
+  forbidden terms, no near-duplicates, no close paraphrase of a curated question, and a plan built from
+  the current knowledge files (if they changed: rerun `plan`, update the questions, re-check).
+- **Bias:** annotated mode reads the same annotations that produced these answer keys, so it has a
+  built-in advantage on this set; and the annotations are still drafts. Report generated results next to,
+  not instead of, the curated ones.
+
+```
+python scripts/generate_questions.py plan
+python scripts/generate_questions.py check
+python run_eval.py --question-file test_questions_generated.json --review-sheet --sample 20   # spot-check sheet
+python run_eval.py --question-file test_questions_generated.json --sample 15 --runs 1 --yes   # a fixed subset first
+python run_eval.py --question-file test_questions_generated.json --runs 1 --yes               # all 99 (~300 calls)
+python scripts/make_charts.py --set generated
+```
+
+Runs on the generated set are saved as `results/run_generated_<time>.csv`; their summary is also broken
+down by generation rule (`rule:<rule>` scopes). `--sample N --seed S` always picks the same subset.
 
 ## Knowledge layer
 
@@ -325,7 +365,9 @@ The tests always use the mock model, so they need no API key and cost nothing. T
 | `runtime.py` | Answer cache and daily spending shared by all app sessions; call and budget limits |
 | `data/demo_answers.json` | Saved answers shown when the live model can't be used (`run_eval.py --record-demo`) |
 | `store.py` | Answer and feedback rows; saves them to the Google Sheet or `results/log.jsonl` |
-| `run_eval.py` | Batch evaluation: scores, consistency summary, re-scoring, review sheet, recording saved demo answers |
+| `run_eval.py` | Batch evaluation: scores, consistency summary, re-scoring, review sheet, recording saved demo answers; `--question-file`, `--sample`, call budget |
+| `scripts/generate_questions.py` | Generated questions: `plan` (answer keys from the knowledge layer), `check` (questions vs. plan) |
+| `data/generated/question_plan.json`, `test_questions_generated.json` | The generated-question plan and the 99 worded questions |
 | `scripts/make_charts.py`, `scripts/before_after.py` | Poster charts and the before/after example from evaluation results |
 | `test_questions.json` | Test questions with expected, acceptable and unacceptable instruments |
 | `tests/` | Unit tests (pytest, mock model) |
