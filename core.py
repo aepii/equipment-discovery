@@ -131,7 +131,7 @@ def prompt_version(mode: str) -> str:
 
 @lru_cache(maxsize=1)
 def dataset_version() -> str:
-    test_instruments = TEST_INSTRUMENTS_PATH.read_bytes() if TEST_INSTRUMENTS_PATH.exists() else b""
+    test_instruments = knowledge.text_bytes(TEST_INSTRUMENTS_PATH) if TEST_INSTRUMENTS_PATH.exists() else b""
     return _short_hash(DATA_PATH.read_bytes() + test_instruments)
 
 

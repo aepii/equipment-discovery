@@ -370,3 +370,25 @@ def test_eval_dead_end_and_workflow_scores():
     q14 = run_eval.select_questions(run_eval.load_questions(), ["Q14"], None)[0]
     s = run_eval.score(q14, annotated([rec_for("EQ11", "transmission_electron_microscopy")]))
     assert (s["workflow_hits"], s["workflow_total"]) == (1, 1)  # EQ16 is named in the TEM workflow
+
+
+def test_versions_ignore_line_endings(tmp_path, monkeypatch):
+    """A Windows checkout (CRLF) and a Linux checkout (LF) of the same files give the same versions."""
+    import core
+
+    versions = {}
+    for name, newline in (("lf", b"\n"), ("crlf", b"\r\n")):
+        folder = tmp_path / name
+        folder.mkdir()
+        for attr in ("VOCABULARY_PATH", "TECHNIQUES_PATH", "ANNOTATIONS_PATH"):
+            source = getattr(knowledge, attr)
+            target = folder / source.name
+            target.write_bytes(source.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", newline))
+            monkeypatch.setattr(knowledge, attr, target)
+        instruments = folder / "test_instruments.json"
+        instruments.write_bytes(core.TEST_INSTRUMENTS_PATH.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", newline))
+        monkeypatch.setattr(core, "TEST_INSTRUMENTS_PATH", instruments)
+        core.dataset_version.cache_clear()
+        versions[name] = (knowledge.knowledge_version(), core.dataset_version())
+    core.dataset_version.cache_clear()
+    assert versions["lf"] == versions["crlf"]
