@@ -8,3 +8,5 @@ results/
 service_account.json
 PLAN.md
 CLAUDE.md
+web/node_modules/
+web/dist/

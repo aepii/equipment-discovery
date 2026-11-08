@@ -6,7 +6,7 @@ import re
 import subprocess
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator
+from typing import Callable, Iterator
 
 import openpyxl
 
@@ -597,11 +597,13 @@ def _repair(result: dict, question: str, problems: list[str]) -> None:
     result.update(repaired=True, first_raw=first_raw, usage=add_usage(first_usage, result["usage"]))
 
 
-def run_structured(question: str, repair: bool = True, mode: str = "structured") -> dict:
+def run_structured(question: str, repair: bool = True, mode: str = "structured",
+                   on_model_answer: Callable[[], None] | None = None) -> dict:
     """Structured mode: rules + JSON schema; code checks and fills in each recommendation.
     With mode="annotated", the prompt also has the instrument notes and code checks against them.
 
     If the answer is not JSON of the right shape and repair is on, the model gets one chance to fix it.
+    on_model_answer is called when the model's answer arrives, before the checks (for progress display).
     """
     result = new_result(mode)
     try:
@@ -609,6 +611,8 @@ def run_structured(question: str, repair: bool = True, mode: str = "structured")
     except Exception as exc:  # API errors are shown in the page, not raised
         result["error"] = f"{type(exc).__name__}: {exc}"
         return result
+    if on_model_answer:
+        on_model_answer()
     problems = structured_problems(result["raw"])
     if problems and repair:
         try:
@@ -618,9 +622,9 @@ def run_structured(question: str, repair: bool = True, mode: str = "structured")
     return read_structured(result)
 
 
-def run_annotated(question: str, repair: bool = True) -> dict:
+def run_annotated(question: str, repair: bool = True, on_model_answer: Callable[[], None] | None = None) -> dict:
     """Structured + annotations mode."""
-    return run_structured(question, repair, mode="annotated")
+    return run_structured(question, repair, mode="annotated", on_model_answer=on_model_answer)
 
 
 def run_naive(question: str) -> dict:
