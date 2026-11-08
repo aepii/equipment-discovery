@@ -1,13 +1,13 @@
 import { useState } from "react";
 
-/** Logo (web/public/umkc-logo.svg, when present), product name and event tag. */
+/** Logo (web/public/umkc-logo.png, when present), product name and event tag. */
 export function Header() {
   const [logo, setLogo] = useState(true);
   return (
     <header className="site-header">
       <div className="site-header__brand">
         {logo ? (
-          <img src="/umkc-logo.svg" alt="UMKC" className="site-header__logo" onError={() => setLogo(false)} />
+          <img src="/umkc-logo.png" alt="UMKC" className="site-header__logo" onError={() => setLogo(false)} />
         ) : (
           <span className="site-header__wordmark">UMKC</span>
         )}

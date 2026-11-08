@@ -195,8 +195,9 @@ internal project wording. Conversations are stored in the browser only (localSto
 server-side history or login. Follow-up questions are rewritten into standalone questions
 (`core.rewrite_followup`) and shown as "Answering: ...".
 
-The header shows `web/public/umkc-logo.svg` if that file exists (not included in the repo; check UMKC's
-brand guidelines before showing the logo publicly); otherwise it shows "UMKC" as text.
+The header shows the UMKC logo from `web/public/umkc-logo.png` (cropped to the wordmark, transparent
+background, 144 px tall for sharp display); if the file is missing it shows "UMKC" as text. Check UMKC's
+brand guidelines before showing the logo publicly.
 
 **Deploy.** The `Dockerfile` builds the frontend and serves API and frontend on one port
 (`$PORT`, default 8000). It works on Render, Railway, Fly.io or Hugging Face Spaces (Docker). Set the
