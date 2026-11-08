@@ -138,6 +138,7 @@ def ask(question: str, mode: str, session_id: str, conversation_id: str = "", pr
         "source": presentation.source_label(result),
         "result": presentation.sanitize(result),
         "graph_dot": answer_graph.build_dot(result) or None,
+        "graph": answer_graph.build_graph(result),
     }
 
 

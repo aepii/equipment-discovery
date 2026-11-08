@@ -64,7 +64,7 @@ function FinderColumn({ state }: { state: AnswerState }) {
           render={(answer) => (
             <FinderBody
               answer={answer}
-              actions={answer.graph_dot ? <ReasoningButton dot={answer.graph_dot} /> : undefined}
+              actions={answer.graph ? <ReasoningButton graph={answer.graph} /> : undefined}
             />
           )}
         />

@@ -138,7 +138,7 @@ export function TurnView({ turn, ctx, onAnswered }: {
           render={(answer) => (
             <AnswerDocument
               answer={answer}
-              actions={answer.graph_dot ? <ReasoningButton dot={answer.graph_dot} /> : undefined}
+              actions={answer.graph ? <ReasoningButton graph={answer.graph} /> : undefined}
             />
           )}
         />

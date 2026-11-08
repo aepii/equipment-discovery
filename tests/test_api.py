@@ -42,6 +42,9 @@ def test_ask_live_then_cache(client, saved):
     assert result["removed_count"] == 1  # the mock's made-up EQ99
     assert result["plan"]["instrument_id"] == "EQ15"
     assert first["graph_dot"].startswith("digraph")
+    kinds = {n["kind"] for n in first["graph"]["nodes"]}
+    assert {"question", "technique", "instrument", "missing"} <= kinds
+    assert all(e["source"] and e["target"] for e in first["graph"]["edges"])
     assert client.post("/api/ask", json=body).json()["source"] == "cache"
     row = saved[0][1]
     assert row["source"] == "web" and row["session_id"] == "s1" and row["turn"] == 1
@@ -50,7 +53,7 @@ def test_ask_live_then_cache(client, saved):
 def test_naive_mode(client):
     reply = client.post("/api/ask", json={"question": "compress my scaffold", "mode": "naive"}).json()
     assert reply["result"]["mode_label"] == "General AI (no guidance)"
-    assert reply["graph_dot"] is None and "text" in reply["result"]
+    assert reply["graph_dot"] is None and reply["graph"] is None and "text" in reply["result"]
 
 
 def test_offline_uses_saved_answers(client, monkeypatch):

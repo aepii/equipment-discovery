@@ -31,20 +31,31 @@ def _attrs(**attrs) -> str:
     return "[" + ", ".join(f"{key}={_quote(value)}" for key, value in attrs.items()) + "]"
 
 
+KINDS = {"q": "question", "p": "property", "t": "technique", "i": "instrument", "a": "accessories"}
+
+
 class _Graph:
+    """Collects nodes and edges once, then writes them as DOT (Streamlit) or as plain data (web app)."""
+
     def __init__(self):
         self.nodes: dict[str, str] = {}
         self.edges: list[str] = []
+        self.node_data: dict[str, dict] = {}
+        self.edge_data: list[dict] = []
 
     def node(self, node_id: str, label: str, fill_border=NEUTRAL, **attrs) -> None:
         if node_id not in self.nodes:
             fill, border = fill_border
             self.nodes[node_id] = f"{_quote(node_id)} {_attrs(label=_wrap(label), fillcolor=fill, color=border, **attrs)}"
+            kind = "missing" if fill_border == DEAD_END else KINDS.get(node_id.split(":")[0], "other")
+            self.node_data[node_id] = {"id": node_id, "label": str(label), "kind": kind, "fill": fill,
+                                       "border": border, "dashed": "dashed" in attrs.get("style", "")}
 
     def edge(self, a: str, b: str, label: str = "", **attrs) -> None:
         line = f"{_quote(a)} -> {_quote(b)} {_attrs(label=label, **attrs)}"
         if line not in self.edges:
             self.edges.append(line)
+            self.edge_data.append({"source": a, "target": b, "label": label, "style": attrs.get("style", "solid")})
 
     def dot(self) -> str:
         head = ['digraph answer {', 'rankdir=LR; bgcolor="transparent"; nodesep=0.25; ranksep=0.5;',
@@ -99,9 +110,20 @@ def _follow_ups(g: _Graph, tid: str, node: str) -> None:
 
 def build_dot(result: dict) -> str:
     """DOT for one annotated result (empty if it has nothing to show)."""
+    g = _build(result)
+    return g.dot() if g else ""
+
+
+def build_graph(result: dict) -> dict | None:
+    """The same graph as plain data, {"nodes": [...], "edges": [...]}, for the web app (None if empty)."""
+    g = _build(result)
+    return {"nodes": list(g.node_data.values()), "edges": g.edge_data} if g else None
+
+
+def _build(result: dict) -> _Graph | None:
     if result.get("mode") != "annotated" or result.get("error") or not (
             result.get("recommendations") or result.get("not_available")):
-        return ""
+        return None
     g = _Graph()
     g.node("q", "Your question", ("#2a78d6", "#2a78d6"), fontcolor="#ffffff", shape="ellipse")
     for rec in result["recommendations"]:
@@ -140,4 +162,4 @@ def build_dot(result: dict) -> str:
         props = [p for p in asked if p in tech.get("measures", []) or p in tech.get("partial", {})]
         for origin in [f"p:{p}" for p in props] or ["q"]:
             g.edge(origin, node, "would be measured by", style="dashed")
-    return g.dot()
+    return g

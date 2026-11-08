@@ -59,6 +59,27 @@ export interface AnswerResult {
   gaps?: string[];
 }
 
+export interface GraphNode {
+  id: string;
+  label: string;
+  kind: "question" | "property" | "technique" | "instrument" | "accessories" | "missing" | "other";
+  fill: string;
+  border: string;
+  dashed: boolean;
+}
+
+export interface GraphEdge {
+  source: string;
+  target: string;
+  label: string;
+  style: "solid" | "dashed" | "dotted";
+}
+
+export interface GraphData {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
 export interface AskResponse {
   answer_id: string;
   question: string;
@@ -67,6 +88,7 @@ export interface AskResponse {
   source: "live" | "cache" | "saved";
   result: AnswerResult;
   graph_dot: string | null;
+  graph?: GraphData | null;
 }
 
 export interface Example {

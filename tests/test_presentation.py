@@ -30,7 +30,7 @@ def saved_answers() -> list[tuple[str, str]]:
 def test_saved_answers_are_clean(mode, question):
     result = core.demo_answer(mode, question)
     payload = json.dumps(presentation.sanitize(result), ensure_ascii=False)
-    graph = answer_graph.build_dot(result)
+    graph = answer_graph.build_dot(result) + json.dumps(answer_graph.build_graph(result))
     assert forbidden_in(payload + graph) == []
 
 
