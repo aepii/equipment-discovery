@@ -2,10 +2,12 @@
 
 Usage (from the project folder):
   python scripts/generate_questions.py plan    writes data/generated/question_plan.json
+  python scripts/generate_questions.py check   checks test_questions_generated.json against the plan
 
 The plan holds one item per question to write: the full answer key (same fields as test_questions.json),
 `derived_from` (the rule and inputs that produced it), a `brief` for the question writer and
 `forbidden_terms` (words the question must not use, so it does not give the answer away).
+Claude Code writes one question per item into test_questions_generated.json, copying the answer key.
 
 The answer key is built only from data/techniques.json, data/annotations.json, data/vocabulary.json and
 the dataset. No model is called here. The briefs and samples below only steer the wording; they never
@@ -17,6 +19,7 @@ import json
 import re
 import sys
 from collections import Counter
+from difflib import SequenceMatcher
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -27,6 +30,10 @@ import core  # noqa: E402
 import knowledge as k  # noqa: E402
 
 PLAN_PATH = ROOT / "data" / "generated" / "question_plan.json"
+QUESTIONS_PATH = ROOT / "test_questions_generated.json"
+CURATED_PATH = ROOT / "test_questions.json"
+NEAR_DUPLICATE = 0.85  # text similarity (0-1) at which two generated questions count as the same question
+CURATED_PARAPHRASE = 0.7  # lower bar against curated questions: a close paraphrase is enough to reject
 ANSWER_KEY_FIELDS = ["category", "expected_ids", "acceptable_ids", "unacceptable_ids", "supplementary_only_ids",
                      "expected_not_available", "expected_accessories", "expect_clarifying", "expect_dead_end",
                      "workflow_ids"]
@@ -584,6 +591,63 @@ def plan_problems(items: list[dict]) -> list[str]:
     return problems
 
 
+def normalize(text: str) -> str:
+    return " ".join(re.sub(r"[^\w\s]", " ", text.lower()).split())
+
+
+def similarity(a: str, b: str) -> float:
+    return SequenceMatcher(None, normalize(a), normalize(b)).ratio()
+
+
+def too_similar(a: str, b: str, threshold: float) -> float | None:
+    """The similarity if it reaches the threshold, else None (cheap upper bounds first)."""
+    m = SequenceMatcher(None, normalize(a), normalize(b))
+    if m.real_quick_ratio() < threshold or m.quick_ratio() < threshold:
+        return None
+    score = m.ratio()
+    return score if score >= threshold else None
+
+
+def question_problems(questions: list[dict], plan: dict, curated: list[dict]) -> list[str]:
+    """Problems in the written questions: answer keys must equal the plan, wording must avoid forbidden
+    terms and must not repeat another generated or a curated question."""
+    problems = []
+    if plan["knowledge_version"] != k.knowledge_version():
+        problems.append(f"the plan is for knowledge version {plan['knowledge_version']}, but the knowledge "
+                        f"files are now {k.knowledge_version()}: rerun `plan`, then update the questions and re-check")
+    items = {it["id"]: it for it in plan["items"]}
+    ids = Counter(q.get("id") for q in questions)
+    problems += [f"{i}: appears {n} times" for i, n in ids.items() if n > 1]
+    problems += [f"{i}: in the plan but not in the questions" for i in items if i not in ids]
+    problems += [f"{i}: not in the plan" for i in ids if i not in items]
+    for q in questions:
+        it = items.get(q.get("id"))
+        if not it:
+            continue
+        where = q["id"]
+        if q.get("status") != "generated":
+            problems.append(f"{where}: status must be 'generated'")
+        if not str(q.get("question", "")).strip():
+            problems.append(f"{where}: empty question")
+        for field in ANSWER_KEY_FIELDS + ["derived_from"]:
+            if q.get(field) != it[field]:
+                problems.append(f"{where}: {field} differs from the plan")
+        if not str(q.get("notes", "")).startswith(f"Generated: answer key from {it['derived_from']['rule']}"):
+            problems.append(f"{where}: notes must say 'Generated: answer key from <rule>; wording by Claude.'")
+        problems += [f"{where}: uses forbidden term '{t}'" for t in it["forbidden_terms"]
+                     if contains_term(q.get("question", ""), t)]
+    for i, a in enumerate(questions):
+        for b in questions[i + 1:]:
+            score = too_similar(a["question"], b["question"], NEAR_DUPLICATE)
+            if score:
+                problems.append(f"{a['id']} and {b['id']}: near-duplicate questions ({score:.2f})")
+        for c in curated:
+            score = too_similar(a["question"], c["question"], CURATED_PARAPHRASE)
+            if score:
+                problems.append(f"{a['id']}: too close to curated {c['id']} ({score:.2f})")
+    return problems
+
+
 # --- commands ---
 
 def build_plan() -> tuple[list[dict], list]:
@@ -620,12 +684,25 @@ def cmd_plan(_args) -> None:
     print(f"\nWrote {PLAN_PATH.relative_to(ROOT)}")
 
 
+def cmd_check(_args) -> None:
+    plan = json.loads(PLAN_PATH.read_text(encoding="utf-8"))
+    questions = json.loads(QUESTIONS_PATH.read_text(encoding="utf-8"))
+    curated = json.loads(CURATED_PATH.read_text(encoding="utf-8"))
+    problems = question_problems(questions, plan, curated)
+    if problems:
+        raise SystemExit(f"{len(problems)} problem(s) in {QUESTIONS_PATH.name}:\n  " + "\n  ".join(problems))
+    closest = max(similarity(q["question"], c["question"]) for q in questions for c in curated)
+    print(f"{QUESTIONS_PATH.name}: {len(questions)} questions match the plan; no forbidden terms, "
+          f"no near-duplicates (closest to a curated question: {closest:.2f})")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("plan", help="write the question plan (answer keys from the knowledge layer)")
+    sub.add_parser("check", help="check the written questions against the plan")
     args = parser.parse_args()
-    {"plan": cmd_plan}[args.command](args)
+    {"plan": cmd_plan, "check": cmd_check}[args.command](args)
 
 
 if __name__ == "__main__":
