@@ -106,19 +106,28 @@ def log_answer(question: str, result: dict, session_id: str, extra: dict) -> dic
     return row
 
 
-def ask(question: str, mode: str, session_id: str, conversation_id: str = "", turn: int = 1,
-        standalone: str | None = None, on_stage: Callable[[str], None] = lambda stage: None) -> dict:
+def standalone_question(question: str, previous: list[str]) -> str:
+    """A follow-up rewritten to stand on its own; the first question (or offline mode) goes straight through."""
+    if not previous or not live_available():
+        return question
+    return core.rewrite_followup(question, previous)
+
+
+def ask(question: str, mode: str, session_id: str, conversation_id: str = "", previous: list[str] | None = None,
+        on_stage: Callable[[str], None] = lambda stage: None) -> dict:
     """Answer and log one question; return the payload the interface receives.
 
-    standalone is the question rewritten to stand on its own (follow-ups); it is what gets answered.
+    previous: the earlier standalone questions of this conversation. A follow-up is rewritten to stand on
+    its own, and the rewritten question is what gets answered (and shown as "Answering: ...").
     """
+    previous = previous or []
     on_stage("reading")
-    answered = standalone or question
+    answered = standalone_question(question, previous)
     result = get_answer(mode, answered, session_id, on_stage)
     if result.get("error"):
         print(f"Answer error ({mode}): {result['error']}")
     row = log_answer(answered, result, session_id, {
-        "conversation_id": conversation_id, "turn": turn,
+        "conversation_id": conversation_id, "turn": len(previous) + 1,
         "original_question": question if answered != question else ""})
     on_stage("done")
     return {

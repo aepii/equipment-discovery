@@ -105,3 +105,50 @@ def test_feedback(client, saved):
 
 def test_rejects_empty_question(client):
     assert client.post("/api/ask", json={"question": "   "}).status_code == 422
+
+
+# --- follow-up questions ---
+
+def test_rewrite_followup(monkeypatch):
+    import core
+    calls = []
+
+    def fake(system, user, json_mode=False):
+        calls.append(user)
+        return '{"standalone_question": "How can I measure the compressive stiffness of a hydrogel?"}'
+
+    monkeypatch.setattr(core, "complete", fake)
+    previous = ["How can I measure the compressive stiffness of a porous scaffold?"]
+    assert core.rewrite_followup("what about for a hydrogel?", previous) == \
+        "How can I measure the compressive stiffness of a hydrogel?"
+    assert previous[0] in calls[0] and "what about for a hydrogel?" in calls[0]
+    assert core.rewrite_followup("first question", []) == "first question"
+    assert len(calls) == 1  # no call without earlier questions
+
+
+def test_rewrite_followup_keeps_question_on_failure(monkeypatch):
+    import core
+    monkeypatch.setattr(core, "complete", lambda *a, **k: "not json")
+    assert core.rewrite_followup("and for bone?", ["earlier"]) == "and for bone?"
+    monkeypatch.setattr(core, "complete", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("down")))
+    assert core.rewrite_followup("and for bone?", ["earlier"]) == "and for bone?"
+
+
+def test_followup_is_answered_as_standalone(client, saved, monkeypatch):
+    import core
+    monkeypatch.setattr(core, "complete",
+                        lambda *a, **k: '{"standalone_question": "Compress a hydrogel scaffold: what equipment?"}')
+    reply = client.post("/api/ask", json={
+        "question": "and for a hydrogel?", "conversation_id": "c1",
+        "conversation": [{"question": "compress my scaffold", "standalone_question": "compress my scaffold"}]}).json()
+    assert reply["rewritten"] and reply["standalone_question"] == "Compress a hydrogel scaffold: what equipment?"
+    assert reply["question"] == "and for a hydrogel?"
+    row = saved[-1][1]
+    assert row["question"] == "Compress a hydrogel scaffold: what equipment?"
+    assert row["original_question"] == "and for a hydrogel?" and row["turn"] == 2 and row["conversation_id"] == "c1"
+
+
+def test_first_question_is_not_rewritten(client, monkeypatch):
+    import core
+    monkeypatch.setattr(core, "complete", lambda *a, **k: pytest.fail("no rewrite for the first question"))
+    assert not client.post("/api/ask", json={"question": "compress my scaffold"}).json()["rewritten"]

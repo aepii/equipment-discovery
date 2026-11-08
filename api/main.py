@@ -63,8 +63,9 @@ def _ask(req: AskRequest, on_stage=lambda stage: None) -> dict:
     question = req.question.strip()
     if not question:
         raise HTTPException(422, "Please enter a question.")
+    previous = [t.standalone_question or t.question for t in req.conversation]
     return service.ask(question, req.mode, req.session_id or "anonymous", req.conversation_id,
-                       turn=len(req.conversation) + 1, on_stage=on_stage)
+                       previous=previous, on_stage=on_stage)
 
 
 @app.post("/api/ask")
