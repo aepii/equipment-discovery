@@ -1,0 +1,4 @@
+# Web interface only (api/ and web/); the Streamlit app needs just requirements.txt.
+fastapi==0.162.2
+uvicorn==0.34.3
+httpx==0.28.1

@@ -6,12 +6,12 @@ import re
 import subprocess
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator
+from typing import Callable, Iterator
 
 import openpyxl
 
 import knowledge
-from llm import complete_with_meta, stream_with_meta
+from llm import complete, complete_with_meta, stream_with_meta
 
 DATA_PATH = Path(__file__).parent / "data" / "dataset.xlsx"
 TEST_INSTRUMENTS_PATH = Path(__file__).parent / "data" / "test_instruments.json"
@@ -597,11 +597,13 @@ def _repair(result: dict, question: str, problems: list[str]) -> None:
     result.update(repaired=True, first_raw=first_raw, usage=add_usage(first_usage, result["usage"]))
 
 
-def run_structured(question: str, repair: bool = True, mode: str = "structured") -> dict:
+def run_structured(question: str, repair: bool = True, mode: str = "structured",
+                   on_model_answer: Callable[[], None] | None = None) -> dict:
     """Structured mode: rules + JSON schema; code checks and fills in each recommendation.
     With mode="annotated", the prompt also has the instrument notes and code checks against them.
 
     If the answer is not JSON of the right shape and repair is on, the model gets one chance to fix it.
+    on_model_answer is called when the model's answer arrives, before the checks (for progress display).
     """
     result = new_result(mode)
     try:
@@ -609,6 +611,8 @@ def run_structured(question: str, repair: bool = True, mode: str = "structured")
     except Exception as exc:  # API errors are shown in the page, not raised
         result["error"] = f"{type(exc).__name__}: {exc}"
         return result
+    if on_model_answer:
+        on_model_answer()
     problems = structured_problems(result["raw"])
     if problems and repair:
         try:
@@ -618,9 +622,9 @@ def run_structured(question: str, repair: bool = True, mode: str = "structured")
     return read_structured(result)
 
 
-def run_annotated(question: str, repair: bool = True) -> dict:
+def run_annotated(question: str, repair: bool = True, on_model_answer: Callable[[], None] | None = None) -> dict:
     """Structured + annotations mode."""
-    return run_structured(question, repair, mode="annotated")
+    return run_structured(question, repair, mode="annotated", on_model_answer=on_model_answer)
 
 
 def run_naive(question: str) -> dict:
@@ -645,6 +649,37 @@ def stream_naive(question: str, result: dict) -> Iterator[str]:
         result["error"] = f"{type(exc).__name__}: {exc}"
     result["raw"], result["usage"] = "".join(chunks), meta
     read_naive(result)
+
+
+# --- follow-up questions (web interface) ---
+
+REWRITE_SYSTEM = """You rewrite a researcher's follow-up question so it can be understood without the conversation.
+Use the earlier questions only to fill in what the follow-up leaves out (such as the material, sample,
+property or goal). Keep the researcher's wording where you can. If the follow-up already stands on its
+own, return it unchanged. Do not answer it, add facts or suggest equipment.
+
+Return ONLY a JSON object: {"standalone_question": "..."}"""
+MAX_PREVIOUS = 5
+
+
+def rewrite_followup(question: str, previous: list[str]) -> str:
+    """The follow-up as a question that stands on its own, using the earlier (standalone) questions.
+
+    One small model call; the question comes back unchanged if there is no earlier question or the
+    call or its JSON fails.
+    """
+    previous = [p.strip() for p in previous if p and p.strip()][-MAX_PREVIOUS:]
+    if not previous:
+        return question
+    earlier = "\n".join(f"{i}. {p}" for i, p in enumerate(previous, start=1))
+    user = f"Earlier questions, oldest first:\n{earlier}\n\nFollow-up: {question.strip()}"
+    try:
+        parsed = parse_json(complete(REWRITE_SYSTEM, user, json_mode=True))
+    except Exception as exc:  # the original question still gets an answer
+        print(f"Follow-up rewrite failed: {type(exc).__name__}: {exc}")
+        return question
+    rewritten = parsed.get("standalone_question")
+    return rewritten.strip() if isinstance(rewritten, str) and rewritten.strip() else question
 
 
 # --- saved answers: a backup for the live demo when the model can't be reached ---

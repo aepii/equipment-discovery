@@ -160,6 +160,54 @@ makes the next 2 calls fail with error 429 (try `503:99` to see the saved-answer
    startup, so they override `.env` (which is never committed).
 4. Share the link and the password.
 
+## Web app (presentation interface)
+
+A separate interface for presenting: FastAPI (`api/`) plus a React frontend (`web/`). It answers with
+the same code as the Streamlit app (same prompts, cache, limits, saved answers and logging, with
+`source = web`), so the Streamlit app and the evaluation are unaffected. It shows Equipment Finder
+(annotated mode) by default, General AI (naive mode) in Compare, and the rules-only mode under Advanced.
+"Show reasoning" draws the answer's knowledge graph (`answer_graph.build_graph`, the same graph as the
+Streamlit view) with React Flow, revealed step by step from the question. The **Equipment** page
+(`#/equipment`) lists all instruments with search and filters by location and technique.
+
+Needs Node.js 20+ in addition to Python.
+
+```
+pip install -r requirements.txt -r requirements-web.txt
+scripts/run_web.sh              # build the frontend, serve everything on http://localhost:8000
+scripts/run_web.sh --offline    # saved answers only: the example questions work with Wi-Fi off
+```
+
+On Windows PowerShell: `scripts\run_web.ps1` (or `scripts\run_web.ps1 -Offline`).
+
+For frontend work, run the API and the Vite dev server separately (the dev server forwards `/api`):
+
+```
+python -m uvicorn api.main:app --port 8000 --reload
+cd web && npm install && npm run dev       # http://localhost:5173
+```
+
+The environment variables are the same as for the Streamlit app (`.env` locally). `DEMO_OFFLINE=1`
+answers only from `data/demo_answers.json`; the start screen's examples (`api/presentation.py`) all
+have saved answers. `MAX_CALLS_PER_SESSION` counts per browser (an anonymous ID kept in the
+browser), and `DAILY_BUDGET_USD` caps total spending.
+
+What the interface receives is built from an allowlist in `api/presentation.py`;
+`tests/test_presentation.py` checks that saved answers, examples and the built frontend never show
+internal project wording. Conversations are stored in the browser only (localStorage); there is no
+server-side history or login. Follow-up questions are rewritten into standalone questions
+(`core.rewrite_followup`) and shown as "Answering: ...".
+
+The header shows the UMKC logo from `web/public/umkc-logo.png` (cropped to the wordmark, transparent
+background, 144 px tall for sharp display); if the file is missing it shows "UMKC" as text. Check UMKC's
+brand guidelines before showing the logo publicly.
+
+**Deploy.** The `Dockerfile` builds the frontend and serves API and frontend on one port
+(`$PORT`, default 8000). It works on Render, Railway, Fly.io or Hugging Face Spaces (Docker). Set the
+API key and other settings as the host's environment variables; never bake `.env` into the image.
+Free hosts sleep when idle, so open the site a few minutes before presenting. For the live demo, also
+run it locally on the presenting laptop as a backup.
+
 ## Logging and feedback
 
 Every answer is logged with what is needed to compare versions later: mode, provider, model,
@@ -380,3 +428,7 @@ The tests always use the mock model, so they need no API key and cost nothing. T
 | `scripts/make_charts.py`, `scripts/before_after.py` | Poster charts and the before/after example from evaluation results |
 | `test_questions.json` | Test questions with expected, acceptable and unacceptable instruments |
 | `tests/` | Unit tests (pytest, mock model) |
+| `api/main.py`, `api/service.py` | Web API: ask (also streamed with progress stages), feedback, examples, equipment |
+| `api/presentation.py` | The allowlisted answer payload, audience labels and example questions for the web app |
+| `web/` | React frontend (Vite + TypeScript); `npm run build` writes `web/dist` |
+| `Dockerfile`, `scripts/run_web.sh`, `scripts/run_web.ps1` | Deploy and run the web app |

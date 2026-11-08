@@ -1,0 +1,50 @@
+/* Design tokens. Text colours pass WCAG AA (4.5:1) on the backgrounds they are used on. */
+:root {
+  /* UMKC royal blue (PMS 300C) and old gold (PMS 7405C) */
+  --blue: #0066cc;
+  --blue-deep: #003d7a;
+  --on-blue: #ffffff;
+  --on-blue-2: #eef4fb;
+  --blue-tint: #e8f0fa;
+  --blue-wash: #f0f6fd;
+  --gold: #ffd52f; /* never text on white; dark text on gold */
+
+  --page: #f4f6f9;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --border: #dde3ea;
+  --border-strong: #c9d3df;
+  --text: #18212c;
+  --text-2: #3b4654;
+  --muted: #566271;
+  --id-border: #9aa8b8;
+
+  /* status: always paired with a text label */
+  --high-text: #1d5c3d;
+  --high-bg: #e3f2e9;
+  --high-dot: #2e8b57;
+  --medium-text: #7a4f00;
+  --medium-bg: #fdf1d8;
+  --medium-dot: #d99a00;
+  --low-text: #4a5360;
+  --low-bg: #eef0f3;
+  --low-dot: #8592a3;
+  --dead-text: #b42318;
+  --dead-bg: #fdecea;
+  --installed-border: #9ccdb0;
+  --installed-bg: #f1faf4;
+  --confirm-border: #e8c873;
+  --confirm-bg: #fff9ea;
+
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  --r-tag: 4px;
+  --r-card: 8px;
+  --r-doc: 10px;
+  --r-composer: 12px;
+  --r-pill: 999px;
+  --shadow-float: 0 6px 20px rgba(16, 40, 72, 0.08);
+  --touch: 44px;
+  --sidebar: 272px;
+}
