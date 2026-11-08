@@ -1,0 +1,2735 @@
+[
+  {
+    "id": "G001",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "We're cementing zirconia crowns with a new resin cement. How can I find out how strongly the cement actually holds onto the zirconia?",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "bond_strength",
+      "techniques": [
+        "bond_strength_testing"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G002",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "I seed fibroblasts on culture plates and need to follow how many cells there are and how much of the surface they cover over a week. What can I use?",
+    "expected_ids": [
+      "EQ09",
+      "EQ12",
+      "EQ13",
+      "EQ22",
+      "EQ23"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "cell_counts",
+      "techniques": [
+        "brightfield_microscopy",
+        "phase_contrast_microscopy",
+        "widefield_fluorescence_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G003",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "I'd like to see whether osteoblasts flatten out and spread on our titanium discs or stay rounded. What equipment would show me their shape?",
+    "expected_ids": [
+      "EQ07",
+      "EQ08",
+      "EQ09",
+      "EQ12",
+      "EQ13",
+      "EQ22",
+      "EQ23"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "cell_morphology",
+      "techniques": [
+        "brightfield_microscopy",
+        "confocal_microscopy",
+        "multiphoton_microscopy",
+        "phase_contrast_microscopy",
+        "widefield_fluorescence_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G004",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How stiff are bovine trabecular bone cubes when you squeeze them? I need a modulus value to compare against our graft material.",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "compressive_modulus",
+      "techniques": [
+        "compression_testing"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G005",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "At what load do our glass-ionomer cement cylinders fail when pressed from the top? I want a strength value for each formulation.",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "compressive_strength",
+      "techniques": [
+        "compression_testing"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G006",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "Our supplier changed the nucleating agent in the polypropylene we use for medical tubing. How can I find out at what temperature it now crystallizes as it cools from the melt?",
+    "expected_ids": [
+      "EQ18"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "crystallization_temperature",
+      "techniques": [
+        "differential_scanning_calorimetry"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G007",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How much of our PEEK implant material is crystalline and how much is amorphous? Processing seems to change it, and I want a number.",
+    "expected_ids": [
+      "EQ18"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "degree_of_crystallinity",
+      "techniques": [
+        "differential_scanning_calorimetry"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G008",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How far can an elastic orthodontic chain be stretched before it snaps? I'd like to compare three brands.",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "elongation_at_break",
+      "techniques": [
+        "tensile_testing"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G009",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "What fraction of a dental composite paste is inorganic filler by weight? Which equipment would tell me that?",
+    "expected_ids": [
+      "EQ17"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "filler_content",
+      "techniques": [
+        "thermogravimetric_analysis"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G010",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "We're comparing 3D-printed denture base resins with conventional heat-cured acrylic. How do I get the stiffness of each material when it is bent?",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "flexural_modulus",
+      "techniques": [
+        "flexural_testing"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G011",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How much load can CAD/CAM ceramic blocks take in bending before they crack? We need strength values for a materials comparison.",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "flexural_strength",
+      "techniques": [
+        "flexural_testing"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G012",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "My GFP-expressing cells got a drug treatment, and I want to compare from images how bright the green signal is in treated versus control cells. What should I use?",
+    "expected_ids": [
+      "EQ07",
+      "EQ08",
+      "EQ09",
+      "EQ12"
+    ],
+    "acceptable_ids": [
+      "EQ13",
+      "EQ22",
+      "EQ23"
+    ],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "fluorescence_intensity",
+      "techniques": [
+        "confocal_microscopy",
+        "widefield_fluorescence_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G013",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "I've stained cells for a nuclear protein and a membrane protein with two different fluorescent dyes. How can I see exactly where each one ends up inside the cell?",
+    "expected_ids": [
+      "EQ07",
+      "EQ08",
+      "EQ09",
+      "EQ12"
+    ],
+    "acceptable_ids": [
+      "EQ13",
+      "EQ22",
+      "EQ23"
+    ],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "fluorescence_localization",
+      "techniques": [
+        "confocal_microscopy",
+        "multiphoton_microscopy",
+        "widefield_fluorescence_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G014",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "My gelatin methacrylate hydrogel sets after I add the initiator, and I want to follow how quickly it turns from a liquid into a gel. What can measure that?",
+    "expected_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "gelation_and_curing_kinetics",
+      "techniques": [
+        "oscillatory_rheometry"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G015",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "We make an amorphous solid dispersion of a poorly soluble drug. I need the temperature at which it goes from glassy to rubbery, since that predicts storage stability.",
+    "expected_ids": [
+      "EQ18"
+    ],
+    "acceptable_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "glass_transition_temperature",
+      "techniques": [
+        "differential_scanning_calorimetry"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G016",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "Some of our printed aligner trays come out warped or with small bubbles. What could I use to inspect them up close and document the defects?",
+    "expected_ids": [
+      "EQ14"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "macroscopic_morphology",
+      "techniques": [
+        "stereomicroscopy"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G017",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How much weight does our biodegradable polymer blend lose as it is heated, and at which temperatures? I'd like the full curve.",
+    "expected_ids": [
+      "EQ17"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "mass_loss_vs_temperature",
+      "techniques": [
+        "thermogravimetric_analysis"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G018",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "At what temperature does our crystalline drug powder melt? We suspect a second polymorph is present.",
+    "expected_ids": [
+      "EQ18"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "melting_temperature",
+      "techniques": [
+        "differential_scanning_calorimetry"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G019",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "I make alginate microbeads and need their size distribution, roughly from 50 µm up to 1 mm. How can I measure the bead sizes?",
+    "expected_ids": [
+      "EQ10"
+    ],
+    "acceptable_ids": [
+      "EQ14"
+    ],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "microparticle_size_distribution",
+      "techniques": [
+        "environmental_sem"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G020",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "Our hygroscopic drug powder picks up water during storage. How can I measure how much water and other volatiles it contains?",
+    "expected_ids": [
+      "EQ17"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "moisture_and_volatile_content",
+      "techniques": [
+        "thermogravimetric_analysis"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G021",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "I synthesized gold nanoparticles and want to actually see them: are they spheres or rods, and how big is each one?",
+    "expected_ids": [
+      "EQ10",
+      "EQ11"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "nanoparticle_morphology",
+      "techniques": [
+        "environmental_sem",
+        "scanning_transmission_electron_microscopy",
+        "transmission_electron_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G022",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How do I find out how much DNA I recovered after extracting it from dental pulp cells? I only have a few microlitres.",
+    "expected_ids": [
+      "EQ06"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "nucleic_acid_concentration",
+      "techniques": [
+        "fluorometric_quantification"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G023",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "We formulated liposomes for drug delivery. How can I check their size distribution while they are still in the buffer?",
+    "expected_ids": [
+      "EQ20"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "particle_size_distribution",
+      "techniques": [
+        "dynamic_light_scattering"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G024",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "I need the total protein concentration of my cell lysate before running a western blot. What instrument can I use?",
+    "expected_ids": [
+      "EQ06"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "protein_concentration",
+      "techniques": [
+        "fluorometric_quantification"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G025",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How much heat does a light-cured dental composite give off while it hardens? I'd like to compare a few commercial products.",
+    "expected_ids": [
+      "EQ18"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "reaction_enthalpy",
+      "techniques": [
+        "differential_scanning_calorimetry"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G026",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "We sandblast our implant surfaces and want to see what the surface texture looks like, both at low and at high magnification. What's available?",
+    "expected_ids": [
+      "EQ10",
+      "EQ14"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "surface_morphology",
+      "techniques": [
+        "environmental_sem",
+        "stereomicroscopy"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G027",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How do I get the elastic modulus of an electrospun nanofibre mat when it is stretched? The mats are thin and delicate.",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "tensile_modulus",
+      "techniques": [
+        "tensile_testing"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G028",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "We need to know how much pulling force our suture material can take before it breaks.",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "tensile_strength",
+      "techniques": [
+        "tensile_testing"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G029",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "At what temperature does our flame-retardant polymer start to decompose? I need to know how thermally stable it is.",
+    "expected_ids": [
+      "EQ17"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "thermal_stability",
+      "techniques": [
+        "thermogravimetric_analysis"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G030",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "I have periodontal tissue biopsies and want to look at the tissue structure, the cell layers and any inflammation. What can I use to examine the sections?",
+    "expected_ids": [
+      "EQ07",
+      "EQ08",
+      "EQ09",
+      "EQ12",
+      "EQ13",
+      "EQ22",
+      "EQ23"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "tissue_morphology",
+      "techniques": [
+        "brightfield_microscopy",
+        "confocal_microscopy",
+        "multiphoton_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G031",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "I want to see the organelles inside dental pulp cells, like mitochondria and the endoplasmic reticulum, at nanometre-level detail.",
+    "expected_ids": [
+      "EQ11"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "ultrastructure",
+      "techniques": [
+        "scanning_transmission_electron_microscopy",
+        "transmission_electron_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G032",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How can I measure how elastic versus how viscous our hyaluronic acid gel is? It's meant as a dermal filler.",
+    "expected_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "viscoelastic_moduli",
+      "techniques": [
+        "oscillatory_rheometry"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G033",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "Our toothpaste should stay thick in the tube but flow easily when squeezed. How do I measure how its viscosity changes with the rate at which it is sheared?",
+    "expected_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "viscosity_vs_shear_rate",
+      "techniques": [
+        "rotational_rheometry"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G034",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "Our thermosensitive hydrogel is liquid in the fridge and thickens at body temperature. How can I measure its viscosity as I warm it up?",
+    "expected_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "viscosity_vs_temperature",
+      "techniques": [
+        "oscillatory_rheometry",
+        "rotational_rheometry"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G035",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How much stress can a bioink take before it starts to flow? I want to judge whether printed strands will hold their shape.",
+    "expected_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "yield_stress",
+      "techniques": [
+        "oscillatory_rheometry",
+        "rotational_rheometry"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G036",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "How stable is my nanoparticle suspension against clumping? I'd like to measure the surface charge on the particles.",
+    "expected_ids": [
+      "EQ20"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "available-property",
+      "property": "zeta_potential",
+      "techniques": [
+        "electrophoretic_light_scattering"
+      ]
+    },
+    "notes": "Generated: answer key from available-property; wording by Claude."
+  },
+  {
+    "id": "G037",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "I synthesized a new dental monomer and want to confirm which chemical groups it contains, for example that the methacrylate double bonds are there.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bFourier.?transform.?infrared.?spectroscopy\\b|\\bFTIR\\b|\\binfrared.?spectroscopy\\b|\\bATR.?FTIR\\b|\\bIR\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "chemical_functional_groups",
+      "techniques": [
+        "ftir_spectroscopy"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G038",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "After plasma-treating a polymer film, which new chemical groups have formed on its surface? How can I find out?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bFourier.?transform.?infrared.?spectroscopy\\b|\\bFTIR\\b|\\binfrared.?spectroscopy\\b|\\bATR.?FTIR\\b|\\bIR\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "chemical_functional_groups",
+      "techniques": [
+        "ftir_spectroscopy"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G039",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "After sintering, has our zirconia crown stayed tetragonal or has part of it turned monoclinic? How can I identify the crystal phases?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bX.?ray.?diffraction\\b|\\bXRD\\b|\\bpowder.?diffraction\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "crystalline_phase",
+      "techniques": [
+        "x_ray_diffraction"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G040",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "Which calcium phosphate phases are in our coating: hydroxyapatite, tricalcium phosphate or something else?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bX.?ray.?diffraction\\b|\\bXRD\\b|\\bpowder.?diffraction\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "crystalline_phase",
+      "techniques": [
+        "x_ray_diffraction"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G041",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "Does bleaching make enamel softer? I'd like to measure the surface hardness of teeth before and after treatment.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bIndentation.?hardness.?testing\\b|\\bmicro.?or.?nanoindentation\\b|\\bmicrohardness\\b|\\bnanoindentation\\b|\\bVickers\\b|\\bKnoop\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "hardness",
+      "techniques": [
+        "indentation_hardness_testing"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G042",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "We put a thin ceramic coating on implants and want to know how hard the coating is.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bIndentation.?hardness.?testing\\b|\\bmicro.?or.?nanoindentation\\b|\\bmicrohardness\\b|\\bnanoindentation\\b|\\bVickers\\b|\\bKnoop\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "hardness",
+      "techniques": [
+        "indentation_hardness_testing"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G043",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "We cast ceramic parts and I need to see inside them in 3D: voids, cracks and density variations. What can I use?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [
+      "EQ07",
+      "EQ08",
+      "EQ10",
+      "EQ11"
+    ],
+    "expected_not_available": [
+      "\\bX.?ray.?micro.?computed.?tomography\\b|\\bmicro.?CT\\b|\\bmicroCT\\b|\\bµCT\\b|\\bX.?ray.?tomography\\b|\\bcomputed.?tomography\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "internal_3d_structure",
+      "techniques": [
+        "micro_computed_tomography"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G044",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "I need to check the struts and internal geometry throughout the whole volume of a printed titanium lattice.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [
+      "EQ07",
+      "EQ08",
+      "EQ10",
+      "EQ11"
+    ],
+    "expected_not_available": [
+      "\\bX.?ray.?micro.?computed.?tomography\\b|\\bmicro.?CT\\b|\\bmicroCT\\b|\\bµCT\\b|\\bX.?ray.?tomography\\b|\\bcomputed.?tomography\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "internal_3d_structure",
+      "techniques": [
+        "micro_computed_tomography"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G045",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "We bought recycled polyethylene pellets and want a quick number for how easily the melt flows through a standard die, so we can compare batches. Where can I do that?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bMelt.?flow.?indexing\\b|\\bMFI\\b|\\bMFR\\b|\\bmelt.?flow.?index\\b|\\bmelt.?flow.?rate\\b|\\bmelt.?indexer\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "melt_flow_rate",
+      "techniques": [
+        "melt_flow_indexing"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G046",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "A new supplier sent us PLA filament. I need the standard single-number flow value of the molten polymer to compare it with our usual lot.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bMelt.?flow.?indexing\\b|\\bMFI\\b|\\bMFR\\b|\\bmelt.?flow.?index\\b|\\bmelt.?flow.?rate\\b|\\bmelt.?indexer\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "melt_flow_rate",
+      "techniques": [
+        "melt_flow_indexing"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G047",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "Our PLGA degrades over several weeks in buffer. How can I follow how its molar mass distribution changes?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bGel.?permeation.?/.?size.?exclusion.?chromatography\\b|\\bGPC\\b|\\bSEC\\b|\\bsize.?exclusion.?chromatography\\b|\\bmolecular.?weight.?analysis\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "molecular_weight_distribution",
+      "techniques": [
+        "gel_permeation_chromatography"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G048",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "How can I determine the molecular weight distribution of a batch of chitosan?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bGel.?permeation.?/.?size.?exclusion.?chromatography\\b|\\bGPC\\b|\\bSEC\\b|\\bsize.?exclusion.?chromatography\\b|\\bmolecular.?weight.?analysis\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "molecular_weight_distribution",
+      "techniques": [
+        "gel_permeation_chromatography"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G049",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "What is the porosity and pore size of our freeze-dried collagen scaffold? I need numbers for a paper.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [
+      "EQ07",
+      "EQ08",
+      "EQ10"
+    ],
+    "expected_not_available": [
+      "\\bX.?ray.?micro.?computed.?tomography\\b|\\bmicro.?CT\\b|\\bmicroCT\\b|\\bµCT\\b|\\bX.?ray.?tomography\\b|\\bcomputed.?tomography\\b|\\bMercury.?intrusion.?porosimetry\\b|\\bmercury.?porosimetry\\b|\\bMIP\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "porosity_and_pore_size",
+      "techniques": [
+        "micro_computed_tomography",
+        "mercury_intrusion_porosimetry"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G050",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "I need to quantify how porous a sintered ceramic bone graft is and how large its pores are.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [
+      "EQ07",
+      "EQ08",
+      "EQ10"
+    ],
+    "expected_not_available": [
+      "\\bX.?ray.?micro.?computed.?tomography\\b|\\bmicro.?CT\\b|\\bmicroCT\\b|\\bµCT\\b|\\bX.?ray.?tomography\\b|\\bcomputed.?tomography\\b|\\bMercury.?intrusion.?porosimetry\\b|\\bmercury.?porosimetry\\b|\\bMIP\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "porosity_and_pore_size",
+      "techniques": [
+        "micro_computed_tomography",
+        "mercury_intrusion_porosimetry"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G051",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "Our polymer compound is meant for injection moulding. I need its viscosity at the very high shear rates inside the moulding machine. Which equipment can do that?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "expected_not_available": [
+      "\\bCapillary.?rheometry\\b|\\bcapillary.?rheometer\\b|\\bhigh.?pressure.?capillary.?rheometry\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "processing_shear_viscosity",
+      "techniques": [
+        "capillary_rheometry"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G052",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "We run a filled thermoplastic on an extrusion line. How can I measure its viscosity at the shear rates the extruder actually reaches, thousands per second?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "expected_not_available": [
+      "\\bCapillary.?rheometry\\b|\\bcapillary.?rheometer\\b|\\bhigh.?pressure.?capillary.?rheometry\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "processing_shear_viscosity",
+      "techniques": [
+        "capillary_rheometry"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G053",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "How much surface area per gram does our mesoporous silica drug carrier have?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bGas.?adsorption\\b|\\bBET.?surface.?area\\b|\\bBET\\b|\\bnitrogen.?adsorption\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "specific_surface_area",
+      "techniques": [
+        "gas_adsorption"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G054",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "We need the specific surface area of a bone graft powder in m²/g. What can measure that?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bGas.?adsorption\\b|\\bBET.?surface.?area\\b|\\bBET\\b|\\bnitrogen.?adsorption\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "specific_surface_area",
+      "techniques": [
+        "gas_adsorption"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G055",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "I need to put a number on the surface roughness of polished composite restorations, like an Ra value, not just pictures.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bAtomic.?force.?microscopy\\b|\\bAFM\\b|\\bscanning.?probe.?microscopy\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "surface_roughness",
+      "techniques": [
+        "atomic_force_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G056",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "How rough is the surface of our titanium implants after acid etching? I need quantitative roughness values.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bAtomic.?force.?microscopy\\b|\\bAFM\\b|\\bscanning.?probe.?microscopy\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "surface_roughness",
+      "techniques": [
+        "atomic_force_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G057",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "We plasma-treat implant surfaces to make them more hydrophilic. How do I measure how well water spreads on them?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bContact.?angle.?goniometry\\b|\\bcontact.?angle\\b|\\bgoniometer\\b|\\bsessile.?drop\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "wettability",
+      "techniques": [
+        "contact_angle_goniometry"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G058",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "Does our coating make a contact lens material wet better? I'd like to measure how a water droplet sits on the surface.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bContact.?angle.?goniometry\\b|\\bcontact.?angle\\b|\\bgoniometer\\b|\\bsessile.?drop\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "no-match-property",
+      "property": "wettability",
+      "techniques": [
+        "contact_angle_goniometry"
+      ]
+    },
+    "notes": "Generated: answer key from no-match-property; wording by Claude."
+  },
+  {
+    "id": "G059",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "I need the degree of crystallinity of a PLLA suture, but I can't cut or melt it, because the same suture goes into a degradation study afterwards.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ18"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bX.?ray.?diffraction\\b|\\bXRD\\b|\\bpowder.?diffraction\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "non-destructive",
+      "property": "degree_of_crystallinity",
+      "techniques": [
+        "x_ray_diffraction"
+      ]
+    },
+    "notes": "Generated: answer key from non-destructive; wording by Claude."
+  },
+  {
+    "id": "G060",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "What is the glass-transition temperature of our denture base acrylic? The specimen has to stay intact because we test it again later.",
+    "expected_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ18"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ19": [
+        "\\bDMA\\b|clamp|torsion"
+      ],
+      "EQ21": [
+        "\\bDMA\\b|clamp|torsion"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "non-destructive",
+      "property": "glass_transition_temperature",
+      "techniques": [
+        "dynamic_mechanical_analysis"
+      ]
+    },
+    "notes": "Generated: answer key from non-destructive; wording by Claude."
+  },
+  {
+    "id": "G061",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "A composite filling sits in an extracted tooth, and I want to check for gaps and voids inside without cutting the tooth. What can I use?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ11"
+    ],
+    "supplementary_only_ids": [
+      "EQ07",
+      "EQ08",
+      "EQ10"
+    ],
+    "expected_not_available": [
+      "\\bX.?ray.?micro.?computed.?tomography\\b|\\bmicro.?CT\\b|\\bmicroCT\\b|\\bµCT\\b|\\bX.?ray.?tomography\\b|\\bcomputed.?tomography\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "non-destructive",
+      "property": "internal_3d_structure",
+      "techniques": [
+        "micro_computed_tomography"
+      ]
+    },
+    "notes": "Generated: answer key from non-destructive; wording by Claude."
+  },
+  {
+    "id": "G062",
+    "category": "problem-only",
+    "status": "generated",
+    "question": "I want to see the size and shape of our drug-delivery silica nanoparticles directly, but the powder must stay usable for later experiments. What would work?",
+    "expected_ids": [
+      "EQ10"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ11"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "non-destructive",
+      "property": "nanoparticle_morphology",
+      "techniques": [
+        "environmental_sem"
+      ]
+    },
+    "notes": "Generated: answer key from non-destructive; wording by Claude."
+  },
+  {
+    "id": "G063",
+    "category": "no-suitable-equipment",
+    "status": "generated",
+    "question": "How much heat does our epoxy resin system release as it cures? The sample has to stay intact for later tests, so I can't seal it in a pan and heat it.",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ18"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [
+      "\\bFourier.?transform.?infrared.?spectroscopy\\b|\\bFTIR\\b|\\binfrared.?spectroscopy\\b|\\bATR.?FTIR\\b|\\bIR\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "non-destructive",
+      "property": "reaction_enthalpy",
+      "techniques": [
+        "ftir_spectroscopy"
+      ]
+    },
+    "notes": "Generated: answer key from non-destructive; wording by Claude."
+  },
+  {
+    "id": "G064",
+    "category": "accessory-trap",
+    "status": "generated",
+    "question": "There are contaminants on an implant surface, and I want to know which elements they contain and where exactly they sit.",
+    "expected_ids": [
+      "EQ10"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ10": [
+        "\\bEDS\\b|\\bEDX\\b|energy.dispersive"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "optional-hardware",
+      "property": "elemental_composition",
+      "techniques": [
+        "energy_dispersive_xray_spectroscopy"
+      ],
+      "reason": "only low-confidence instruments"
+    },
+    "notes": "Generated: answer key from optional-hardware; wording by Claude."
+  },
+  {
+    "id": "G065",
+    "category": "accessory-trap",
+    "status": "generated",
+    "question": "I want to watch cancer cells migrate over 24 hours and track their movement. What equipment do you have for that?",
+    "expected_ids": [
+      "EQ07",
+      "EQ09",
+      "EQ13",
+      "EQ23"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ07": [
+        "incubat|stage.top|CO2|environmental"
+      ],
+      "EQ09": [
+        "incubat|stage.top|CO2|environmental"
+      ],
+      "EQ13": [
+        "incubat|stage.top|CO2|environmental"
+      ],
+      "EQ23": [
+        "incubat|stage.top|CO2|environmental"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "optional-hardware",
+      "property": "live_cell_behavior",
+      "techniques": [
+        "live_cell_time_lapse_imaging"
+      ],
+      "reason": "only low-confidence instruments"
+    },
+    "notes": "Generated: answer key from optional-hardware; wording by Claude."
+  },
+  {
+    "id": "G066",
+    "category": "accessory-trap",
+    "status": "generated",
+    "question": "How do the stiffness and damping of our denture liner material change between room temperature and mouth temperature?",
+    "expected_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ19": [
+        "\\bDMA\\b|clamp|torsion"
+      ],
+      "EQ21": [
+        "\\bDMA\\b|clamp|torsion"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "optional-hardware",
+      "property": "solid_viscoelastic_properties",
+      "techniques": [
+        "dynamic_mechanical_analysis"
+      ],
+      "reason": "only low-confidence instruments"
+    },
+    "notes": "Generated: answer key from optional-hardware; wording by Claude."
+  },
+  {
+    "id": "G067",
+    "category": "accessory-trap",
+    "status": "generated",
+    "question": "I need the bending stiffness of a fibre-reinforced post material, tested as rectangular bars loaded in bending. What equipment can do that?",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ15": [
+        "bend|flexur|three.point|3.point|four.point"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "optional-hardware",
+      "property": "flexural_modulus",
+      "techniques": [
+        "flexural_testing"
+      ],
+      "reason": "key accessory to confirm",
+      "condition": "rectangular bars loaded in bending"
+    },
+    "notes": "Generated: answer key from optional-hardware; wording by Claude."
+  },
+  {
+    "id": "G068",
+    "category": "accessory-trap",
+    "status": "generated",
+    "question": "We bond composite to dentin with a new adhesive and want to shear the bonded specimens apart to see how strong the bond is. What can I use?",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ15": [
+        "shear.bond|micro.?tensile|jig"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "optional-hardware",
+      "property": "bond_strength",
+      "techniques": [
+        "bond_strength_testing"
+      ],
+      "reason": "key accessory to confirm",
+      "condition": "shear test on bonded specimens"
+    },
+    "notes": "Generated: answer key from optional-hardware; wording by Claude."
+  },
+  {
+    "id": "G069",
+    "category": "accessory-trap",
+    "status": "generated",
+    "question": "Our emulsion is stable at neutral pH but not in acid. How can I measure the droplets' surface charge across pH 3 to 9?",
+    "expected_ids": [
+      "EQ20"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ20": [
+        "titrat"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "optional-hardware",
+      "property": "zeta_potential",
+      "techniques": [
+        "electrophoretic_light_scattering"
+      ],
+      "reason": "key accessory to confirm",
+      "condition": "how it changes over a pH range from 3 to 9"
+    },
+    "notes": "Generated: answer key from optional-hardware; wording by Claude."
+  },
+  {
+    "id": "G070",
+    "category": "accessory-trap",
+    "status": "generated",
+    "question": "We have hydrogel cylinders meant to mimic cartilage. I need their stiffness under compression while they are immersed in saline at 37 °C.",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ15": [
+        "bath|environmental chamber|37"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "optional-hardware",
+      "property": "compressive_modulus",
+      "techniques": [
+        "compression_testing"
+      ],
+      "reason": "key accessory to confirm",
+      "condition": "tested soaked in liquid at body temperature"
+    },
+    "notes": "Generated: answer key from optional-hardware; wording by Claude."
+  },
+  {
+    "id": "G071",
+    "category": "accessory-trap",
+    "status": "generated",
+    "question": "I want to follow how fast a photocurable dental resin goes from liquid to solid while it is being irradiated with blue light.",
+    "expected_ids": [
+      "EQ19"
+    ],
+    "acceptable_ids": [
+      "EQ21"
+    ],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ19": [
+        "\\bUV\\b|photo|light"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "optional-hardware",
+      "property": "gelation_and_curing_kinetics",
+      "techniques": [
+        "oscillatory_rheometry"
+      ],
+      "reason": "key accessory to confirm",
+      "condition": "while it cures under UV / blue light"
+    },
+    "notes": "Generated: answer key from optional-hardware; wording by Claude."
+  },
+  {
+    "id": "G072",
+    "category": "accessory-trap",
+    "status": "generated",
+    "question": "How can I find the crystallization temperature of a PLA filament when it is cooled at a controlled rate down to about -20 °C?",
+    "expected_ids": [
+      "EQ18"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ18": [
+        "cool|sub.ambient|refrigerat"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "optional-hardware",
+      "property": "crystallization_temperature",
+      "techniques": [
+        "differential_scanning_calorimetry"
+      ],
+      "reason": "key accessory to confirm",
+      "condition": "on controlled cooling to below room temperature"
+    },
+    "notes": "Generated: answer key from optional-hardware; wording by Claude."
+  },
+  {
+    "id": "G073",
+    "category": "misleading-keyword",
+    "status": "generated",
+    "question": "I print a dental cement paste on the bioprinter, and the strands slump afterwards. How do I measure how much stress the paste can take before it starts flowing?",
+    "expected_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ01"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "distractor",
+      "property": "yield_stress",
+      "techniques": [
+        "oscillatory_rheometry",
+        "rotational_rheometry"
+      ],
+      "distractor": "EQ01"
+    },
+    "notes": "Generated: answer key from distractor; wording by Claude."
+  },
+  {
+    "id": "G074",
+    "category": "misleading-keyword",
+    "status": "generated",
+    "question": "I have immunostained tissue sections and want to compare staining intensity between regions. Could I use the fluorometer for this, since it measures fluorescence?",
+    "expected_ids": [
+      "EQ07",
+      "EQ08",
+      "EQ09",
+      "EQ12"
+    ],
+    "acceptable_ids": [
+      "EQ13",
+      "EQ22",
+      "EQ23"
+    ],
+    "unacceptable_ids": [
+      "EQ06"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "distractor",
+      "property": "fluorescence_intensity",
+      "techniques": [
+        "confocal_microscopy",
+        "widefield_fluorescence_microscopy"
+      ],
+      "distractor": "EQ06"
+    },
+    "notes": "Generated: answer key from distractor; wording by Claude."
+  },
+  {
+    "id": "G075",
+    "category": "misleading-keyword",
+    "status": "generated",
+    "question": "I already have time booked on the DSC. Can I use it to find out at what temperature our drug-polymer blend starts to decompose, or is there something better?",
+    "expected_ids": [
+      "EQ17"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ18"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "distractor",
+      "property": "thermal_stability",
+      "techniques": [
+        "thermogravimetric_analysis"
+      ],
+      "distractor": "EQ18"
+    },
+    "notes": "Generated: answer key from distractor; wording by Claude."
+  },
+  {
+    "id": "G076",
+    "category": "misleading-keyword",
+    "status": "generated",
+    "question": "The TGA heats samples, so I figured it could give me the melting point of our wax-based drug carrier. Is that the right instrument?",
+    "expected_ids": [
+      "EQ18"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ17"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "distractor",
+      "property": "melting_temperature",
+      "techniques": [
+        "differential_scanning_calorimetry"
+      ],
+      "distractor": "EQ17"
+    },
+    "notes": "Generated: answer key from distractor; wording by Claude."
+  },
+  {
+    "id": "G077",
+    "category": "misleading-keyword",
+    "status": "generated",
+    "question": "I heard the particle size analyzer measures particle size, so I'd like to use it for our spray-dried drug powder, with particles of roughly 5 to 200 µm. Would that work?",
+    "expected_ids": [
+      "EQ10"
+    ],
+    "acceptable_ids": [
+      "EQ14"
+    ],
+    "unacceptable_ids": [
+      "EQ20"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "distractor",
+      "property": "microparticle_size_distribution",
+      "techniques": [
+        "environmental_sem"
+      ],
+      "distractor": "EQ20"
+    },
+    "notes": "Generated: answer key from distractor; wording by Claude."
+  },
+  {
+    "id": "G078",
+    "category": "misleading-keyword",
+    "status": "generated",
+    "question": "I tried the stereomicroscope to look at our lipid nanoparticles but couldn't see anything. How can I see their size and shape?",
+    "expected_ids": [
+      "EQ10",
+      "EQ11"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ14"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "distractor",
+      "property": "nanoparticle_morphology",
+      "techniques": [
+        "environmental_sem",
+        "scanning_transmission_electron_microscopy",
+        "transmission_electron_microscopy"
+      ],
+      "distractor": "EQ14"
+    },
+    "notes": "Generated: answer key from distractor; wording by Claude."
+  },
+  {
+    "id": "G079",
+    "category": "misleading-keyword",
+    "status": "generated",
+    "question": "Parts printed on the resin printer sometimes come out with defects. I want to inspect a batch for cracks, warping and missing features at low magnification. What should I use?",
+    "expected_ids": [
+      "EQ14"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ03"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "distractor",
+      "property": "macroscopic_morphology",
+      "techniques": [
+        "stereomicroscopy"
+      ],
+      "distractor": "EQ03"
+    },
+    "notes": "Generated: answer key from distractor; wording by Claude."
+  },
+  {
+    "id": "G080",
+    "category": "misleading-keyword",
+    "status": "generated",
+    "question": "Could the high-content imaging system tell me the concentration of a protein we purified from saliva, or is there something better?",
+    "expected_ids": [
+      "EQ06"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ09"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "distractor",
+      "property": "protein_concentration",
+      "techniques": [
+        "fluorometric_quantification"
+      ],
+      "distractor": "EQ09"
+    },
+    "notes": "Generated: answer key from distractor; wording by Claude."
+  },
+  {
+    "id": "G081",
+    "category": "multi-step",
+    "status": "generated",
+    "question": "I want to grind cured dental composite into a powder and then find out which chemical groups are left, such as unreacted double bonds. What equipment can I use for both steps?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [
+      "EQ05"
+    ],
+    "expected_not_available": [
+      "\\bFourier.?transform.?infrared.?spectroscopy\\b|\\bFTIR\\b|\\binfrared.?spectroscopy\\b|\\bATR.?FTIR\\b|\\bIR\\b"
+    ],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": true,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "workflow",
+      "prep": "milling",
+      "goal_technique": "ftir_spectroscopy",
+      "property": "chemical_functional_groups"
+    },
+    "notes": "Generated: answer key from workflow; wording by Claude."
+  },
+  {
+    "id": "G082",
+    "category": "multi-step",
+    "status": "generated",
+    "question": "I'd like to grind a glass-filled nylon part into a powder and then measure how much glass filler it contains.",
+    "expected_ids": [
+      "EQ17"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [
+      "EQ05"
+    ],
+    "derived_from": {
+      "rule": "workflow",
+      "prep": "milling",
+      "goal_technique": "thermogravimetric_analysis",
+      "property": "filler_content",
+      "goal_available": true
+    },
+    "notes": "Generated: answer key from workflow; wording by Claude."
+  },
+  {
+    "id": "G083",
+    "category": "multi-step",
+    "status": "generated",
+    "question": "I'm going to cut semithin sections from a resin-embedded bone biopsy. What can I then use to look at the tissue structure in those sections?",
+    "expected_ids": [
+      "EQ09",
+      "EQ12",
+      "EQ13",
+      "EQ22",
+      "EQ23"
+    ],
+    "acceptable_ids": [
+      "EQ07",
+      "EQ08"
+    ],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [
+      "EQ16"
+    ],
+    "derived_from": {
+      "rule": "workflow",
+      "prep": "ultramicrotomy",
+      "goal_technique": "brightfield_microscopy",
+      "property": "tissue_morphology",
+      "goal_available": true
+    },
+    "notes": "Generated: answer key from workflow; wording by Claude."
+  },
+  {
+    "id": "G084",
+    "category": "multi-step",
+    "status": "generated",
+    "question": "We will make cell-loaded alginate capsules with the encapsulator and then need to measure their size distribution. What do you have for that?",
+    "expected_ids": [
+      "EQ10"
+    ],
+    "acceptable_ids": [
+      "EQ14"
+    ],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [
+      "EQ04"
+    ],
+    "derived_from": {
+      "rule": "workflow",
+      "prep": "vibrating_nozzle_encapsulation",
+      "goal_technique": "laser_diffraction",
+      "property": "microparticle_size_distribution",
+      "goal_available": false
+    },
+    "notes": "Generated: answer key from workflow; wording by Claude."
+  },
+  {
+    "id": "G085",
+    "category": "multi-step",
+    "status": "generated",
+    "question": "I'll print dog-bone specimens on a resin printer and then need to measure how strong they are when pulled apart. What can I use?",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [
+      "EQ02",
+      "EQ03"
+    ],
+    "derived_from": {
+      "rule": "workflow",
+      "prep": "vat_photopolymerization_printing",
+      "goal_technique": "tensile_testing",
+      "property": "tensile_strength",
+      "goal_available": true
+    },
+    "notes": "Generated: answer key from workflow; wording by Claude."
+  },
+  {
+    "id": "G086",
+    "category": "multi-step",
+    "status": "generated",
+    "question": "We plan to bioprint alginate scaffolds and then find out how much load they can carry before collapsing when squeezed.",
+    "expected_ids": [
+      "EQ15"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [
+      "EQ01"
+    ],
+    "derived_from": {
+      "rule": "workflow",
+      "prep": "extrusion_bioprinting",
+      "goal_technique": "compression_testing",
+      "property": "compressive_strength",
+      "goal_available": true
+    },
+    "notes": "Generated: answer key from workflow; wording by Claude."
+  },
+  {
+    "id": "G087",
+    "category": "named-instrument",
+    "status": "generated",
+    "question": "Can I use the DSC to get the glass-transition temperature of a polycarbonate implant prototype?",
+    "expected_ids": [
+      "EQ18"
+    ],
+    "acceptable_ids": [
+      "EQ19",
+      "EQ21"
+    ],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "named",
+      "property": "glass_transition_temperature",
+      "instrument": "EQ18",
+      "techniques": [
+        "differential_scanning_calorimetry"
+      ]
+    },
+    "notes": "Generated: answer key from named; wording by Claude."
+  },
+  {
+    "id": "G088",
+    "category": "named-instrument",
+    "status": "generated",
+    "question": "Is the TEM (the CM12) suitable for measuring the size and shape of dried silver nanoparticles?",
+    "expected_ids": [
+      "EQ11"
+    ],
+    "acceptable_ids": [
+      "EQ10"
+    ],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "named",
+      "property": "nanoparticle_morphology",
+      "instrument": "EQ11",
+      "techniques": [
+        "scanning_transmission_electron_microscopy",
+        "transmission_electron_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from named; wording by Claude."
+  },
+  {
+    "id": "G089",
+    "category": "named-instrument",
+    "status": "generated",
+    "question": "Can the stereomicroscope show me defects and the overall shape of our resin-printed parts?",
+    "expected_ids": [
+      "EQ14"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "named",
+      "property": "macroscopic_morphology",
+      "instrument": "EQ14",
+      "techniques": [
+        "stereomicroscopy"
+      ]
+    },
+    "notes": "Generated: answer key from named; wording by Claude."
+  },
+  {
+    "id": "G090",
+    "category": "named-instrument",
+    "status": "generated",
+    "question": "Can I measure the RNA concentration of extracts from cultured fibroblasts on the Qubit?",
+    "expected_ids": [
+      "EQ06"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "named",
+      "property": "nucleic_acid_concentration",
+      "instrument": "EQ06",
+      "techniques": [
+        "fluorometric_quantification"
+      ]
+    },
+    "notes": "Generated: answer key from named; wording by Claude."
+  },
+  {
+    "id": "G091",
+    "category": "named-instrument",
+    "status": "generated",
+    "question": "Could I use the ESEM to look at the fracture surface of a broken composite specimen?",
+    "expected_ids": [
+      "EQ10"
+    ],
+    "acceptable_ids": [
+      "EQ14"
+    ],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "named",
+      "property": "surface_morphology",
+      "instrument": "EQ10",
+      "techniques": [
+        "environmental_sem"
+      ]
+    },
+    "notes": "Generated: answer key from named; wording by Claude."
+  },
+  {
+    "id": "G092",
+    "category": "model-specific",
+    "status": "generated",
+    "question": "I need the storage and loss moduli of a PEEK melt at about 380 °C. Which instrument here can handle that temperature?",
+    "expected_ids": [
+      "EQ21"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [
+      "EQ19"
+    ],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ21": [
+        "parallel.plate|geometry|plate"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "model-specific",
+      "property": "viscoelastic_moduli",
+      "condition": "of a PEEK melt at about 380 °C",
+      "techniques": [
+        "oscillatory_rheometry"
+      ]
+    },
+    "notes": "Generated: answer key from model-specific; wording by Claude."
+  },
+  {
+    "id": "G093",
+    "category": "model-specific",
+    "status": "generated",
+    "question": "We have a high-temperature epoxy that cures at about 230 °C. I want to follow its gel point and cure progress at that temperature. What equipment do you have?",
+    "expected_ids": [
+      "EQ21"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [
+      "EQ19"
+    ],
+    "expected_not_available": [],
+    "expected_accessories": {
+      "EQ21": [
+        "parallel.plate|geometry|plate"
+      ]
+    },
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "model-specific",
+      "property": "gelation_and_curing_kinetics",
+      "condition": "of a high-temperature epoxy that cures at about 230 °C",
+      "techniques": [
+        "oscillatory_rheometry"
+      ]
+    },
+    "notes": "Generated: answer key from model-specific; wording by Claude."
+  },
+  {
+    "id": "G094",
+    "category": "model-specific",
+    "status": "generated",
+    "question": "I need to check how confluent my stem cells are in 6-well plates before passaging, and ideally count them. Which microscope works with the plates?",
+    "expected_ids": [
+      "EQ09",
+      "EQ13",
+      "EQ23"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ12",
+      "EQ22"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "model-specific",
+      "property": "cell_counts",
+      "condition": "how confluent stem cells are in a 6-well plate before passaging",
+      "techniques": [
+        "brightfield_microscopy",
+        "phase_contrast_microscopy",
+        "widefield_fluorescence_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from model-specific; wording by Claude."
+  },
+  {
+    "id": "G095",
+    "category": "model-specific",
+    "status": "generated",
+    "question": "My fibroblasts are fixed and stained at the bottom of a 96-well plate. Which microscope can image their shape right in the plate?",
+    "expected_ids": [
+      "EQ07",
+      "EQ09",
+      "EQ13",
+      "EQ23"
+    ],
+    "acceptable_ids": [],
+    "unacceptable_ids": [
+      "EQ08",
+      "EQ12",
+      "EQ22"
+    ],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": false,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "model-specific",
+      "property": "cell_morphology",
+      "condition": "fibroblasts fixed and stained in the bottom of a 96-well plate",
+      "techniques": [
+        "brightfield_microscopy",
+        "confocal_microscopy",
+        "phase_contrast_microscopy",
+        "widefield_fluorescence_microscopy"
+      ]
+    },
+    "notes": "Generated: answer key from model-specific; wording by Claude."
+  },
+  {
+    "id": "G096",
+    "category": "vague",
+    "status": "generated",
+    "question": "I made a new material and want to characterize it. What equipment do you have?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": true,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "vague"
+    },
+    "notes": "Generated: answer key from vague; wording by Claude."
+  },
+  {
+    "id": "G097",
+    "category": "vague",
+    "status": "generated",
+    "question": "My dental research project needs some lab measurements. Can you point me to the right instruments?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": true,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "vague"
+    },
+    "notes": "Generated: answer key from vague; wording by Claude."
+  },
+  {
+    "id": "G098",
+    "category": "vague",
+    "status": "generated",
+    "question": "I have a powder and want to learn more about it. What can I use?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": true,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "vague"
+    },
+    "notes": "Generated: answer key from vague; wording by Claude."
+  },
+  {
+    "id": "G099",
+    "category": "vague",
+    "status": "generated",
+    "question": "How do I check whether my scaffolds are good enough?",
+    "expected_ids": [],
+    "acceptable_ids": [],
+    "unacceptable_ids": [],
+    "supplementary_only_ids": [],
+    "expected_not_available": [],
+    "expected_accessories": {},
+    "expect_clarifying": true,
+    "expect_dead_end": false,
+    "workflow_ids": [],
+    "derived_from": {
+      "rule": "vague"
+    },
+    "notes": "Generated: answer key from vague; wording by Claude."
+  }
+]

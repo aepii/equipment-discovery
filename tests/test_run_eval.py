@@ -214,3 +214,62 @@ def test_make_charts_from_a_mock_run(tmp_path):
     charts.bar_chart(metrics, 2, tmp_path / "modes.png")
     table = charts.table_chart(metrics, tmp_path / "time_cost.png")
     assert (tmp_path / "modes.png").stat().st_size > 10_000 and table[0][0] == "Mode" and len(table) == 4
+
+
+# --- question sets: generated questions, sampling, call budget, source groups ---
+
+def _charts():
+    import importlib.util
+    from pathlib import Path
+    spec = importlib.util.spec_from_file_location("make_charts", Path(__file__).parent.parent / "scripts" / "make_charts.py")
+    charts = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(charts)
+    return charts
+
+
+def test_sample_is_fixed_and_in_file_order():
+    questions = run_eval.load_questions(run_eval.GENERATED_PATH)
+    a, b = (run_eval.sample_questions(questions, 15, seed=0) for _ in range(2))
+    assert a == b and len(a) == 15
+    assert [q["id"] for q in a] == sorted(q["id"] for q in a)
+    assert run_eval.sample_questions(questions, 15, seed=1) != a
+    assert run_eval.sample_questions(questions, None) == questions
+
+
+def test_check_budget_needs_yes_above_the_limit(capsys):
+    run_eval.check_budget(15, ["structured", "annotated", "naive"], 1, yes=False)  # 45 calls: fine
+    assert "45 model calls" in capsys.readouterr().out
+    with pytest.raises(SystemExit):
+        run_eval.check_budget(99, ["structured", "annotated", "naive"], 1, yes=False)
+    run_eval.check_budget(99, ["structured", "annotated", "naive"], 1, yes=True)
+
+
+def test_question_set_and_source_group():
+    assert run_eval.question_set(run_eval.QUESTIONS_PATH) == "curated"
+    assert run_eval.question_set(run_eval.GENERATED_PATH) == "generated"
+    groups = {q["id"]: run_eval.source_group(q) for q in run_eval.load_questions()}
+    assert groups["Q18"] == groups["Q19"] == "stefan"
+    assert groups["Q20"] == "reviewed" and groups["Q1"] == "draft"
+    assert run_eval.source_group(run_eval.load_questions(run_eval.GENERATED_PATH)[0]) == "generated"
+
+
+def test_generated_run_has_rule_scopes_and_charts(tmp_path):
+    questions = run_eval.select_questions(run_eval.load_questions(run_eval.GENERATED_PATH),
+                                          ["G001", "G037", "G096"], None)
+    rows = run_eval.run(questions, ["structured", "naive"], runs=1)
+    assert {r["source_group"] for r in rows} == {"generated"}
+    assert {r["rule"] for r in rows} == {"available-property", "no-match-property", "vague"}
+    run_eval.write_outputs(rows, tmp_path / "run_generated_x.csv")
+    charts = _charts()
+    summary = charts.read_csv(tmp_path / "run_generated_x_summary.csv")
+    assert {"generated", "all", "rule:vague"} <= {s["scope"] for s in summary}
+    saved = charts.write_charts(summary, charts.read_csv(tmp_path / "run_generated_x.csv"), "generated", tmp_path)
+    assert saved == ["generated_modes", "generated_time_cost", "generated_categories", "generated_rules"]
+    assert (tmp_path / "generated_categories.png").stat().st_size > 10_000
+
+
+def test_review_sheet_shows_how_a_generated_key_was_derived():
+    q = run_eval.select_questions(run_eval.load_questions(run_eval.GENERATED_PATH), ["G073"], None)
+    text = run_eval.review_sheet(q)
+    assert "rule distractor" in text and "property: yield stress" in text
+    assert "distractor: Extrusion-based 3D bioprinter" in text and "correct / wrong / unsure" in text

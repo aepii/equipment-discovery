@@ -1,0 +1,3471 @@
+{
+  "knowledge_version": "6b50a045",
+  "generated_at": "2026-11-08T03:20:07+00:00",
+  "items": [
+    {
+      "id": "G001",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "bond_strength",
+        "techniques": [
+          "bond_strength_testing"
+        ]
+      },
+      "brief": "bond / adhesion strength; sample: a resin cement bonded to zirconia",
+      "forbidden_terms": [
+        "5967",
+        "adhesion test",
+        "Bond strength testing",
+        "microtensile bond strength",
+        "push-out test",
+        "shear bond strength",
+        "shear or micro-tensile",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G002",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ09",
+        "EQ12",
+        "EQ13",
+        "EQ22",
+        "EQ23"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "cell_counts",
+        "techniques": [
+          "brightfield_microscopy",
+          "phase_contrast_microscopy",
+          "widefield_fluorescence_microscopy"
+        ]
+      },
+      "brief": "cell counts / confluence; sample: fibroblasts seeded on a culture plate",
+      "forbidden_terms": [
+        "brightfield",
+        "Brightfield light microscopy",
+        "BX53",
+        "BZ-X810",
+        "Eclipse E800",
+        "Eclipse TE300",
+        "epifluorescence",
+        "fluorescence microscopy",
+        "High-content epifluorescence imaging system",
+        "histology imaging",
+        "immunofluorescence imaging",
+        "Inverted optical microscope",
+        "IX83",
+        "light microscopy",
+        "phase contrast",
+        "Phase-contrast microscopy",
+        "transmitted light",
+        "Upright optical microscope",
+        "Widefield epifluorescence microscopy"
+      ]
+    },
+    {
+      "id": "G003",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ07",
+        "EQ08",
+        "EQ09",
+        "EQ12",
+        "EQ13",
+        "EQ22",
+        "EQ23"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "cell_morphology",
+        "techniques": [
+          "brightfield_microscopy",
+          "confocal_microscopy",
+          "multiphoton_microscopy",
+          "phase_contrast_microscopy",
+          "widefield_fluorescence_microscopy"
+        ]
+      },
+      "brief": "cell morphology; sample: osteoblasts spreading on a titanium disc",
+      "forbidden_terms": [
+        "2-photon",
+        "brightfield",
+        "Brightfield light microscopy",
+        "BX53",
+        "BZ-X810",
+        "CLSM",
+        "confocal",
+        "Confocal laser scanning microscopy",
+        "Eclipse E800",
+        "Eclipse TE300",
+        "epifluorescence",
+        "fluorescence microscopy",
+        "High-content epifluorescence imaging system",
+        "histology imaging",
+        "immunofluorescence imaging",
+        "Inverted confocal microscope",
+        "Inverted optical microscope",
+        "IX83",
+        "light microscopy",
+        "Multiphoton microscopy",
+        "optical sectioning",
+        "phase contrast",
+        "Phase-contrast microscopy",
+        "second harmonic generation",
+        "SHG",
+        "SP8",
+        "SP8 STELLARIS",
+        "transmitted light",
+        "two-photon microscopy",
+        "Upright confocal / multiphoton microscope",
+        "Upright optical microscope",
+        "Widefield epifluorescence microscopy",
+        "z-stack"
+      ]
+    },
+    {
+      "id": "G004",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "compressive_modulus",
+        "techniques": [
+          "compression_testing"
+        ]
+      },
+      "brief": "compressive modulus; sample: bovine trabecular bone cubes",
+      "forbidden_terms": [
+        "5967",
+        "compression test",
+        "compressive test",
+        "crush test",
+        "Uniaxial compression testing",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G005",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "compressive_strength",
+        "techniques": [
+          "compression_testing"
+        ]
+      },
+      "brief": "compressive strength / yield; sample: glass-ionomer cement cylinders",
+      "forbidden_terms": [
+        "5967",
+        "compression test",
+        "compressive test",
+        "crush test",
+        "Uniaxial compression testing",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G006",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ18"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "crystallization_temperature",
+        "techniques": [
+          "differential_scanning_calorimetry"
+        ]
+      },
+      "brief": "crystallization temperature; sample: a polypropylene used for medical tubing",
+      "forbidden_terms": [
+        "calorimetry",
+        "Differential scanning calorimeter",
+        "Differential scanning calorimetry",
+        "DSC",
+        "DSC250"
+      ]
+    },
+    {
+      "id": "G007",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ18"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "degree_of_crystallinity",
+        "techniques": [
+          "differential_scanning_calorimetry"
+        ]
+      },
+      "brief": "degree of crystallinity; sample: a PEEK implant material",
+      "forbidden_terms": [
+        "calorimetry",
+        "Differential scanning calorimeter",
+        "Differential scanning calorimetry",
+        "DSC",
+        "DSC250"
+      ]
+    },
+    {
+      "id": "G008",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "elongation_at_break",
+        "techniques": [
+          "tensile_testing"
+        ]
+      },
+      "brief": "elongation at break; sample: an elastic orthodontic chain",
+      "forbidden_terms": [
+        "5967",
+        "pull test",
+        "tensile test",
+        "tension test",
+        "Uniaxial tensile testing",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G009",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ17"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "filler_content",
+        "techniques": [
+          "thermogravimetric_analysis"
+        ]
+      },
+      "brief": "filler / inorganic residue content; sample: a dental composite paste",
+      "forbidden_terms": [
+        "TGA",
+        "TGA550",
+        "Thermogravimetric analysis",
+        "Thermogravimetric analyzer",
+        "thermogravimetry"
+      ]
+    },
+    {
+      "id": "G010",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "flexural_modulus",
+        "techniques": [
+          "flexural_testing"
+        ]
+      },
+      "brief": "flexural modulus; sample: a 3D-printed denture base resin",
+      "forbidden_terms": [
+        "3-point bend",
+        "5967",
+        "Flexural testing",
+        "flexure test",
+        "four-point bending",
+        "three- or four-point bend",
+        "three-point bending",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G011",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "flexural_strength",
+        "techniques": [
+          "flexural_testing"
+        ]
+      },
+      "brief": "flexural strength; sample: CAD/CAM ceramic blocks",
+      "forbidden_terms": [
+        "3-point bend",
+        "5967",
+        "Flexural testing",
+        "flexure test",
+        "four-point bending",
+        "three- or four-point bend",
+        "three-point bending",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G012",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ07",
+        "EQ08",
+        "EQ09",
+        "EQ12"
+      ],
+      "acceptable_ids": [
+        "EQ13",
+        "EQ22",
+        "EQ23"
+      ],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "fluorescence_intensity",
+        "techniques": [
+          "confocal_microscopy",
+          "widefield_fluorescence_microscopy"
+        ]
+      },
+      "brief": "how bright a fluorescent stain is in different cells or regions (from images); sample: GFP-expressing cells after a drug treatment",
+      "forbidden_terms": [
+        "BZ-X810",
+        "CLSM",
+        "confocal",
+        "Confocal laser scanning microscopy",
+        "Eclipse E800",
+        "epifluorescence",
+        "fluorescence microscopy",
+        "High-content epifluorescence imaging system",
+        "immunofluorescence imaging",
+        "Inverted confocal microscope",
+        "optical sectioning",
+        "SP8",
+        "SP8 STELLARIS",
+        "Upright confocal / multiphoton microscope",
+        "Upright optical microscope",
+        "Widefield epifluorescence microscopy",
+        "z-stack"
+      ]
+    },
+    {
+      "id": "G013",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ07",
+        "EQ08",
+        "EQ09",
+        "EQ12"
+      ],
+      "acceptable_ids": [
+        "EQ13",
+        "EQ22",
+        "EQ23"
+      ],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "fluorescence_localization",
+        "techniques": [
+          "confocal_microscopy",
+          "multiphoton_microscopy",
+          "widefield_fluorescence_microscopy"
+        ]
+      },
+      "brief": "where a fluorescent label sits inside cells or tissue; sample: cells stained for a nuclear and a membrane protein",
+      "forbidden_terms": [
+        "2-photon",
+        "BZ-X810",
+        "CLSM",
+        "confocal",
+        "Confocal laser scanning microscopy",
+        "Eclipse E800",
+        "epifluorescence",
+        "fluorescence microscopy",
+        "High-content epifluorescence imaging system",
+        "immunofluorescence imaging",
+        "Inverted confocal microscope",
+        "Multiphoton microscopy",
+        "optical sectioning",
+        "second harmonic generation",
+        "SHG",
+        "SP8",
+        "SP8 STELLARIS",
+        "two-photon microscopy",
+        "Upright confocal / multiphoton microscope",
+        "Upright optical microscope",
+        "Widefield epifluorescence microscopy",
+        "z-stack"
+      ]
+    },
+    {
+      "id": "G014",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "gelation_and_curing_kinetics",
+        "techniques": [
+          "oscillatory_rheometry"
+        ]
+      },
+      "brief": "gelation and curing kinetics; sample: a gelatin methacrylate hydrogel",
+      "forbidden_terms": [
+        "amplitude sweep",
+        "Discovery HR20",
+        "dynamic rheology",
+        "frequency sweep",
+        "HR20 Discovery",
+        "Hybrid rheometer",
+        "oscillatory rheology",
+        "Oscillatory rheometry",
+        "time sweep"
+      ]
+    },
+    {
+      "id": "G015",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ18"
+      ],
+      "acceptable_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "glass_transition_temperature",
+        "techniques": [
+          "differential_scanning_calorimetry"
+        ]
+      },
+      "brief": "glass-transition temperature; sample: an amorphous drug dispersion",
+      "forbidden_terms": [
+        "calorimetry",
+        "Differential scanning calorimeter",
+        "Differential scanning calorimetry",
+        "DSC",
+        "DSC250"
+      ]
+    },
+    {
+      "id": "G016",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ14"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "macroscopic_morphology",
+        "techniques": [
+          "stereomicroscopy"
+        ]
+      },
+      "brief": "visible defects and overall shape at low magnification; sample: printed aligner trays",
+      "forbidden_terms": [
+        "dissecting microscope",
+        "low-magnification inspection",
+        "SMZ 445",
+        "stereo microscope",
+        "Stereomicroscope",
+        "Stereomicroscopy"
+      ]
+    },
+    {
+      "id": "G017",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ17"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "mass_loss_vs_temperature",
+        "techniques": [
+          "thermogravimetric_analysis"
+        ]
+      },
+      "brief": "mass loss vs. temperature; sample: a biodegradable polymer blend",
+      "forbidden_terms": [
+        "TGA",
+        "TGA550",
+        "Thermogravimetric analysis",
+        "Thermogravimetric analyzer",
+        "thermogravimetry"
+      ]
+    },
+    {
+      "id": "G018",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ18"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "melting_temperature",
+        "techniques": [
+          "differential_scanning_calorimetry"
+        ]
+      },
+      "brief": "melting temperature; sample: a crystalline drug powder",
+      "forbidden_terms": [
+        "calorimetry",
+        "Differential scanning calorimeter",
+        "Differential scanning calorimetry",
+        "DSC",
+        "DSC250"
+      ]
+    },
+    {
+      "id": "G019",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ10"
+      ],
+      "acceptable_ids": [
+        "EQ14"
+      ],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "microparticle_size_distribution",
+        "techniques": [
+          "environmental_sem"
+        ]
+      },
+      "brief": "size distribution of particles from micrometres to millimetres; sample: alginate microbeads",
+      "forbidden_terms": [
+        "environmental",
+        "Environmental scanning electron microscope",
+        "ESEM",
+        "ESEM mode",
+        "Scanning electron microscopy",
+        "scanning electron microscopy",
+        "secondary electron imaging",
+        "SEM",
+        "XL30"
+      ]
+    },
+    {
+      "id": "G020",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ17"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "moisture_and_volatile_content",
+        "techniques": [
+          "thermogravimetric_analysis"
+        ]
+      },
+      "brief": "moisture and volatile content; sample: a hygroscopic drug powder",
+      "forbidden_terms": [
+        "TGA",
+        "TGA550",
+        "Thermogravimetric analysis",
+        "Thermogravimetric analyzer",
+        "thermogravimetry"
+      ]
+    },
+    {
+      "id": "G021",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ10",
+        "EQ11"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "nanoparticle_morphology",
+        "techniques": [
+          "environmental_sem",
+          "scanning_transmission_electron_microscopy",
+          "transmission_electron_microscopy"
+        ]
+      },
+      "brief": "size and shape of individual nanoparticles, seen directly; sample: gold nanoparticles",
+      "forbidden_terms": [
+        "CM12",
+        "electron microscopy of thin sections",
+        "environmental",
+        "Environmental scanning electron microscope",
+        "ESEM",
+        "ESEM mode",
+        "Scanning electron microscopy",
+        "scanning electron microscopy",
+        "Scanning transmission electron microscopy",
+        "secondary electron imaging",
+        "SEM",
+        "STEM",
+        "TEM",
+        "Transmission / scanning transmission electron microscope",
+        "Transmission electron microscopy",
+        "XL30"
+      ]
+    },
+    {
+      "id": "G022",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ06"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "nucleic_acid_concentration",
+        "techniques": [
+          "fluorometric_quantification"
+        ]
+      },
+      "brief": "DNA / RNA concentration; sample: DNA extracted from dental pulp cells",
+      "forbidden_terms": [
+        "dsDNA assay",
+        "dye-based assay",
+        "Fluorometer",
+        "fluorometric assay",
+        "Fluorometric quantification",
+        "Qubit",
+        "Qubit Flex"
+      ]
+    },
+    {
+      "id": "G023",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ20"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "particle_size_distribution",
+        "techniques": [
+          "dynamic_light_scattering"
+        ]
+      },
+      "brief": "size distribution of nanoparticles dispersed in a liquid; sample: a liposome formulation",
+      "forbidden_terms": [
+        "DLS",
+        "Dynamic light scattering",
+        "Particle size / zeta-potential analyzer",
+        "photon correlation spectroscopy",
+        "Zetasizer Pro (Red Label)"
+      ]
+    },
+    {
+      "id": "G024",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ06"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "protein_concentration",
+        "techniques": [
+          "fluorometric_quantification"
+        ]
+      },
+      "brief": "protein concentration; sample: a cell lysate",
+      "forbidden_terms": [
+        "dsDNA assay",
+        "dye-based assay",
+        "Fluorometer",
+        "fluorometric assay",
+        "Fluorometric quantification",
+        "Qubit",
+        "Qubit Flex"
+      ]
+    },
+    {
+      "id": "G025",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ18"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "reaction_enthalpy",
+        "techniques": [
+          "differential_scanning_calorimetry"
+        ]
+      },
+      "brief": "how much heat a curing or reacting material releases; sample: a light-cured dental composite",
+      "forbidden_terms": [
+        "calorimetry",
+        "Differential scanning calorimeter",
+        "Differential scanning calorimetry",
+        "DSC",
+        "DSC250"
+      ]
+    },
+    {
+      "id": "G026",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ10",
+        "EQ14"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "surface_morphology",
+        "techniques": [
+          "environmental_sem",
+          "stereomicroscopy"
+        ]
+      },
+      "brief": "surface morphology; sample: a sandblasted implant surface",
+      "forbidden_terms": [
+        "dissecting microscope",
+        "environmental",
+        "Environmental scanning electron microscope",
+        "ESEM",
+        "ESEM mode",
+        "low-magnification inspection",
+        "Scanning electron microscopy",
+        "scanning electron microscopy",
+        "secondary electron imaging",
+        "SEM",
+        "SMZ 445",
+        "stereo microscope",
+        "Stereomicroscope",
+        "Stereomicroscopy",
+        "XL30"
+      ]
+    },
+    {
+      "id": "G027",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "tensile_modulus",
+        "techniques": [
+          "tensile_testing"
+        ]
+      },
+      "brief": "tensile elastic modulus; sample: an electrospun nanofibre mat",
+      "forbidden_terms": [
+        "5967",
+        "pull test",
+        "tensile test",
+        "tension test",
+        "Uniaxial tensile testing",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G028",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "tensile_strength",
+        "techniques": [
+          "tensile_testing"
+        ]
+      },
+      "brief": "tensile strength; sample: a suture material",
+      "forbidden_terms": [
+        "5967",
+        "pull test",
+        "tensile test",
+        "tension test",
+        "Uniaxial tensile testing",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G029",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ17"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "thermal_stability",
+        "techniques": [
+          "thermogravimetric_analysis"
+        ]
+      },
+      "brief": "thermal stability / decomposition temperature; sample: a flame-retardant polymer",
+      "forbidden_terms": [
+        "TGA",
+        "TGA550",
+        "Thermogravimetric analysis",
+        "Thermogravimetric analyzer",
+        "thermogravimetry"
+      ]
+    },
+    {
+      "id": "G030",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ07",
+        "EQ08",
+        "EQ09",
+        "EQ12",
+        "EQ13",
+        "EQ22",
+        "EQ23"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "tissue_morphology",
+        "techniques": [
+          "brightfield_microscopy",
+          "confocal_microscopy",
+          "multiphoton_microscopy"
+        ]
+      },
+      "brief": "the structure of a tissue section (histology); sample: periodontal tissue biopsies",
+      "forbidden_terms": [
+        "2-photon",
+        "brightfield",
+        "Brightfield light microscopy",
+        "BX53",
+        "BZ-X810",
+        "CLSM",
+        "confocal",
+        "Confocal laser scanning microscopy",
+        "Eclipse E800",
+        "Eclipse TE300",
+        "High-content epifluorescence imaging system",
+        "histology imaging",
+        "Inverted confocal microscope",
+        "Inverted optical microscope",
+        "IX83",
+        "light microscopy",
+        "Multiphoton microscopy",
+        "optical sectioning",
+        "second harmonic generation",
+        "SHG",
+        "SP8",
+        "SP8 STELLARIS",
+        "transmitted light",
+        "two-photon microscopy",
+        "Upright confocal / multiphoton microscope",
+        "Upright optical microscope",
+        "z-stack"
+      ]
+    },
+    {
+      "id": "G031",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ11"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "ultrastructure",
+        "techniques": [
+          "scanning_transmission_electron_microscopy",
+          "transmission_electron_microscopy"
+        ]
+      },
+      "brief": "nanometre-scale structure inside cells or tissue; sample: dental pulp cells",
+      "forbidden_terms": [
+        "CM12",
+        "electron microscopy of thin sections",
+        "Scanning transmission electron microscopy",
+        "STEM",
+        "TEM",
+        "Transmission / scanning transmission electron microscope",
+        "Transmission electron microscopy"
+      ]
+    },
+    {
+      "id": "G032",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "viscoelastic_moduli",
+        "techniques": [
+          "oscillatory_rheometry"
+        ]
+      },
+      "brief": "viscoelastic moduli; sample: a hyaluronic acid gel",
+      "forbidden_terms": [
+        "amplitude sweep",
+        "Discovery HR20",
+        "dynamic rheology",
+        "frequency sweep",
+        "HR20 Discovery",
+        "Hybrid rheometer",
+        "oscillatory rheology",
+        "Oscillatory rheometry",
+        "time sweep"
+      ]
+    },
+    {
+      "id": "G033",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "viscosity_vs_shear_rate",
+        "techniques": [
+          "rotational_rheometry"
+        ]
+      },
+      "brief": "viscosity vs. shear rate; sample: a toothpaste formulation",
+      "forbidden_terms": [
+        "Discovery HR20",
+        "flow sweep",
+        "HR20 Discovery",
+        "Hybrid rheometer",
+        "rotational rheology",
+        "Rotational rheometry",
+        "steady shear",
+        "viscometry"
+      ]
+    },
+    {
+      "id": "G034",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "viscosity_vs_temperature",
+        "techniques": [
+          "oscillatory_rheometry",
+          "rotational_rheometry"
+        ]
+      },
+      "brief": "viscosity vs. temperature; sample: a thermosensitive hydrogel",
+      "forbidden_terms": [
+        "amplitude sweep",
+        "Discovery HR20",
+        "dynamic rheology",
+        "flow sweep",
+        "frequency sweep",
+        "HR20 Discovery",
+        "Hybrid rheometer",
+        "oscillatory rheology",
+        "Oscillatory rheometry",
+        "rotational rheology",
+        "Rotational rheometry",
+        "steady shear",
+        "time sweep",
+        "viscometry"
+      ]
+    },
+    {
+      "id": "G035",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "yield_stress",
+        "techniques": [
+          "oscillatory_rheometry",
+          "rotational_rheometry"
+        ]
+      },
+      "brief": "yield stress; sample: a bioink",
+      "forbidden_terms": [
+        "amplitude sweep",
+        "Discovery HR20",
+        "dynamic rheology",
+        "flow sweep",
+        "frequency sweep",
+        "HR20 Discovery",
+        "Hybrid rheometer",
+        "oscillatory rheology",
+        "Oscillatory rheometry",
+        "rotational rheology",
+        "Rotational rheometry",
+        "steady shear",
+        "time sweep",
+        "viscometry"
+      ]
+    },
+    {
+      "id": "G036",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ20"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "available-property",
+        "property": "zeta_potential",
+        "techniques": [
+          "electrophoretic_light_scattering"
+        ]
+      },
+      "brief": "surface charge of particles in a liquid (and so how stable the dispersion is); sample: a nanoparticle suspension",
+      "forbidden_terms": [
+        "Electrophoretic light scattering",
+        "ELS",
+        "laser Doppler electrophoresis",
+        "Particle size / zeta-potential analyzer",
+        "zeta potential",
+        "zeta potential measurement",
+        "Zetasizer Pro (Red Label)"
+      ]
+    },
+    {
+      "id": "G037",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bFourier.?transform.?infrared.?spectroscopy\\b|\\bFTIR\\b|\\binfrared.?spectroscopy\\b|\\bATR.?FTIR\\b|\\bIR\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "chemical_functional_groups",
+        "techniques": [
+          "ftir_spectroscopy"
+        ]
+      },
+      "brief": "which chemical groups / bonds are present; sample: a newly synthesized dental monomer",
+      "forbidden_terms": [
+        "ATR-FTIR",
+        "Fourier-transform infrared spectroscopy",
+        "FTIR",
+        "infrared spectroscopy",
+        "IR"
+      ]
+    },
+    {
+      "id": "G038",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bFourier.?transform.?infrared.?spectroscopy\\b|\\bFTIR\\b|\\binfrared.?spectroscopy\\b|\\bATR.?FTIR\\b|\\bIR\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "chemical_functional_groups",
+        "techniques": [
+          "ftir_spectroscopy"
+        ]
+      },
+      "brief": "which chemical groups / bonds are present; sample: a plasma-treated polymer film",
+      "forbidden_terms": [
+        "ATR-FTIR",
+        "Fourier-transform infrared spectroscopy",
+        "FTIR",
+        "infrared spectroscopy",
+        "IR"
+      ]
+    },
+    {
+      "id": "G039",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bX.?ray.?diffraction\\b|\\bXRD\\b|\\bpowder.?diffraction\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "crystalline_phase",
+        "techniques": [
+          "x_ray_diffraction"
+        ]
+      },
+      "brief": "crystalline phase identification; sample: a zirconia crown after sintering",
+      "forbidden_terms": [
+        "powder diffraction",
+        "X-ray diffraction",
+        "XRD"
+      ]
+    },
+    {
+      "id": "G040",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bX.?ray.?diffraction\\b|\\bXRD\\b|\\bpowder.?diffraction\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "crystalline_phase",
+        "techniques": [
+          "x_ray_diffraction"
+        ]
+      },
+      "brief": "crystalline phase identification; sample: a calcium phosphate coating",
+      "forbidden_terms": [
+        "powder diffraction",
+        "X-ray diffraction",
+        "XRD"
+      ]
+    },
+    {
+      "id": "G041",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bIndentation.?hardness.?testing\\b|\\bmicro.?or.?nanoindentation\\b|\\bmicrohardness\\b|\\bnanoindentation\\b|\\bVickers\\b|\\bKnoop\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "hardness",
+        "techniques": [
+          "indentation_hardness_testing"
+        ]
+      },
+      "brief": "hardness; sample: enamel after a bleaching treatment",
+      "forbidden_terms": [
+        "Indentation hardness testing",
+        "Knoop",
+        "micro- or nanoindentation",
+        "microhardness",
+        "nanoindentation",
+        "Vickers"
+      ]
+    },
+    {
+      "id": "G042",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bIndentation.?hardness.?testing\\b|\\bmicro.?or.?nanoindentation\\b|\\bmicrohardness\\b|\\bnanoindentation\\b|\\bVickers\\b|\\bKnoop\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "hardness",
+        "techniques": [
+          "indentation_hardness_testing"
+        ]
+      },
+      "brief": "hardness; sample: a thin ceramic coating on an implant",
+      "forbidden_terms": [
+        "Indentation hardness testing",
+        "Knoop",
+        "micro- or nanoindentation",
+        "microhardness",
+        "nanoindentation",
+        "Vickers"
+      ]
+    },
+    {
+      "id": "G043",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [
+        "EQ07",
+        "EQ08",
+        "EQ10",
+        "EQ11"
+      ],
+      "expected_not_available": [
+        "\\bX.?ray.?micro.?computed.?tomography\\b|\\bmicro.?CT\\b|\\bmicroCT\\b|\\bµCT\\b|\\bX.?ray.?tomography\\b|\\bcomputed.?tomography\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "internal_3d_structure",
+        "techniques": [
+          "micro_computed_tomography"
+        ]
+      },
+      "brief": "internal 3D structure; sample: a cast ceramic part",
+      "forbidden_terms": [
+        "computed tomography",
+        "micro-CT",
+        "microCT",
+        "X-ray micro-computed tomography",
+        "X-ray tomography",
+        "µCT"
+      ]
+    },
+    {
+      "id": "G044",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [
+        "EQ07",
+        "EQ08",
+        "EQ10",
+        "EQ11"
+      ],
+      "expected_not_available": [
+        "\\bX.?ray.?micro.?computed.?tomography\\b|\\bmicro.?CT\\b|\\bmicroCT\\b|\\bµCT\\b|\\bX.?ray.?tomography\\b|\\bcomputed.?tomography\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "internal_3d_structure",
+        "techniques": [
+          "micro_computed_tomography"
+        ]
+      },
+      "brief": "internal 3D structure; sample: a printed titanium lattice",
+      "forbidden_terms": [
+        "computed tomography",
+        "micro-CT",
+        "microCT",
+        "X-ray micro-computed tomography",
+        "X-ray tomography",
+        "µCT"
+      ]
+    },
+    {
+      "id": "G045",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bMelt.?flow.?indexing\\b|\\bMFI\\b|\\bMFR\\b|\\bmelt.?flow.?index\\b|\\bmelt.?flow.?rate\\b|\\bmelt.?indexer\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "melt_flow_rate",
+        "techniques": [
+          "melt_flow_indexing"
+        ]
+      },
+      "brief": "how easily a molten plastic flows through a standard die (a single flow number); sample: recycled polyethylene pellets",
+      "forbidden_terms": [
+        "melt flow index",
+        "Melt flow indexing",
+        "melt flow rate",
+        "melt indexer",
+        "MFI",
+        "MFR"
+      ]
+    },
+    {
+      "id": "G046",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bMelt.?flow.?indexing\\b|\\bMFI\\b|\\bMFR\\b|\\bmelt.?flow.?index\\b|\\bmelt.?flow.?rate\\b|\\bmelt.?indexer\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "melt_flow_rate",
+        "techniques": [
+          "melt_flow_indexing"
+        ]
+      },
+      "brief": "how easily a molten plastic flows through a standard die (a single flow number); sample: a PLA filament batch from a new supplier",
+      "forbidden_terms": [
+        "melt flow index",
+        "Melt flow indexing",
+        "melt flow rate",
+        "melt indexer",
+        "MFI",
+        "MFR"
+      ]
+    },
+    {
+      "id": "G047",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bGel.?permeation.?/.?size.?exclusion.?chromatography\\b|\\bGPC\\b|\\bSEC\\b|\\bsize.?exclusion.?chromatography\\b|\\bmolecular.?weight.?analysis\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "molecular_weight_distribution",
+        "techniques": [
+          "gel_permeation_chromatography"
+        ]
+      },
+      "brief": "molecular weight distribution; sample: a PLGA polymer after degradation",
+      "forbidden_terms": [
+        "Gel permeation / size-exclusion chromatography",
+        "GPC",
+        "molecular-weight analysis",
+        "SEC",
+        "size-exclusion chromatography"
+      ]
+    },
+    {
+      "id": "G048",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bGel.?permeation.?/.?size.?exclusion.?chromatography\\b|\\bGPC\\b|\\bSEC\\b|\\bsize.?exclusion.?chromatography\\b|\\bmolecular.?weight.?analysis\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "molecular_weight_distribution",
+        "techniques": [
+          "gel_permeation_chromatography"
+        ]
+      },
+      "brief": "molecular weight distribution; sample: a batch of chitosan",
+      "forbidden_terms": [
+        "Gel permeation / size-exclusion chromatography",
+        "GPC",
+        "molecular-weight analysis",
+        "SEC",
+        "size-exclusion chromatography"
+      ]
+    },
+    {
+      "id": "G049",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [
+        "EQ07",
+        "EQ08",
+        "EQ10"
+      ],
+      "expected_not_available": [
+        "\\bX.?ray.?micro.?computed.?tomography\\b|\\bmicro.?CT\\b|\\bmicroCT\\b|\\bµCT\\b|\\bX.?ray.?tomography\\b|\\bcomputed.?tomography\\b|\\bMercury.?intrusion.?porosimetry\\b|\\bmercury.?porosimetry\\b|\\bMIP\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "porosity_and_pore_size",
+        "techniques": [
+          "micro_computed_tomography",
+          "mercury_intrusion_porosimetry"
+        ]
+      },
+      "brief": "porosity and pore size; sample: a freeze-dried collagen scaffold",
+      "forbidden_terms": [
+        "computed tomography",
+        "Mercury intrusion porosimetry",
+        "mercury porosimetry",
+        "micro-CT",
+        "microCT",
+        "MIP",
+        "X-ray micro-computed tomography",
+        "X-ray tomography",
+        "µCT"
+      ]
+    },
+    {
+      "id": "G050",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [
+        "EQ07",
+        "EQ08",
+        "EQ10"
+      ],
+      "expected_not_available": [
+        "\\bX.?ray.?micro.?computed.?tomography\\b|\\bmicro.?CT\\b|\\bmicroCT\\b|\\bµCT\\b|\\bX.?ray.?tomography\\b|\\bcomputed.?tomography\\b|\\bMercury.?intrusion.?porosimetry\\b|\\bmercury.?porosimetry\\b|\\bMIP\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "porosity_and_pore_size",
+        "techniques": [
+          "micro_computed_tomography",
+          "mercury_intrusion_porosimetry"
+        ]
+      },
+      "brief": "porosity and pore size; sample: a sintered ceramic bone graft",
+      "forbidden_terms": [
+        "computed tomography",
+        "Mercury intrusion porosimetry",
+        "mercury porosimetry",
+        "micro-CT",
+        "microCT",
+        "MIP",
+        "X-ray micro-computed tomography",
+        "X-ray tomography",
+        "µCT"
+      ]
+    },
+    {
+      "id": "G051",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "expected_not_available": [
+        "\\bCapillary.?rheometry\\b|\\bcapillary.?rheometer\\b|\\bhigh.?pressure.?capillary.?rheometry\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "processing_shear_viscosity",
+        "techniques": [
+          "capillary_rheometry"
+        ]
+      },
+      "brief": "viscosity at the very high shear rates of an extruder or injection moulder; sample: a polymer compound for injection moulding",
+      "forbidden_terms": [
+        "capillary rheometer",
+        "Capillary rheometry",
+        "high-pressure capillary rheometry"
+      ]
+    },
+    {
+      "id": "G052",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "expected_not_available": [
+        "\\bCapillary.?rheometry\\b|\\bcapillary.?rheometer\\b|\\bhigh.?pressure.?capillary.?rheometry\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "processing_shear_viscosity",
+        "techniques": [
+          "capillary_rheometry"
+        ]
+      },
+      "brief": "viscosity at the very high shear rates of an extruder or injection moulder; sample: a filled thermoplastic for an extrusion line",
+      "forbidden_terms": [
+        "capillary rheometer",
+        "Capillary rheometry",
+        "high-pressure capillary rheometry"
+      ]
+    },
+    {
+      "id": "G053",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bGas.?adsorption\\b|\\bBET.?surface.?area\\b|\\bBET\\b|\\bnitrogen.?adsorption\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "specific_surface_area",
+        "techniques": [
+          "gas_adsorption"
+        ]
+      },
+      "brief": "total surface area per gram of a powder; sample: a mesoporous silica drug carrier",
+      "forbidden_terms": [
+        "BET",
+        "BET surface area",
+        "Gas adsorption",
+        "nitrogen adsorption"
+      ]
+    },
+    {
+      "id": "G054",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bGas.?adsorption\\b|\\bBET.?surface.?area\\b|\\bBET\\b|\\bnitrogen.?adsorption\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "specific_surface_area",
+        "techniques": [
+          "gas_adsorption"
+        ]
+      },
+      "brief": "total surface area per gram of a powder; sample: a bone graft powder",
+      "forbidden_terms": [
+        "BET",
+        "BET surface area",
+        "Gas adsorption",
+        "nitrogen adsorption"
+      ]
+    },
+    {
+      "id": "G055",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bAtomic.?force.?microscopy\\b|\\bAFM\\b|\\bscanning.?probe.?microscopy\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "surface_roughness",
+        "techniques": [
+          "atomic_force_microscopy"
+        ]
+      },
+      "brief": "quantitative surface roughness (a roughness number, not just a picture); sample: a polished composite restoration",
+      "forbidden_terms": [
+        "AFM",
+        "Atomic force microscopy",
+        "scanning probe microscopy"
+      ]
+    },
+    {
+      "id": "G056",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bAtomic.?force.?microscopy\\b|\\bAFM\\b|\\bscanning.?probe.?microscopy\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "surface_roughness",
+        "techniques": [
+          "atomic_force_microscopy"
+        ]
+      },
+      "brief": "quantitative surface roughness (a roughness number, not just a picture); sample: a titanium implant after acid etching",
+      "forbidden_terms": [
+        "AFM",
+        "Atomic force microscopy",
+        "scanning probe microscopy"
+      ]
+    },
+    {
+      "id": "G057",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bContact.?angle.?goniometry\\b|\\bcontact.?angle\\b|\\bgoniometer\\b|\\bsessile.?drop\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "wettability",
+        "techniques": [
+          "contact_angle_goniometry"
+        ]
+      },
+      "brief": "how well water spreads on (or beads up on) a surface; sample: a plasma-treated implant surface",
+      "forbidden_terms": [
+        "contact angle",
+        "Contact angle goniometry",
+        "goniometer",
+        "sessile drop"
+      ]
+    },
+    {
+      "id": "G058",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bContact.?angle.?goniometry\\b|\\bcontact.?angle\\b|\\bgoniometer\\b|\\bsessile.?drop\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "no-match-property",
+        "property": "wettability",
+        "techniques": [
+          "contact_angle_goniometry"
+        ]
+      },
+      "brief": "how well water spreads on (or beads up on) a surface; sample: a coated contact lens material",
+      "forbidden_terms": [
+        "contact angle",
+        "Contact angle goniometry",
+        "goniometer",
+        "sessile drop"
+      ]
+    },
+    {
+      "id": "G059",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ18"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bX.?ray.?diffraction\\b|\\bXRD\\b|\\bpowder.?diffraction\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "non-destructive",
+        "property": "degree_of_crystallinity",
+        "techniques": [
+          "x_ray_diffraction"
+        ]
+      },
+      "brief": "degree of crystallinity, without damaging or using up the sample; sample: a PLLA suture",
+      "forbidden_terms": [
+        "powder diffraction",
+        "X-ray diffraction",
+        "XRD"
+      ]
+    },
+    {
+      "id": "G060",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ18"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ19": [
+          "\\bDMA\\b|clamp|torsion"
+        ],
+        "EQ21": [
+          "\\bDMA\\b|clamp|torsion"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "non-destructive",
+        "property": "glass_transition_temperature",
+        "techniques": [
+          "dynamic_mechanical_analysis"
+        ]
+      },
+      "brief": "glass-transition temperature, without damaging or using up the sample; sample: a denture base acrylic",
+      "forbidden_terms": [
+        "Discovery HR20",
+        "DMA",
+        "DMTA",
+        "Dynamic mechanical analysis",
+        "HR20 Discovery",
+        "Hybrid rheometer"
+      ]
+    },
+    {
+      "id": "G061",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ11"
+      ],
+      "supplementary_only_ids": [
+        "EQ07",
+        "EQ08",
+        "EQ10"
+      ],
+      "expected_not_available": [
+        "\\bX.?ray.?micro.?computed.?tomography\\b|\\bmicro.?CT\\b|\\bmicroCT\\b|\\bµCT\\b|\\bX.?ray.?tomography\\b|\\bcomputed.?tomography\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "non-destructive",
+        "property": "internal_3d_structure",
+        "techniques": [
+          "micro_computed_tomography"
+        ]
+      },
+      "brief": "internal 3D structure, without damaging or using up the sample; sample: a composite filling in an extracted tooth",
+      "forbidden_terms": [
+        "computed tomography",
+        "micro-CT",
+        "microCT",
+        "X-ray micro-computed tomography",
+        "X-ray tomography",
+        "µCT"
+      ]
+    },
+    {
+      "id": "G062",
+      "category": "problem-only",
+      "expected_ids": [
+        "EQ10"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ11"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "non-destructive",
+        "property": "nanoparticle_morphology",
+        "techniques": [
+          "environmental_sem"
+        ]
+      },
+      "brief": "size and shape of individual nanoparticles, seen directly, without damaging or using up the sample; sample: silica nanoparticles for drug delivery",
+      "forbidden_terms": [
+        "environmental",
+        "Environmental scanning electron microscope",
+        "ESEM",
+        "ESEM mode",
+        "Scanning electron microscopy",
+        "scanning electron microscopy",
+        "secondary electron imaging",
+        "SEM",
+        "XL30"
+      ]
+    },
+    {
+      "id": "G063",
+      "category": "no-suitable-equipment",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ18"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [
+        "\\bFourier.?transform.?infrared.?spectroscopy\\b|\\bFTIR\\b|\\binfrared.?spectroscopy\\b|\\bATR.?FTIR\\b|\\bIR\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "non-destructive",
+        "property": "reaction_enthalpy",
+        "techniques": [
+          "ftir_spectroscopy"
+        ]
+      },
+      "brief": "how much heat a curing or reacting material releases, without damaging or using up the sample; sample: an epoxy resin system",
+      "forbidden_terms": [
+        "ATR-FTIR",
+        "Fourier-transform infrared spectroscopy",
+        "FTIR",
+        "infrared spectroscopy",
+        "IR"
+      ]
+    },
+    {
+      "id": "G064",
+      "category": "accessory-trap",
+      "expected_ids": [
+        "EQ10"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ10": [
+          "\\bEDS\\b|\\bEDX\\b|energy.dispersive"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "optional-hardware",
+        "property": "elemental_composition",
+        "techniques": [
+          "energy_dispersive_xray_spectroscopy"
+        ],
+        "reason": "only low-confidence instruments"
+      },
+      "brief": "which chemical elements are present, and where; sample: contaminants on an implant surface",
+      "forbidden_terms": [
+        "EDAX",
+        "EDS",
+        "EDX",
+        "elemental mapping",
+        "Energy-dispersive X-ray spectroscopy",
+        "Environmental scanning electron microscope",
+        "ESEM",
+        "XL30"
+      ]
+    },
+    {
+      "id": "G065",
+      "category": "accessory-trap",
+      "expected_ids": [
+        "EQ07",
+        "EQ09",
+        "EQ13",
+        "EQ23"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ07": [
+          "incubat|stage.top|CO2|environmental"
+        ],
+        "EQ09": [
+          "incubat|stage.top|CO2|environmental"
+        ],
+        "EQ13": [
+          "incubat|stage.top|CO2|environmental"
+        ],
+        "EQ23": [
+          "incubat|stage.top|CO2|environmental"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "optional-hardware",
+        "property": "live_cell_behavior",
+        "techniques": [
+          "live_cell_time_lapse_imaging"
+        ],
+        "reason": "only low-confidence instruments"
+      },
+      "brief": "live-cell behaviour over time; sample: migrating cancer cells",
+      "forbidden_terms": [
+        "BZ-X810",
+        "Eclipse TE300",
+        "High-content epifluorescence imaging system",
+        "Inverted confocal microscope",
+        "Inverted optical microscope",
+        "IX83",
+        "live-cell imaging",
+        "Live-cell time-lapse imaging",
+        "SP8 STELLARIS",
+        "time-lapse"
+      ]
+    },
+    {
+      "id": "G066",
+      "category": "accessory-trap",
+      "expected_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ19": [
+          "\\bDMA\\b|clamp|torsion"
+        ],
+        "EQ21": [
+          "\\bDMA\\b|clamp|torsion"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "optional-hardware",
+        "property": "solid_viscoelastic_properties",
+        "techniques": [
+          "dynamic_mechanical_analysis"
+        ],
+        "reason": "only low-confidence instruments"
+      },
+      "brief": "stiffness and damping of a solid polymer as temperature changes; sample: a denture liner material",
+      "forbidden_terms": [
+        "Discovery HR20",
+        "DMA",
+        "DMTA",
+        "Dynamic mechanical analysis",
+        "HR20 Discovery",
+        "Hybrid rheometer"
+      ]
+    },
+    {
+      "id": "G067",
+      "category": "accessory-trap",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ15": [
+          "bend|flexur|three.point|3.point|four.point"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "optional-hardware",
+        "property": "flexural_modulus",
+        "techniques": [
+          "flexural_testing"
+        ],
+        "reason": "key accessory to confirm",
+        "condition": "rectangular bars loaded in bending"
+      },
+      "brief": "flexural modulus, rectangular bars loaded in bending; sample: a fibre-reinforced post material",
+      "forbidden_terms": [
+        "3-point bend",
+        "5967",
+        "Flexural testing",
+        "flexure test",
+        "four-point bending",
+        "three- or four-point bend",
+        "three-point bending",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G068",
+      "category": "accessory-trap",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ15": [
+          "shear.bond|micro.?tensile|jig"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "optional-hardware",
+        "property": "bond_strength",
+        "techniques": [
+          "bond_strength_testing"
+        ],
+        "reason": "key accessory to confirm",
+        "condition": "shear test on bonded specimens"
+      },
+      "brief": "bond / adhesion strength, shear test on bonded specimens; sample: an adhesive between dentin and composite",
+      "forbidden_terms": [
+        "5967",
+        "adhesion test",
+        "Bond strength testing",
+        "microtensile bond strength",
+        "push-out test",
+        "shear bond strength",
+        "shear or micro-tensile",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G069",
+      "category": "accessory-trap",
+      "expected_ids": [
+        "EQ20"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ20": [
+          "titrat"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "optional-hardware",
+        "property": "zeta_potential",
+        "techniques": [
+          "electrophoretic_light_scattering"
+        ],
+        "reason": "key accessory to confirm",
+        "condition": "how it changes over a pH range from 3 to 9"
+      },
+      "brief": "surface charge of particles in a liquid (and so how stable the dispersion is), how it changes over a pH range from 3 to 9; sample: an emulsion formulation",
+      "forbidden_terms": [
+        "Electrophoretic light scattering",
+        "ELS",
+        "laser Doppler electrophoresis",
+        "Particle size / zeta-potential analyzer",
+        "zeta potential",
+        "zeta potential measurement",
+        "Zetasizer Pro (Red Label)"
+      ]
+    },
+    {
+      "id": "G070",
+      "category": "accessory-trap",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ15": [
+          "bath|environmental chamber|37"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "optional-hardware",
+        "property": "compressive_modulus",
+        "techniques": [
+          "compression_testing"
+        ],
+        "reason": "key accessory to confirm",
+        "condition": "tested soaked in liquid at body temperature"
+      },
+      "brief": "compressive modulus, tested soaked in liquid at body temperature; sample: a hydrogel cylinder that should behave like cartilage",
+      "forbidden_terms": [
+        "5967",
+        "compression test",
+        "compressive test",
+        "crush test",
+        "Uniaxial compression testing",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G071",
+      "category": "accessory-trap",
+      "expected_ids": [
+        "EQ19"
+      ],
+      "acceptable_ids": [
+        "EQ21"
+      ],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ19": [
+          "\\bUV\\b|photo|light"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "optional-hardware",
+        "property": "gelation_and_curing_kinetics",
+        "techniques": [
+          "oscillatory_rheometry"
+        ],
+        "reason": "key accessory to confirm",
+        "condition": "while it cures under UV / blue light"
+      },
+      "brief": "gelation and curing kinetics, while it cures under UV / blue light; sample: a photocurable dental resin",
+      "forbidden_terms": [
+        "amplitude sweep",
+        "dynamic rheology",
+        "frequency sweep",
+        "HR20 Discovery",
+        "Hybrid rheometer",
+        "oscillatory rheology",
+        "Oscillatory rheometry",
+        "time sweep"
+      ]
+    },
+    {
+      "id": "G072",
+      "category": "accessory-trap",
+      "expected_ids": [
+        "EQ18"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ18": [
+          "cool|sub.ambient|refrigerat"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "optional-hardware",
+        "property": "crystallization_temperature",
+        "techniques": [
+          "differential_scanning_calorimetry"
+        ],
+        "reason": "key accessory to confirm",
+        "condition": "on controlled cooling to below room temperature"
+      },
+      "brief": "crystallization temperature, on controlled cooling to below room temperature; sample: a PLA filament",
+      "forbidden_terms": [
+        "calorimetry",
+        "Differential scanning calorimeter",
+        "Differential scanning calorimetry",
+        "DSC",
+        "DSC250"
+      ]
+    },
+    {
+      "id": "G073",
+      "category": "misleading-keyword",
+      "expected_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ01"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "distractor",
+        "property": "yield_stress",
+        "techniques": [
+          "oscillatory_rheometry",
+          "rotational_rheometry"
+        ],
+        "distractor": "EQ01"
+      },
+      "brief": "yield stress; sample: a dental cement paste; mention the Extrusion-based 3D bioprinter (they print the paste on the bioprinter) as a misleading lead",
+      "forbidden_terms": [
+        "amplitude sweep",
+        "Discovery HR20",
+        "dynamic rheology",
+        "flow sweep",
+        "frequency sweep",
+        "HR20 Discovery",
+        "Hybrid rheometer",
+        "oscillatory rheology",
+        "Oscillatory rheometry",
+        "rotational rheology",
+        "Rotational rheometry",
+        "steady shear",
+        "time sweep",
+        "viscometry"
+      ]
+    },
+    {
+      "id": "G074",
+      "category": "misleading-keyword",
+      "expected_ids": [
+        "EQ07",
+        "EQ08",
+        "EQ09",
+        "EQ12"
+      ],
+      "acceptable_ids": [
+        "EQ13",
+        "EQ22",
+        "EQ23"
+      ],
+      "unacceptable_ids": [
+        "EQ06"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "distractor",
+        "property": "fluorescence_intensity",
+        "techniques": [
+          "confocal_microscopy",
+          "widefield_fluorescence_microscopy"
+        ],
+        "distractor": "EQ06"
+      },
+      "brief": "how bright a fluorescent stain is in different cells or regions (from images); sample: immunostained tissue sections; mention the Fluorometer (they thought of the fluorometer because it measures fluorescence) as a misleading lead",
+      "forbidden_terms": [
+        "BZ-X810",
+        "CLSM",
+        "confocal",
+        "Confocal laser scanning microscopy",
+        "Eclipse E800",
+        "epifluorescence",
+        "fluorescence microscopy",
+        "High-content epifluorescence imaging system",
+        "immunofluorescence imaging",
+        "Inverted confocal microscope",
+        "optical sectioning",
+        "SP8",
+        "SP8 STELLARIS",
+        "Upright confocal / multiphoton microscope",
+        "Upright optical microscope",
+        "Widefield epifluorescence microscopy",
+        "z-stack"
+      ]
+    },
+    {
+      "id": "G075",
+      "category": "misleading-keyword",
+      "expected_ids": [
+        "EQ17"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ18"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "distractor",
+        "property": "thermal_stability",
+        "techniques": [
+          "thermogravimetric_analysis"
+        ],
+        "distractor": "EQ18"
+      },
+      "brief": "thermal stability / decomposition temperature; sample: a drug-polymer blend; mention the Differential scanning calorimeter (DSC) (they already have time booked on the DSC) as a misleading lead",
+      "forbidden_terms": [
+        "TGA",
+        "TGA550",
+        "Thermogravimetric analysis",
+        "Thermogravimetric analyzer",
+        "thermogravimetry"
+      ]
+    },
+    {
+      "id": "G076",
+      "category": "misleading-keyword",
+      "expected_ids": [
+        "EQ18"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ17"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "distractor",
+        "property": "melting_temperature",
+        "techniques": [
+          "differential_scanning_calorimetry"
+        ],
+        "distractor": "EQ17"
+      },
+      "brief": "melting temperature; sample: a wax-based drug carrier; mention the Thermogravimetric analyzer (TGA) (they thought the TGA heats samples so it should work) as a misleading lead",
+      "forbidden_terms": [
+        "calorimetry",
+        "Differential scanning calorimeter",
+        "Differential scanning calorimetry",
+        "DSC",
+        "DSC250"
+      ]
+    },
+    {
+      "id": "G077",
+      "category": "misleading-keyword",
+      "expected_ids": [
+        "EQ10"
+      ],
+      "acceptable_ids": [
+        "EQ14"
+      ],
+      "unacceptable_ids": [
+        "EQ20"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "distractor",
+        "property": "microparticle_size_distribution",
+        "techniques": [
+          "environmental_sem"
+        ],
+        "distractor": "EQ20"
+      },
+      "brief": "size distribution of particles from micrometres to millimetres; sample: a spray-dried drug powder; mention the Particle size / zeta-potential analyzer (they heard the particle size analyzer measures particle size) as a misleading lead",
+      "forbidden_terms": [
+        "environmental",
+        "Environmental scanning electron microscope",
+        "ESEM",
+        "ESEM mode",
+        "Scanning electron microscopy",
+        "scanning electron microscopy",
+        "secondary electron imaging",
+        "SEM",
+        "XL30"
+      ]
+    },
+    {
+      "id": "G078",
+      "category": "misleading-keyword",
+      "expected_ids": [
+        "EQ10",
+        "EQ11"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ14"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "distractor",
+        "property": "nanoparticle_morphology",
+        "techniques": [
+          "environmental_sem",
+          "scanning_transmission_electron_microscopy",
+          "transmission_electron_microscopy"
+        ],
+        "distractor": "EQ14"
+      },
+      "brief": "size and shape of individual nanoparticles, seen directly; sample: lipid nanoparticles; mention the Stereomicroscope (they tried the stereomicroscope first) as a misleading lead",
+      "forbidden_terms": [
+        "CM12",
+        "electron microscopy of thin sections",
+        "environmental",
+        "Environmental scanning electron microscope",
+        "ESEM",
+        "ESEM mode",
+        "Scanning electron microscopy",
+        "scanning electron microscopy",
+        "Scanning transmission electron microscopy",
+        "secondary electron imaging",
+        "SEM",
+        "STEM",
+        "TEM",
+        "Transmission / scanning transmission electron microscope",
+        "Transmission electron microscopy",
+        "XL30"
+      ]
+    },
+    {
+      "id": "G079",
+      "category": "misleading-keyword",
+      "expected_ids": [
+        "EQ14"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ03"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "distractor",
+        "property": "macroscopic_morphology",
+        "techniques": [
+          "stereomicroscopy"
+        ],
+        "distractor": "EQ03"
+      },
+      "brief": "visible defects and overall shape at low magnification; sample: a batch of extruded filaments; mention the Resin 3D printer (MSLA) (the parts were printed on the resin printer) as a misleading lead",
+      "forbidden_terms": [
+        "dissecting microscope",
+        "low-magnification inspection",
+        "SMZ 445",
+        "stereo microscope",
+        "Stereomicroscope",
+        "Stereomicroscopy"
+      ]
+    },
+    {
+      "id": "G080",
+      "category": "misleading-keyword",
+      "expected_ids": [
+        "EQ06"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ09"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "distractor",
+        "property": "protein_concentration",
+        "techniques": [
+          "fluorometric_quantification"
+        ],
+        "distractor": "EQ09"
+      },
+      "brief": "protein concentration; sample: purified protein from saliva; mention the High-content epifluorescence imaging system (they wonder if the high-content imaging system can do it) as a misleading lead",
+      "forbidden_terms": [
+        "dsDNA assay",
+        "dye-based assay",
+        "Fluorometer",
+        "fluorometric assay",
+        "Fluorometric quantification",
+        "Qubit",
+        "Qubit Flex"
+      ]
+    },
+    {
+      "id": "G081",
+      "category": "multi-step",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [
+        "EQ05"
+      ],
+      "expected_not_available": [
+        "\\bFourier.?transform.?infrared.?spectroscopy\\b|\\bFTIR\\b|\\binfrared.?spectroscopy\\b|\\bATR.?FTIR\\b|\\bIR\\b"
+      ],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": true,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "workflow",
+        "prep": "milling",
+        "goal_technique": "ftir_spectroscopy",
+        "property": "chemical_functional_groups"
+      },
+      "brief": "first milling / grinding to powder (they plan to do this step), then which chemical groups / bonds are present; sample: cured dental composite chips",
+      "forbidden_terms": [
+        "ATR-FTIR",
+        "Fourier-transform infrared spectroscopy",
+        "FTIR",
+        "infrared spectroscopy",
+        "IR"
+      ]
+    },
+    {
+      "id": "G082",
+      "category": "multi-step",
+      "expected_ids": [
+        "EQ17"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [
+        "EQ05"
+      ],
+      "derived_from": {
+        "rule": "workflow",
+        "prep": "milling",
+        "goal_technique": "thermogravimetric_analysis",
+        "property": "filler_content",
+        "goal_available": true
+      },
+      "brief": "first milling / grinding to powder (they plan to do this step), then filler / inorganic residue content; sample: a glass-filled nylon part",
+      "forbidden_terms": [
+        "TGA",
+        "TGA550",
+        "Thermogravimetric analysis",
+        "Thermogravimetric analyzer",
+        "thermogravimetry"
+      ]
+    },
+    {
+      "id": "G083",
+      "category": "multi-step",
+      "expected_ids": [
+        "EQ09",
+        "EQ12",
+        "EQ13",
+        "EQ22",
+        "EQ23"
+      ],
+      "acceptable_ids": [
+        "EQ07",
+        "EQ08"
+      ],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [
+        "EQ16"
+      ],
+      "derived_from": {
+        "rule": "workflow",
+        "prep": "ultramicrotomy",
+        "goal_technique": "brightfield_microscopy",
+        "property": "tissue_morphology",
+        "goal_available": true
+      },
+      "brief": "first ultramicrotomy (they plan to do this step), then the structure of a tissue section (histology); sample: a resin-embedded bone biopsy",
+      "forbidden_terms": [
+        "brightfield",
+        "Brightfield light microscopy",
+        "BX53",
+        "BZ-X810",
+        "Eclipse E800",
+        "Eclipse TE300",
+        "High-content epifluorescence imaging system",
+        "histology imaging",
+        "Inverted optical microscope",
+        "IX83",
+        "light microscopy",
+        "transmitted light",
+        "Upright optical microscope"
+      ]
+    },
+    {
+      "id": "G084",
+      "category": "multi-step",
+      "expected_ids": [
+        "EQ10"
+      ],
+      "acceptable_ids": [
+        "EQ14"
+      ],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [
+        "EQ04"
+      ],
+      "derived_from": {
+        "rule": "workflow",
+        "prep": "vibrating_nozzle_encapsulation",
+        "goal_technique": "laser_diffraction",
+        "property": "microparticle_size_distribution",
+        "goal_available": false
+      },
+      "brief": "first vibrating-nozzle encapsulation (they plan to do this step), then size distribution of particles from micrometres to millimetres; sample: cell-loaded alginate capsules",
+      "forbidden_terms": [
+        "environmental",
+        "Environmental scanning electron microscope",
+        "ESEM",
+        "ESEM mode",
+        "Scanning electron microscopy",
+        "scanning electron microscopy",
+        "secondary electron imaging",
+        "SEM",
+        "XL30"
+      ]
+    },
+    {
+      "id": "G085",
+      "category": "multi-step",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [
+        "EQ02",
+        "EQ03"
+      ],
+      "derived_from": {
+        "rule": "workflow",
+        "prep": "vat_photopolymerization_printing",
+        "goal_technique": "tensile_testing",
+        "property": "tensile_strength",
+        "goal_available": true
+      },
+      "brief": "first vat photopolymerization 3d printing (they plan to do this step), then tensile strength; sample: dog-bone specimens",
+      "forbidden_terms": [
+        "5967",
+        "pull test",
+        "tensile test",
+        "tension test",
+        "Uniaxial tensile testing",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G086",
+      "category": "multi-step",
+      "expected_ids": [
+        "EQ15"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [
+        "EQ01"
+      ],
+      "derived_from": {
+        "rule": "workflow",
+        "prep": "extrusion_bioprinting",
+        "goal_technique": "compression_testing",
+        "property": "compressive_strength",
+        "goal_available": true
+      },
+      "brief": "first extrusion-based bioprinting (they plan to do this step), then compressive strength / yield; sample: a printed alginate scaffold",
+      "forbidden_terms": [
+        "5967",
+        "compression test",
+        "compressive test",
+        "crush test",
+        "Uniaxial compression testing",
+        "Universal mechanical testing system"
+      ]
+    },
+    {
+      "id": "G087",
+      "category": "named-instrument",
+      "expected_ids": [
+        "EQ18"
+      ],
+      "acceptable_ids": [
+        "EQ19",
+        "EQ21"
+      ],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "named",
+        "property": "glass_transition_temperature",
+        "instrument": "EQ18",
+        "techniques": [
+          "differential_scanning_calorimetry"
+        ]
+      },
+      "brief": "ask whether the DSC can measure glass-transition temperature; sample: a polycarbonate implant prototype",
+      "forbidden_terms": []
+    },
+    {
+      "id": "G088",
+      "category": "named-instrument",
+      "expected_ids": [
+        "EQ11"
+      ],
+      "acceptable_ids": [
+        "EQ10"
+      ],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "named",
+        "property": "nanoparticle_morphology",
+        "instrument": "EQ11",
+        "techniques": [
+          "scanning_transmission_electron_microscopy",
+          "transmission_electron_microscopy"
+        ]
+      },
+      "brief": "ask whether the CM12 / the TEM can measure size and shape of individual nanoparticles, seen directly; sample: dried silver nanoparticles",
+      "forbidden_terms": []
+    },
+    {
+      "id": "G089",
+      "category": "named-instrument",
+      "expected_ids": [
+        "EQ14"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "named",
+        "property": "macroscopic_morphology",
+        "instrument": "EQ14",
+        "techniques": [
+          "stereomicroscopy"
+        ]
+      },
+      "brief": "ask whether the stereomicroscope can measure visible defects and overall shape at low magnification; sample: resin-printed parts",
+      "forbidden_terms": []
+    },
+    {
+      "id": "G090",
+      "category": "named-instrument",
+      "expected_ids": [
+        "EQ06"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "named",
+        "property": "nucleic_acid_concentration",
+        "instrument": "EQ06",
+        "techniques": [
+          "fluorometric_quantification"
+        ]
+      },
+      "brief": "ask whether the Qubit can measure DNA / RNA concentration; sample: RNA from cultured fibroblasts",
+      "forbidden_terms": []
+    },
+    {
+      "id": "G091",
+      "category": "named-instrument",
+      "expected_ids": [
+        "EQ10"
+      ],
+      "acceptable_ids": [
+        "EQ14"
+      ],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "named",
+        "property": "surface_morphology",
+        "instrument": "EQ10",
+        "techniques": [
+          "environmental_sem"
+        ]
+      },
+      "brief": "ask whether the ESEM can measure surface morphology; sample: the fracture surface of a broken composite",
+      "forbidden_terms": []
+    },
+    {
+      "id": "G092",
+      "category": "model-specific",
+      "expected_ids": [
+        "EQ21"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [
+        "EQ19"
+      ],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ21": [
+          "parallel.plate|geometry|plate"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "model-specific",
+        "property": "viscoelastic_moduli",
+        "condition": "of a PEEK melt at about 380 °C",
+        "techniques": [
+          "oscillatory_rheometry"
+        ]
+      },
+      "brief": "viscoelastic moduli, of a PEEK melt at about 380 °C",
+      "forbidden_terms": [
+        "amplitude sweep",
+        "Discovery HR20",
+        "dynamic rheology",
+        "Environmental Test Chamber",
+        "ETC",
+        "frequency sweep",
+        "Hybrid rheometer",
+        "oscillatory rheology",
+        "Oscillatory rheometry",
+        "Peltier",
+        "time sweep"
+      ]
+    },
+    {
+      "id": "G093",
+      "category": "model-specific",
+      "expected_ids": [
+        "EQ21"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [
+        "EQ19"
+      ],
+      "expected_not_available": [],
+      "expected_accessories": {
+        "EQ21": [
+          "parallel.plate|geometry|plate"
+        ]
+      },
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "model-specific",
+        "property": "gelation_and_curing_kinetics",
+        "condition": "of a high-temperature epoxy that cures at about 230 °C",
+        "techniques": [
+          "oscillatory_rheometry"
+        ]
+      },
+      "brief": "gelation and curing kinetics, of a high-temperature epoxy that cures at about 230 °C",
+      "forbidden_terms": [
+        "amplitude sweep",
+        "Discovery HR20",
+        "dynamic rheology",
+        "Environmental Test Chamber",
+        "ETC",
+        "frequency sweep",
+        "Hybrid rheometer",
+        "oscillatory rheology",
+        "Oscillatory rheometry",
+        "Peltier",
+        "time sweep"
+      ]
+    },
+    {
+      "id": "G094",
+      "category": "model-specific",
+      "expected_ids": [
+        "EQ09",
+        "EQ13",
+        "EQ23"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ12",
+        "EQ22"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "model-specific",
+        "property": "cell_counts",
+        "condition": "how confluent stem cells are in a 6-well plate before passaging",
+        "techniques": [
+          "brightfield_microscopy",
+          "phase_contrast_microscopy",
+          "widefield_fluorescence_microscopy"
+        ]
+      },
+      "brief": "cell counts / confluence, how confluent stem cells are in a 6-well plate before passaging",
+      "forbidden_terms": [
+        "brightfield",
+        "Brightfield light microscopy",
+        "BZ-X810",
+        "Eclipse TE300",
+        "epifluorescence",
+        "fluorescence microscopy",
+        "High-content epifluorescence imaging system",
+        "histology imaging",
+        "immunofluorescence imaging",
+        "inverted",
+        "Inverted optical microscope",
+        "IX83",
+        "light microscopy",
+        "phase contrast",
+        "Phase-contrast microscopy",
+        "transmitted light",
+        "upright",
+        "Widefield epifluorescence microscopy"
+      ]
+    },
+    {
+      "id": "G095",
+      "category": "model-specific",
+      "expected_ids": [
+        "EQ07",
+        "EQ09",
+        "EQ13",
+        "EQ23"
+      ],
+      "acceptable_ids": [],
+      "unacceptable_ids": [
+        "EQ08",
+        "EQ12",
+        "EQ22"
+      ],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": false,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "model-specific",
+        "property": "cell_morphology",
+        "condition": "fibroblasts fixed and stained in the bottom of a 96-well plate",
+        "techniques": [
+          "brightfield_microscopy",
+          "confocal_microscopy",
+          "phase_contrast_microscopy",
+          "widefield_fluorescence_microscopy"
+        ]
+      },
+      "brief": "cell morphology, fibroblasts fixed and stained in the bottom of a 96-well plate",
+      "forbidden_terms": [
+        "brightfield",
+        "Brightfield light microscopy",
+        "BZ-X810",
+        "CLSM",
+        "confocal",
+        "Confocal laser scanning microscopy",
+        "Eclipse TE300",
+        "epifluorescence",
+        "fluorescence microscopy",
+        "High-content epifluorescence imaging system",
+        "histology imaging",
+        "immunofluorescence imaging",
+        "inverted",
+        "Inverted confocal microscope",
+        "Inverted optical microscope",
+        "IX83",
+        "light microscopy",
+        "optical sectioning",
+        "phase contrast",
+        "Phase-contrast microscopy",
+        "SP8 STELLARIS",
+        "transmitted light",
+        "upright",
+        "Widefield epifluorescence microscopy",
+        "z-stack"
+      ]
+    },
+    {
+      "id": "G096",
+      "category": "vague",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": true,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "vague"
+      },
+      "brief": "wants to characterize a new material they made; says nothing about what they want to know",
+      "forbidden_terms": []
+    },
+    {
+      "id": "G097",
+      "category": "vague",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": true,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "vague"
+      },
+      "brief": "asks which equipment could help with their dental research project; no sample, no goal",
+      "forbidden_terms": []
+    },
+    {
+      "id": "G098",
+      "category": "vague",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": true,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "vague"
+      },
+      "brief": "has a powder and wants to 'learn more about it'",
+      "forbidden_terms": []
+    },
+    {
+      "id": "G099",
+      "category": "vague",
+      "expected_ids": [],
+      "acceptable_ids": [],
+      "unacceptable_ids": [],
+      "supplementary_only_ids": [],
+      "expected_not_available": [],
+      "expected_accessories": {},
+      "expect_clarifying": true,
+      "expect_dead_end": false,
+      "workflow_ids": [],
+      "derived_from": {
+        "rule": "vague"
+      },
+      "brief": "wants to check whether their scaffolds are 'good enough'",
+      "forbidden_terms": []
+    }
+  ]
+}

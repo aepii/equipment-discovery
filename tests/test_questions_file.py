@@ -1,4 +1,5 @@
-"""Checks on test_questions.json, so a typo in an ID or regex fails here and not halfway through a run."""
+"""Checks on test_questions.json (and the same per-question checks on test_questions_generated.json), so a
+typo in an ID or regex fails here and not halfway through a run."""
 
 import re
 from collections import Counter
@@ -9,6 +10,7 @@ import core
 import run_eval
 
 QUESTIONS = run_eval.load_questions()
+GENERATED = run_eval.load_questions(run_eval.GENERATED_PATH)
 KNOWN = set(core.equipment_by_id())
 REQUIRED = {"id", "category", "status", "question", "expected_ids", "acceptable_ids", "unacceptable_ids",
             "expected_not_available", "expected_accessories", "expect_clarifying", "notes"}
@@ -18,6 +20,8 @@ def test_size_and_unique_ids():
     ids = [q["id"] for q in QUESTIONS]
     assert len(ids) >= 15
     assert len(set(ids)) == len(ids)
+    generated = [q["id"] for q in GENERATED]
+    assert len(set(generated)) == len(generated) and not set(ids) & set(generated)
 
 
 def test_every_category_has_at_least_two_questions():
@@ -26,10 +30,10 @@ def test_every_category_has_at_least_two_questions():
     assert min(counts.values()) >= 2
 
 
-@pytest.mark.parametrize("q", QUESTIONS, ids=lambda q: q["id"])
+@pytest.mark.parametrize("q", QUESTIONS + GENERATED, ids=lambda q: q["id"])
 def test_question_is_well_formed(q):
     assert REQUIRED <= set(q)
-    assert q["status"] in ("draft", "reviewed")
+    assert q["status"] in (("generated",) if q in GENERATED else ("draft", "reviewed"))
     expected, acceptable, unacceptable = (set(q[k]) for k in ("expected_ids", "acceptable_ids", "unacceptable_ids"))
     assert expected | acceptable | unacceptable <= KNOWN
     assert not (expected & acceptable or expected & unacceptable or acceptable & unacceptable)
