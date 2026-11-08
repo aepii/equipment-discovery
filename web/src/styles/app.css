@@ -1668,3 +1668,153 @@ a:hover {
     padding: 16px;
   }
 }
+
+/* --- sidebar --- */
+
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar__new {
+  width: 100%;
+}
+
+.sidebar__label {
+  margin-top: 12px;
+}
+
+.sidebar__empty {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.sidebar__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-height: var(--touch);
+  padding: 10px 10px;
+  border: none;
+  border-radius: var(--r-card);
+  background: none;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.sidebar__item svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+.sidebar__item span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sidebar__item:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.sidebar__item.is-active {
+  background: var(--blue-tint);
+  color: var(--blue-deep);
+  font-weight: 500;
+}
+
+.sidebar__foot {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sidebar__foot .button--text {
+  min-height: 36px;
+  padding: 0;
+  font-size: 14px;
+}
+
+.sidebar__adv {
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.select {
+  min-height: var(--touch);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-card);
+  padding: 0 10px;
+  background: var(--surface);
+  font-size: 14px;
+  width: 100%;
+}
+
+.skip {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 50;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-radius: var(--r-card);
+}
+
+.skip:focus {
+  top: 8px;
+}
+
+@media (max-width: 900px) {
+  .layout--sidebar {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 16px;
+  }
+  .sidebar__list {
+    max-height: 168px;
+    overflow-y: auto;
+  }
+  .sidebar__foot {
+    margin-top: 0;
+  }
+}
+
+/* The sidebar column stays white the whole height, even where the sticky panel isn't. */
+@media (min-width: 901px) {
+  .layout--sidebar {
+    background: linear-gradient(to right, var(--surface) calc(var(--sidebar) - 1px), var(--border) 0, var(--border) var(--sidebar), transparent 0);
+  }
+}
