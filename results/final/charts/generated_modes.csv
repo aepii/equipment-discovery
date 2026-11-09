@@ -1,0 +1,7 @@
+﻿metric,Structured,Structured + annotations,Naive (baseline)
+Found (main picks),0.848,0.898,0.903
+Found (main + supporting),0.931,0.934,0.903
+Accessories to confirm named,1.000,1.000,0.429
+Unavailable techniques flagged,1.000,1.000,0.920
+Said so when nothing fits,1.000,1.000,0.880
+Wrong main picks,0.020,0.010,0.041

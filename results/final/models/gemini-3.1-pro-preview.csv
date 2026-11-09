@@ -1,0 +1,1443 @@
+﻿question_id,category,status,source_group,rule,run,expected_hits,expected_total,recall,unacceptable_hits,unacceptable_ids,false_primary_hits,false_primary_ids,objective_met_ok,unclassified_ids,expected_only_mentioned,na_hits,na_total,accessory_hits,accessory_total,asked_clarifying,clarifying_ok,contacts_ok,contacts_total,fit_expected_good,fit_expected_total,fit_bad_low,fit_bad_total,dead_end_flagged,dead_end_ok,workflow_hits,workflow_total,n_instruments,found_any_hits,recall_any,answer_id,timestamp,source,session_id,rater,from_example,mode,provider,model,prompt_version,dataset_version,git_commit,seconds,input_tokens,output_tokens,thinking_tokens,cost_usd,answer_source,model_used,attempts,fallback_used,json_ok,repaired,schema_problems,clarifying_question,instrument_ids,ids_source,mentioned_ids,removed_ids,not_available,error,question,raw_output,primary_ids,supplementary_ids,objective_met,fit_levels
+Q1,problem-only,draft,draft,,1,0,3,0.0,0,,0,,,,,2,2,0,0,False,True,,,,,,,,,,,3,2,0.667,b59851e9212f,2026-11-08T21:53:22+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,22.03,1442,625,1962,0.033928,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ21 EQ18 EQ17,json,,,Capillary Rheometry; Gel Permeation Chromatography (GPC) / Size Exclusion Chromatography (SEC),,My polymer remains unexpectedly viscous during extrusion at elevated temperatures. What measurements could help me understand why?,"{
+  ""measurement_needs"": [
+    ""Melt viscosity as a function of temperature and shear rate"",
+    ""Thermal transition temperatures (melting point, glass transition)"",
+    ""Thermal stability and degradation at extrusion temperatures""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ21"",
+      ""role"": ""primary"",
+      ""technique"": ""Rotational Rheometry"",
+      ""why"": ""Measures the polymer's viscosity at elevated temperatures and varying shear rates to simulate extrusion conditions. The installed Environmental Test Chamber (ETC) is specifically designed for high-temperature polymer melt testing."",
+      ""accessories_to_confirm"": [
+        ""Parallel plate or cone-and-plate geometry suitable for polymer melts""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ18"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Differential Scanning Calorimetry (DSC)"",
+      ""why"": ""Determines the exact melting point and glass transition temperature of the polymer to verify if the chosen extrusion temperature is sufficient to fully melt the material."",
+      ""accessories_to_confirm"": [
+        ""Appropriate sample pans and lids"",
+        ""Sample encapsulation press""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ17"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Thermogravimetric Analysis (TGA)"",
+      ""why"": ""Checks if the polymer is losing plasticizers or undergoing thermal degradation or crosslinking at the extrusion temperature, which could unexpectedly increase viscosity."",
+      ""accessories_to_confirm"": [
+        ""Appropriate sample pans (e.g., platinum or alumina)""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique"": ""Capillary Rheometry"",
+      ""why_useful"": ""Rotational rheometers may not reach the very high shear rates experienced inside an extruder die; a capillary rheometer is better suited for measuring viscosity under those specific high-shear conditions.""
+    },
+    {
+      ""technique"": ""Gel Permeation Chromatography (GPC) / Size Exclusion Chromatography (SEC)"",
+      ""why_useful"": ""Determines the molecular weight and molecular weight distribution of the polymer, as unexpectedly high molecular weight or branching strongly increases melt viscosity.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""To understand the unexpected viscosity during extrusion, you should evaluate the polymer's melt rheology, thermal transitions, and thermal stability. A rotational rheometer with a high-temperature chamber can directly measure how viscosity changes with temperature and shear. Supplementing this with DSC and TGA will confirm if your extrusion temperature is truly above the melting point and ensure the polymer isn't degrading or crosslinking when heated.""
+}",EQ21,EQ18 EQ17,True,
+Q1,problem-only,draft,draft,,1,0,3,0.0,0,,0,,,,,2,2,1,1,False,True,,,0,2,0,0,False,,,,3,2,0.667,a5dcdd914a83,2026-11-08T21:53:49+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,27.0,8701,747,2988,0.062222,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ21 EQ19 EQ18,json,,,Capillary rheometry; Gel permeation / size-exclusion chromatography (GPC/SEC),,My polymer remains unexpectedly viscous during extrusion at elevated temperatures. What measurements could help me understand why?,"{
+  ""measurement_needs"": [
+    ""Viscosity at extrusion shear rates"",
+    ""Melting temperature and thermal transitions"",
+    ""Molecular weight distribution""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ21"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""rotational_rheometry"",
+      ""property_id"": ""viscosity_vs_shear_rate"",
+      ""technique"": ""Rotational rheometry"",
+      ""why"": ""Measures melt viscosity at elevated temperatures and moderate shear rates to help understand flow behavior, though it cannot reach true extrusion shear rates."",
+      ""accessories_to_confirm"": [
+        ""Parallel plate or cone-and-plate measuring geometries""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ19"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""rotational_rheometry"",
+      ""property_id"": ""viscosity_vs_shear_rate"",
+      ""technique"": ""Rotational rheometry"",
+      ""why"": ""Measures melt viscosity at elevated temperatures and moderate shear rates to help understand flow behavior, though it cannot reach true extrusion shear rates."",
+      ""accessories_to_confirm"": [
+        ""temperature-control accessory (Peltier plate, or environmental test chamber for melts)"",
+        ""parallel-plate or cone-and-plate geometry""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ18"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""differential_scanning_calorimetry"",
+      ""property_id"": ""melting_temperature"",
+      ""technique"": ""Differential scanning calorimetry (DSC)"",
+      ""why"": ""Determines the exact melting temperature to confirm whether the polymer is fully melted at your chosen extrusion temperature."",
+      ""accessories_to_confirm"": [
+        ""suitable pans and lids (e.g. hermetic for volatile or wet samples)"",
+        ""pan press""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique_id"": ""capillary_rheometry"",
+      ""technique"": ""Capillary rheometry"",
+      ""why_useful"": ""Essential for measuring viscosity at the high shear rates actually experienced during extrusion, which rotational rheometers cannot reach.""
+    },
+    {
+      ""technique_id"": ""gel_permeation_chromatography"",
+      ""technique"": ""Gel permeation / size-exclusion chromatography (GPC/SEC)"",
+      ""why_useful"": ""Useful for determining if the polymer has an unexpectedly high molecular weight, which would cause high melt viscosity.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""No listed instrument can fully measure the viscosity of your polymer at the high shear rates of extrusion. Capillary rheometry is required to measure viscosity under true extrusion conditions, and gel permeation chromatography (GPC) would be useful to check if a high molecular weight is causing the high viscosity. As supplementary options, the listed hybrid rheometers can measure the polymer's viscosity at elevated temperatures up to moderate shear rates. Furthermore, differential scanning calorimetry (DSC) can verify the polymer's melting temperature to ensure it is fully melted at your chosen extrusion temperature.""
+}",,EQ21 EQ19 EQ18,False,EQ21:low;EQ19:low;EQ18:low
+Q2,problem-only,draft,draft,,1,1,1,1.0,0,,0,,,,,0,1,2,2,False,True,,,,,,,,,,,1,1,1.0,731e7c3ac17c,2026-11-08T21:54:00+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,10.91,1442,244,723,0.014488,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ15,json,,,,,I want to determine the compressive stiffness of a porous polymer scaffold. What equipment could I use?,"{
+  ""measurement_needs"": [
+    ""Compressive force"",
+    ""Displacement"",
+    ""Compressive stiffness (modulus)""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ15"",
+      ""role"": ""primary"",
+      ""technique"": ""Uniaxial compression testing"",
+      ""why"": ""This universal testing system can apply controlled compressive loads to your scaffold and measure the resulting displacement to calculate compressive stiffness."",
+      ""accessories_to_confirm"": [
+        ""Appropriate capacity load cell (likely low-force for porous polymers)"",
+        ""Compression platens (upper and lower)""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""To determine the compressive stiffness of your porous polymer scaffold, you will need a universal mechanical testing system. The Instron 5967 is well-suited for this task, provided it is equipped with the correct load cell and compression platens for your sample's expected strength.""
+}",EQ15,,True,
+Q2,problem-only,draft,draft,,1,1,1,1.0,0,,0,,,,,0,1,2,2,False,True,,,1,1,0,0,False,,,,1,1,1.0,04ca9fdae769,2026-11-08T21:54:07+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,7.1,8701,305,441,0.026354,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ15,json,,,,,I want to determine the compressive stiffness of a porous polymer scaffold. What equipment could I use?,"{
+  ""measurement_needs"": [
+    ""compressive stiffness (modulus) of a porous polymer scaffold""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ15"",
+      ""role"": ""primary"",
+      ""technique_id"": ""compression_testing"",
+      ""property_id"": ""compressive_modulus"",
+      ""technique"": ""Uniaxial compression testing"",
+      ""why"": ""This universal testing machine can perform compression tests on porous scaffolds to determine their apparent compressive modulus (stiffness)."",
+      ""accessories_to_confirm"": [
+        ""load cell with a capacity suited to the expected forces (low capacity for soft or porous samples)"",
+        ""compression platens"",
+        ""fluid bath or environmental chamber for testing at 37 °C or hydrated (if applicable)""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""The Instron 5967 universal mechanical testing system can perform uniaxial compression testing to determine the compressive stiffness of your porous polymer scaffolds. You will need to confirm that compression platens and a load cell with an appropriate capacity for your samples are available. Keep in mind that for porous scaffolds, this test measures an apparent (structural) modulus rather than the bulk material modulus.""
+}",EQ15,,True,EQ15:medium
+Q3,no-suitable-equipment,draft,draft,,1,0,0,,1,EQ10,0,,True,,,1,1,0,0,False,True,,,,,,,,,,,2,0,,2282d72b5e2e,2026-11-08T21:54:20+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,13.22,1445,395,1216,0.022222,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ10 EQ08,json,,,Micro-computed tomography (Micro-CT),,I need to examine the internal structure of a porous specimen without destroying it. What characterization methods are available?,"{
+  ""measurement_needs"": [
+    ""Non-destructive 3D imaging of internal pore structure and connectivity""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ10"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Environmental Scanning Electron Microscopy (ESEM)"",
+      ""why"": ""Can provide high-resolution imaging of the pore structure, but it is limited to the surface; viewing the internal structure would require fracturing or sectioning the sample, making it destructive."",
+      ""accessories_to_confirm"": []
+    },
+    {
+      ""instrument_id"": ""EQ08"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Multiphoton Microscopy"",
+      ""why"": ""Can image internal structures non-destructively up to a few hundred microns deep, but this only works if the specimen is somewhat transparent and fluorescently labeled."",
+      ""accessories_to_confirm"": []
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique"": ""Micro-computed tomography (Micro-CT)"",
+      ""why_useful"": ""Micro-CT uses X-rays to non-destructively map the internal 3D structure, porosity, and pore connectivity of solid, opaque specimens.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""No listed instrument can perform non-destructive internal imaging of a general opaque porous specimen. The ideal technique for this is micro-computed tomography (micro-CT), which is not currently available on the equipment list. We have included supplementary options like electron and multiphoton microscopy, but these either only show the surface, require destructive sectioning, or only work on transparent samples.""
+}",,EQ10 EQ08,False,
+Q3,no-suitable-equipment,draft,draft,,1,0,0,,0,,0,,True,,,1,1,0,0,False,True,,,0,0,0,0,False,,,,2,0,,b08bf61a8aa9,2026-11-08T21:54:34+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,13.54,8704,553,1277,0.039368,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ08 EQ07,json,,,X-ray micro-computed tomography (micro-CT),,I need to examine the internal structure of a porous specimen without destroying it. What characterization methods are available?,"{
+  ""measurement_needs"": [
+    ""internal 3D structure"",
+    ""porosity and pore size""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ08"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""multiphoton_microscopy"",
+      ""property_id"": ""internal_3d_structure"",
+      ""technique"": ""Multiphoton microscopy"",
+      ""why"": ""If your specimen is fluorescent or SHG-active (like collagen), this can image its internal structure non-destructively up to several hundred micrometres deep, though it cannot see through opaque materials."",
+      ""accessories_to_confirm"": [
+        ""tunable infrared multiphoton laser"",
+        ""non-descanned detectors for deep imaging"",
+        ""water-dipping objective with long working distance""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ07"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""confocal_microscopy"",
+      ""property_id"": ""internal_3d_structure"",
+      ""technique"": ""Confocal laser scanning microscopy"",
+      ""why"": ""If your specimen is transparent or fluorescently labeled, this can provide non-destructive 3D imaging of the internal structure, but only to a shallow depth of roughly 100 µm."",
+      ""accessories_to_confirm"": [
+        ""laser lines and detectors matching the fluorophores"",
+        ""objectives of suitable magnification and working distance""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique_id"": ""micro_computed_tomography"",
+      ""technique"": ""X-ray micro-computed tomography (micro-CT)"",
+      ""why_useful"": ""Micro-CT is the standard method for non-destructively visualizing the internal 3D structure and measuring the porosity of opaque specimens.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""No listed instrument can perform non-destructive internal 3D imaging of a typical opaque porous specimen. The standard method for this is X-ray micro-computed tomography (micro-CT), which is not currently available on the equipment list. If your specimen happens to be transparent or fluorescently labeled, confocal or multiphoton microscopes could provide limited internal views near the surface.""
+}",,EQ08 EQ07,False,EQ08:low;EQ07:low
+Q4,named-instrument,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,1,1,False,True,,,,,,,,,,,1,1,1.0,f42778674908,2026-11-08T21:54:40+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,6.62,1440,222,521,0.011796,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ20,json,,,,,Can I use the Zetasizer to measure the zeta potential of my nanoparticle suspension?,"{
+  ""measurement_needs"": [
+    ""Zeta potential of nanoparticle suspension""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ20"",
+      ""role"": ""primary"",
+      ""technique"": ""Electrophoretic Light Scattering (ELS)"",
+      ""why"": ""The Zetasizer Pro is specifically designed to measure the zeta potential and particle size of nanoparticle suspensions."",
+      ""accessories_to_confirm"": [
+        ""Zeta potential sample cells (e.g., folded capillary cells or a dip cell compatible with your solvent)""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""Yes, the Malvern Zetasizer Pro is exactly the right instrument for this measurement. It uses electrophoretic light scattering to determine the zeta potential of nanoparticle suspensions. You will just need to ensure the appropriate sample cells are available for your specific solvent.""
+}",EQ20,,True,
+Q4,named-instrument,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,1,1,False,True,,,1,1,0,0,False,,,,1,1,1.0,16d1db9c55bf,2026-11-08T21:54:45+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,4.91,8699,246,207,0.022834,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ20,json,,,,,Can I use the Zetasizer to measure the zeta potential of my nanoparticle suspension?,"{
+  ""measurement_needs"": [
+    ""zeta potential of a nanoparticle suspension""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ20"",
+      ""role"": ""primary"",
+      ""technique_id"": ""electrophoretic_light_scattering"",
+      ""property_id"": ""zeta_potential"",
+      ""technique"": ""Electrophoretic light scattering (zeta potential)"",
+      ""why"": ""The Zetasizer Pro is designed specifically to measure the zeta potential of nanoparticles in suspension using electrophoretic light scattering."",
+      ""accessories_to_confirm"": [
+        ""folded capillary or dip cell for zeta potential"",
+        ""autotitrator for zeta potential vs. pH""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""The Zetasizer Pro is exactly the right instrument for measuring the zeta potential of your nanoparticle suspension. You will just need to confirm with the contact that they have the appropriate cells available for your measurement.""
+}",EQ20,,True,EQ20:medium
+Q5,named-instrument,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,2,2,False,True,,,,,,,,,,,1,1,1.0,a58edd9e50c2,2026-11-08T21:54:54+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,8.86,1440,299,763,0.015624,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ17,json,,,,,Where can I find a TGA to measure the filler content of a polymer composite?,"{
+  ""measurement_needs"": [
+    ""Determine the weight percentage of inorganic or non-combustible filler in a polymer composite by measuring mass loss as a function of temperature""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ17"",
+      ""role"": ""primary"",
+      ""technique"": ""Thermogravimetric Analysis (TGA)"",
+      ""why"": ""The TGA550 measures the mass of the sample as it is heated, allowing you to quantify the polymer degradation and determine the remaining filler content. Note that this is a destructive technique."",
+      ""accessories_to_confirm"": [
+        ""Appropriate sample pans (e.g., platinum or alumina)"",
+        ""Specific purge gases (e.g., nitrogen or air) depending on the required degradation environment""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""The TA Instruments TGA550 is available to perform thermogravimetric analysis on your polymer composite. By heating the sample and measuring the mass loss as the polymer matrix degrades, you can accurately determine the remaining filler content. Keep in mind that this is a destructive test, and you will need to confirm the availability of suitable sample pans and purge gases for your specific material.""
+}",EQ17,,True,
+Q5,named-instrument,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,2,2,False,True,,,1,1,0,0,False,,,,1,1,1.0,fbe9e1748081,2026-11-08T21:55:01+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,7.11,8699,276,510,0.02683,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ17,json,,,,,Where can I find a TGA to measure the filler content of a polymer composite?,"{
+  ""measurement_needs"": [
+    ""filler content of a polymer composite""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ17"",
+      ""role"": ""primary"",
+      ""technique_id"": ""thermogravimetric_analysis"",
+      ""property_id"": ""filler_content"",
+      ""technique"": ""Thermogravimetric analysis (TGA)"",
+      ""why"": ""A thermogravimetric analyzer measures mass loss as a sample is heated, allowing you to determine the inorganic filler or residue content after the polymer burns off."",
+      ""accessories_to_confirm"": [
+        ""sample pans (platinum, ceramic or aluminium)"",
+        ""purge gas supply (nitrogen; air or oxygen for burn-off of fillers)"",
+        ""evolved-gas analysis coupling (MS or FTIR) to identify released gases""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""You can use the TA Instruments TGA550 to measure the filler content of your polymer composite. It will heat the sample and record the mass loss, leaving the inorganic filler as a residue.""
+}",EQ17,,True,EQ17:medium
+Q6,problem-only,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,0,0,False,True,,,,,,,,,,,2,1,1.0,dd619f762392,2026-11-08T21:55:09+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,7.82,1442,297,635,0.014068,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ20 EQ11,json,,,,,I synthesized nanoparticles in water and need to know their size distribution. How can I measure it?,"{
+  ""measurement_needs"": [
+    ""Nanoparticle size distribution in aqueous suspension""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ20"",
+      ""role"": ""primary"",
+      ""technique"": ""Dynamic Light Scattering (DLS)"",
+      ""why"": ""DLS measures the hydrodynamic size distribution of nanoparticles directly in their aqueous suspension."",
+      ""accessories_to_confirm"": [
+        ""Appropriate cuvettes for aqueous samples""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ11"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Transmission Electron Microscopy (TEM)"",
+      ""why"": ""TEM provides high-resolution images to confirm primary particle size and morphology, though the sample must be dried."",
+      ""accessories_to_confirm"": [
+        ""TEM grids suitable for nanoparticle deposition""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""The Malvern Zetasizer Pro is the ideal instrument for measuring the size distribution of your nanoparticles directly in water using dynamic light scattering. You can also use transmission electron microscopy to visually confirm the size and shape of the particles, though this requires drying the sample.""
+}",EQ20,EQ11,True,
+Q6,problem-only,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,0,0,False,True,,,1,1,0,0,False,,,,3,1,1.0,78c638a07fba,2026-11-08T21:55:18+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,9.09,8701,512,761,0.032678,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ20 EQ11 EQ10,json,,,,,I synthesized nanoparticles in water and need to know their size distribution. How can I measure it?,"{
+  ""measurement_needs"": [
+    ""particle size distribution of nanoparticles in suspension""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ20"",
+      ""role"": ""primary"",
+      ""technique_id"": ""dynamic_light_scattering"",
+      ""property_id"": ""particle_size_distribution"",
+      ""technique"": ""Dynamic light scattering (DLS)"",
+      ""why"": ""DLS directly measures the size distribution of nanoparticles suspended in a liquid."",
+      ""accessories_to_confirm"": [
+        ""cuvettes suited to the solvent""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ11"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""transmission_electron_microscopy"",
+      ""property_id"": ""nanoparticle_morphology"",
+      ""technique"": ""Transmission electron microscopy (TEM)"",
+      ""why"": ""TEM provides high-resolution images of the nanoparticles to visually confirm their size and shape, complementing the bulk distribution from DLS."",
+      ""accessories_to_confirm"": [
+        ""digital camera"",
+        ""TEM grids and suitable sample holder""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ10"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""environmental_sem"",
+      ""property_id"": ""nanoparticle_morphology"",
+      ""technique"": ""Scanning electron microscopy (environmental / ESEM mode)"",
+      ""why"": ""ESEM can also image nanoparticles to confirm their morphology, though typically at lower resolution than TEM."",
+      ""accessories_to_confirm"": [
+        ""gaseous / environmental secondary-electron detector for uncoated samples"",
+        ""Peltier cooling stage for hydrated samples"",
+        ""sample stubs and conductive tape""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""The primary instrument for measuring the size distribution of nanoparticles in water is the Zetasizer Pro using dynamic light scattering (DLS). For visual confirmation of the nanoparticles' size and shape, you can supplement this with electron microscopy using the TEM or ESEM.""
+}",EQ20,EQ11 EQ10,True,EQ20:medium;EQ11:low;EQ10:low
+Q7,problem-only,draft,draft,,1,2,2,1.0,0,,0,,,,,0,0,0,0,False,True,,,,,,,,,,,3,2,1.0,f431eab615ed,2026-11-08T21:55:37+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,19.07,1441,690,1199,0.02555,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ07 EQ08 EQ09,json,,,Light sheet fluorescence microscopy (LSFM),,How can I check whether cells are alive and spreading inside a 3D hydrogel?,"{
+  ""measurement_needs"": [
+    ""Fluorescence imaging to detect live/dead viability markers and cytoskeletal stains"",
+    ""3D optical sectioning to visualize cells deep inside a thick, scattering hydrogel matrix"",
+    ""Live-cell environmental control (if tracking spreading over time)""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ07"",
+      ""role"": ""primary"",
+      ""technique"": ""Confocal laser scanning microscopy"",
+      ""why"": ""The inverted configuration is ideal for imaging hydrogels cast in well plates or glass-bottom dishes. Confocal microscopy provides the optical sectioning needed to reject out-of-focus light and reconstruct 3D images of cells inside the gel."",
+      ""accessories_to_confirm"": [
+        ""Stage-top environmental incubator (temperature, CO2, and humidity control) for live-cell time-lapse imaging"",
+        ""Long working distance or water-immersion objective lenses suitable for imaging deep into aqueous gels""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ08"",
+      ""role"": ""primary"",
+      ""technique"": ""Multiphoton microscopy"",
+      ""why"": ""Multiphoton imaging uses infrared lasers to penetrate much deeper into thick, scattering 3D hydrogels than standard confocal microscopy, while also significantly reducing phototoxicity to live cells."",
+      ""accessories_to_confirm"": [
+        ""Water-dipping objective lenses suitable for upright imaging of hydrogels"",
+        ""Environmental control chamber for live-cell maintenance""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ09"",
+      ""role"": ""supplementary"",
+      ""technique"": ""High-content epifluorescence imaging"",
+      ""why"": ""Useful for rapid, automated screening of live/dead assays across multiple well plates if the hydrogels are relatively thin, though it lacks the true optical sectioning of a confocal system for thick 3D gels."",
+      ""accessories_to_confirm"": [
+        ""Environmental control module"",
+        ""Deconvolution or optical sectioning software modules""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique"": ""Light sheet fluorescence microscopy (LSFM)"",
+      ""why_useful"": ""Provides extremely fast 3D imaging with very low phototoxicity, making it the gold standard for long-term live-cell tracking in 3D matrices, though sample mounting can be more complex than standard confocal.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""To evaluate cell viability and spreading inside a 3D hydrogel, you need fluorescence microscopy with optical sectioning capabilities to see through the thick matrix. The inverted confocal microscope (EQ07) is highly recommended for imaging gels in standard well plates, while the multiphoton microscope (EQ08) is excellent if your hydrogels are particularly thick and require deeper penetration. If you plan to track cell spreading dynamically over time, you will need to confirm that the chosen microscope is equipped with a live-cell environmental chamber.""
+}",EQ07 EQ08,EQ09,True,
+Q7,problem-only,draft,draft,,1,2,2,1.0,0,,0,,,,,0,0,0,0,False,True,,,2,2,0,0,False,,,,2,2,1.0,4f9361b0853e,2026-11-08T21:55:53+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,15.7,8700,475,1560,0.04182,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ07 EQ08,json,,,,,How can I check whether cells are alive and spreading inside a 3D hydrogel?,"{
+  ""measurement_needs"": [
+    ""cell viability (live/dead)"",
+    ""cell morphology and spreading"",
+    ""3D imaging inside a hydrogel""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ07"",
+      ""role"": ""primary"",
+      ""technique_id"": ""confocal_microscopy"",
+      ""property_id"": ""cell_morphology"",
+      ""technique"": ""Confocal laser scanning microscopy"",
+      ""why"": ""Confocal microscopy provides optical sectioning to clearly image fluorescently stained live cells and their spreading in 3D within the hydrogel. The inverted stand is ideal for hydrogels cultured in dishes or well plates."",
+      ""accessories_to_confirm"": [
+        ""laser lines and detectors matching the fluorophores"",
+        ""objectives of suitable magnification and working distance""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ08"",
+      ""role"": ""primary"",
+      ""technique_id"": ""multiphoton_microscopy"",
+      ""property_id"": ""cell_morphology"",
+      ""technique"": ""Multiphoton microscopy"",
+      ""why"": ""Multiphoton microscopy allows deeper 3D imaging into thick hydrogel scaffolds than standard confocal microscopy, which is useful if you need to observe cells deep within a thick construct."",
+      ""accessories_to_confirm"": [
+        ""tunable infrared multiphoton laser"",
+        ""non-descanned detectors for deep imaging"",
+        ""water-dipping objective with long working distance""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""To check whether cells are alive and spreading inside a 3D hydrogel, you can use fluorescent live/dead and structural stains combined with 3D optical sectioning. The inverted confocal microscope is excellent for imaging cells within roughly 100 µm of the surface in standard culture dishes. For deeper imaging into thick hydrogel scaffolds, the upright multiphoton microscope is recommended.""
+}",EQ07 EQ08,,True,EQ07:medium;EQ08:medium
+Q8,no-suitable-equipment,draft,draft,,1,0,0,,0,,0,,True,,,1,1,0,0,False,True,,,,,,,,,,,0,0,,07720daa6e00,2026-11-08T21:55:58+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,5.48,1441,222,334,0.009554,live,gemini-3.1-pro-preview,1,False,True,False,,,,json,,,Fourier Transform Infrared Spectroscopy (FTIR); Nuclear Magnetic Resonance (NMR) Spectroscopy,,I need to identify the chemical functional groups in my polymer. Which instrument can do that?,"{
+  ""measurement_needs"": [
+    ""Chemical functional group identification""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [],
+  ""not_available"": [
+    {
+      ""technique"": ""Fourier Transform Infrared Spectroscopy (FTIR)"",
+      ""why_useful"": ""FTIR is the standard technique for identifying chemical functional groups in polymers by measuring the absorption of infrared light at specific frequencies corresponding to molecular vibrations.""
+    },
+    {
+      ""technique"": ""Nuclear Magnetic Resonance (NMR) Spectroscopy"",
+      ""why_useful"": ""NMR provides detailed information about the molecular structure and chemical environment of atoms in the polymer, allowing for precise identification of functional groups.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""Currently, no listed instrument can perform the requested measurement to identify chemical functional groups. You would typically need a Fourier Transform Infrared (FTIR) spectrometer or a Nuclear Magnetic Resonance (NMR) spectrometer for this type of chemical characterization.""
+}",,,False,
+Q8,no-suitable-equipment,draft,draft,,1,0,0,,0,,0,,True,,,1,1,0,0,False,True,,,0,0,0,0,False,,,,0,0,,ec7cd5722cb5,2026-11-08T21:56:04+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,5.54,8700,164,477,0.025092,live,gemini-3.1-pro-preview,1,False,True,False,,,,json,,,Fourier-transform infrared spectroscopy (FTIR),,I need to identify the chemical functional groups in my polymer. Which instrument can do that?,"{
+  ""measurement_needs"": [
+    ""chemical functional groups""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [],
+  ""not_available"": [
+    {
+      ""technique_id"": ""ftir_spectroscopy"",
+      ""technique"": ""Fourier-transform infrared spectroscopy (FTIR)"",
+      ""why_useful"": ""FTIR is the standard method for identifying chemical bonds and functional groups in polymers.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""Currently, no listed instrument can identify chemical functional groups. Fourier-transform infrared spectroscopy (FTIR) is the standard technique for this measurement, but it is not available on the current equipment list.""
+}",,,False,
+Q9,no-suitable-equipment,draft,draft,,1,0,0,,0,,0,,True,EQ18,,1,1,0,0,False,True,,,,,,,,,,,2,0,,c8c02e17c9ac,2026-11-08T21:56:20+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,15.71,1433,417,1200,0.02227,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ11 EQ18,json,,,X-ray Diffraction (XRD),,What crystalline phases are present in my ceramic powder?,"{
+  ""measurement_needs"": [
+    ""Bulk crystalline phase identification"",
+    ""Crystal structure analysis""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ11"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Selected Area Electron Diffraction (SAED)"",
+      ""why"": ""Can determine the crystal structure of individual nanoscale powder particles via electron diffraction, though it is not practical for bulk phase identification or quantification."",
+      ""accessories_to_confirm"": [
+        ""Suitable TEM grids for powder samples""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ18"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Differential Scanning Calorimetry (DSC)"",
+      ""why"": ""Can detect thermal phase transitions (such as melting or crystallization temperatures) which might help corroborate the identity of suspected phases, though it cannot directly identify unknown crystal structures."",
+      ""accessories_to_confirm"": [
+        ""Appropriate sample pans for high-temperature ceramic testing""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique"": ""X-ray Diffraction (XRD)"",
+      ""why_useful"": ""XRD is the gold-standard, non-destructive technique for identifying and quantifying bulk crystalline phases in powder samples based on their unique diffraction patterns.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""No listed instrument can perform bulk crystalline phase identification on your ceramic powder. The standard method for this measurement is X-ray Diffraction (XRD), which is not available on the current equipment list. You may be able to use the transmission electron microscope for localized electron diffraction on individual nanoscale grains, or the differential scanning calorimeter to observe thermal phase transitions, but these only provide supplementary information and cannot replace XRD for bulk phase identification.""
+}",,EQ11 EQ18,False,
+Q9,no-suitable-equipment,draft,draft,,1,0,0,,0,,0,,True,,,1,1,0,0,False,True,,,0,0,0,0,False,,,,0,0,,b1706ee05ed1,2026-11-08T21:56:30+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,10.0,8692,163,845,0.02948,live,gemini-3.1-pro-preview,1,False,True,False,,,,json,,,X-ray diffraction (XRD),,What crystalline phases are present in my ceramic powder?,"{
+  ""measurement_needs"": [
+    ""crystalline phase identification""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [],
+  ""not_available"": [
+    {
+      ""technique_id"": ""x_ray_diffraction"",
+      ""technique"": ""X-ray diffraction (XRD)"",
+      ""why_useful"": ""XRD is the standard analytical technique used to identify and quantify the specific crystalline phases present in a powder.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""Currently, no listed instrument can identify the crystalline phases in your ceramic powder. This measurement requires X-ray diffraction (XRD), which is not available on the current equipment list.""
+}",,,False,
+Q10,accessory-trap,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,1,1,False,True,,,,,,,,,,,1,1,1.0,9371537d94c0,2026-11-08T21:56:41+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,11.72,1438,406,902,0.018572,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ10,json,,,X-ray Photoelectron Spectroscopy (XPS); Micro-X-ray Fluorescence (Micro-XRF),,I want to determine the elemental composition of mineral deposits on a tooth surface.,"{
+  ""measurement_needs"": [
+    ""Elemental composition of solid surface deposits""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ10"",
+      ""role"": ""primary"",
+      ""technique"": ""Energy Dispersive X-ray Spectroscopy (EDS) via Scanning Electron Microscopy"",
+      ""why"": ""An environmental SEM can image the tooth surface and, when equipped with an EDS detector, identify and map the elemental composition of the mineral deposits. The ESEM capability is particularly useful as it may allow imaging of the tooth without requiring a conductive coating."",
+      ""accessories_to_confirm"": [
+        ""Energy Dispersive X-ray Spectroscopy (EDS) detector"",
+        ""EDS analysis software""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique"": ""X-ray Photoelectron Spectroscopy (XPS)"",
+      ""why_useful"": ""XPS provides highly sensitive, quantitative elemental and chemical state information specifically for the top few nanometers of a surface.""
+    },
+    {
+      ""technique"": ""Micro-X-ray Fluorescence (Micro-XRF)"",
+      ""why_useful"": ""Micro-XRF allows for non-destructive elemental mapping of surfaces at ambient pressure without the size restrictions or vacuum requirements of an electron microscope.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""To determine the elemental composition of mineral deposits on a tooth, Energy Dispersive X-ray Spectroscopy (EDS) coupled with a Scanning Electron Microscope is the standard approach. The listed Philips XL30 ESEM can perform this measurement, provided it has an EDS detector installed. If the SEM lacks this accessory, you would need unlisted techniques like XPS or Micro-XRF to analyze the surface elements.""
+}",EQ10,,True,
+Q10,accessory-trap,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,1,1,False,True,,,0,1,0,0,False,,,,1,1,1.0,f53e407a9be6,2026-11-08T21:56:52+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,10.8,8697,275,1060,0.033414,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ10,json,,,,,I want to determine the elemental composition of mineral deposits on a tooth surface.,"{
+  ""measurement_needs"": [
+    ""elemental composition of mineral deposits""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ10"",
+      ""role"": ""primary"",
+      ""technique_id"": ""energy_dispersive_xray_spectroscopy"",
+      ""property_id"": ""elemental_composition"",
+      ""technique"": ""Energy-dispersive X-ray spectroscopy (EDS / EDX)"",
+      ""why"": ""An ESEM equipped with an EDS detector can identify and quantify the elemental composition of the mineral deposits directly on the tooth surface."",
+      ""accessories_to_confirm"": [
+        ""EDS detector (not listed in the dataset)"",
+        ""sample stubs and conductive tape""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""The Philips XL30 ESEM (EQ10) can determine the elemental composition of the mineral deposits using Energy-Dispersive X-ray Spectroscopy (EDS). However, because the EDS detector is an optional accessory not explicitly listed in the dataset, you will need to confirm its availability with the facility.""
+}",EQ10,,True,EQ10:low
+Q11,accessory-trap,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,2,2,False,True,,,,,,,,,,,1,1,1.0,008a2d3c6fd2,2026-11-08T21:57:03+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,10.76,1436,275,835,0.016192,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ15,json,,,,,How can I measure the flexural strength of dental composite bars?,"{
+  ""measurement_needs"": [
+    ""Flexural strength (stress at fracture in bending)""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ15"",
+      ""role"": ""primary"",
+      ""technique"": ""3-point or 4-point bending test"",
+      ""why"": ""This universal mechanical testing system can apply a controlled bending load to the composite bars until they fracture, which is required to calculate flexural strength. Note that this is a destructive test."",
+      ""accessories_to_confirm"": [
+        ""3-point or 4-point bending fixture (flexure fixture)"",
+        ""Appropriate load cell for the expected strength of the dental composites""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""You can measure the flexural strength of your dental composite bars using a universal mechanical testing system. The Instron 5967 is perfectly suited for this destructive testing method. You will just need to confirm that the lab has a suitable 3-point or 4-point bending fixture and an appropriately sized load cell available for your specific sample dimensions.""
+}",EQ15,,True,
+Q11,accessory-trap,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,2,2,False,True,,,1,1,0,0,False,,,,1,1,1.0,0f9ab80e71db,2026-11-08T21:57:10+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,6.84,8695,270,295,0.02417,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ15,json,,,,,How can I measure the flexural strength of dental composite bars?,"{
+  ""measurement_needs"": [
+    ""flexural strength""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ15"",
+      ""role"": ""primary"",
+      ""technique_id"": ""flexural_testing"",
+      ""property_id"": ""flexural_strength"",
+      ""technique"": ""Flexural (three- or four-point bend) testing"",
+      ""why"": ""This universal mechanical testing system can perform three- or four-point bend tests to determine the flexural strength of solid materials like dental composites."",
+      ""accessories_to_confirm"": [
+        ""load cell with a capacity suited to the expected forces"",
+        ""three- or four-point bend fixture""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""The Instron 5967 universal mechanical testing system (EQ15) can measure the flexural strength of your dental composite bars. You will need to confirm with the contact that they have a suitable three- or four-point bend fixture and an appropriate load cell for your expected forces.""
+}",EQ15,,True,EQ15:medium
+Q12,misleading-keyword,draft,draft,,1,2,2,1.0,0,,0,,,,,0,0,2,2,False,True,,,,,,,,,,,3,2,1.0,14661afee98e,2026-11-08T21:57:26+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,16.51,1438,562,1510,0.02774,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ19 EQ21 EQ15,json,,,Atomic Force Microscopy (AFM) / Nanoindentation,,Which microscope can I use to measure the stiffness of a soft hydrogel?,"{
+  ""measurement_needs"": [
+    ""Mechanical stiffness (modulus) of a soft material""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ19"",
+      ""role"": ""primary"",
+      ""technique"": ""Rheology"",
+      ""why"": ""A rheometer is the standard instrument for measuring the shear modulus (stiffness) and viscoelastic properties of soft hydrogels."",
+      ""accessories_to_confirm"": [
+        ""Appropriate measuring geometry (e.g., parallel plates or cone and plate)"",
+        ""Solvent trap or humidity cover to prevent the hydrogel from drying out during testing""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ21"",
+      ""role"": ""primary"",
+      ""technique"": ""Rheology"",
+      ""why"": ""This is another hybrid rheometer capable of measuring the stiffness of soft gels. It has an environmental test chamber, though you will need to ensure the sample does not dehydrate."",
+      ""accessories_to_confirm"": [
+        ""Appropriate measuring geometry"",
+        ""Solvent trap or suitable hydration setup""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ15"",
+      ""role"": ""primary"",
+      ""technique"": ""Unconfined compression testing"",
+      ""why"": ""This universal testing system can measure the bulk compressive stiffness of a molded hydrogel sample by physically pressing on it."",
+      ""accessories_to_confirm"": [
+        ""Low-capacity load cell (hydrogels are very soft and require high-sensitivity force measurement)"",
+        ""Compression platens""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique"": ""Atomic Force Microscopy (AFM) / Nanoindentation"",
+      ""why_useful"": ""Standard optical and electron microscopes cannot measure mechanical properties. An AFM is a specialized microscope that uses a tiny probe to measure local stiffness at the micro- or nano-scale, which may be what you originally had in mind.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""Standard optical and electron microscopes cannot measure mechanical stiffness. To measure the bulk stiffness of a soft hydrogel, you should use a rheometer to measure shear modulus or a universal mechanical tester to measure compressive modulus. If you specifically need to map stiffness at a microscopic level, you would need an Atomic Force Microscope (AFM), which is not currently available on the equipment list.""
+}",EQ19 EQ21 EQ15,,True,
+Q12,misleading-keyword,draft,draft,,1,2,2,1.0,0,,0,,,,,0,0,2,2,False,True,,,2,2,0,0,False,,,,3,2,1.0,616339f01b0b,2026-11-08T21:57:43+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,16.81,8697,661,1785,0.046746,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ15 EQ21 EQ19,json,,,Atomic force microscopy (AFM),,Which microscope can I use to measure the stiffness of a soft hydrogel?,"{
+  ""measurement_needs"": [
+    ""stiffness (modulus) of a soft hydrogel""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ15"",
+      ""role"": ""primary"",
+      ""technique_id"": ""compression_testing"",
+      ""property_id"": ""compressive_modulus"",
+      ""technique"": ""Uniaxial compression testing"",
+      ""why"": ""A universal mechanical testing system can measure the bulk compressive stiffness (modulus) of hydrogels by performing unconfined compression tests."",
+      ""accessories_to_confirm"": [
+        ""load cell with a capacity suited to the expected forces (low capacity for soft or porous samples)"",
+        ""compression platens"",
+        ""fluid bath or environmental chamber for testing at 37 °C or hydrated""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ21"",
+      ""role"": ""primary"",
+      ""technique_id"": ""oscillatory_rheometry"",
+      ""property_id"": ""viscoelastic_moduli"",
+      ""technique"": ""Oscillatory rheometry"",
+      ""why"": ""A rheometer can measure the shear storage and loss moduli (stiffness and viscoelasticity) of soft hydrogels. This specific instrument has an environmental test chamber installed for temperature control."",
+      ""accessories_to_confirm"": [
+        ""Parallel plate or cone-and-plate measuring geometries""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ19"",
+      ""role"": ""primary"",
+      ""technique_id"": ""oscillatory_rheometry"",
+      ""property_id"": ""viscoelastic_moduli"",
+      ""technique"": ""Oscillatory rheometry"",
+      ""why"": ""A rheometer can measure the shear storage and loss moduli (stiffness and viscoelasticity) of soft hydrogels."",
+      ""accessories_to_confirm"": [
+        ""temperature-control accessory (Peltier plate, or environmental test chamber for melts)"",
+        ""parallel-plate or cone-and-plate geometry""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique_id"": ""atomic_force_microscopy"",
+      ""technique"": ""Atomic force microscopy (AFM)"",
+      ""why_useful"": ""AFM can measure local microscopic stiffness via nanoindentation, which is the standard way to measure stiffness using a microscope-like instrument.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""Standard optical or electron microscopes cannot measure mechanical stiffness. To measure the bulk stiffness of a soft hydrogel, you can use a universal mechanical testing system for compressive modulus or a rheometer for shear viscoelastic moduli. If you specifically need to measure local stiffness at a microscopic scale, you would need an atomic force microscope (AFM), which is not currently available on the equipment list.""
+}",EQ15 EQ21 EQ19,,True,EQ15:medium;EQ21:high;EQ19:medium
+Q13,misleading-keyword,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,1,1,False,True,,,,,,,,,,,1,1,1.0,ebc2d0645140,2026-11-08T21:57:52+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,8.65,1451,250,585,0.012922,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ18,json,,,,,I print PCL on the bioprinter's high-temperature head. How can I measure the melting behavior of my PCL?,"{
+  ""measurement_needs"": [
+    ""Melting temperature (Tm)"",
+    ""Enthalpy of fusion / crystallinity""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ18"",
+      ""role"": ""primary"",
+      ""technique"": ""Differential Scanning Calorimetry (DSC)"",
+      ""why"": ""DSC measures the heat flow associated with phase transitions, allowing you to precisely determine the melting temperature and crystallinity of your PCL samples."",
+      ""accessories_to_confirm"": [
+        ""Sample pans (e.g., aluminum pans) and lids"",
+        ""Pan crimper/press""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""Differential Scanning Calorimetry (DSC) is the standard method for analyzing the melting behavior of polymers. The TA Instruments DSC250 can measure the melting temperature and enthalpy of fusion of your printed PCL samples. You will need to confirm the availability of standard sample pans and a crimping tool to prepare your samples.""
+}",EQ18,,True,
+Q13,misleading-keyword,draft,draft,,1,1,1,1.0,0,,0,,,,,0,0,1,1,False,True,,,1,1,0,0,False,,,,2,1,1.0,d6cb782b6e81,2026-11-08T21:58:01+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,9.36,8710,434,723,0.031304,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ18 EQ17,json,,,,,I print PCL on the bioprinter's high-temperature head. How can I measure the melting behavior of my PCL?,"{
+  ""measurement_needs"": [
+    ""melting behavior (melting temperature and heat of fusion)""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ18"",
+      ""role"": ""primary"",
+      ""technique_id"": ""differential_scanning_calorimetry"",
+      ""property_id"": ""melting_temperature"",
+      ""technique"": ""Differential scanning calorimetry (DSC)"",
+      ""why"": ""DSC is the standard method to directly measure the melting temperature and melting behavior of polymers like PCL."",
+      ""accessories_to_confirm"": [
+        ""suitable pans and lids (e.g. hermetic for volatile or wet samples)"",
+        ""pan press"",
+        ""cooling accessory for sub-ambient temperatures and controlled cooling""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ17"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""thermogravimetric_analysis"",
+      ""property_id"": ""thermal_stability"",
+      ""technique"": ""Thermogravimetric analysis (TGA)"",
+      ""why"": ""TGA is recommended to determine the decomposition temperature of your PCL before running DSC, ensuring you do not degrade the sample inside the calorimeter."",
+      ""accessories_to_confirm"": [
+        ""sample pans (platinum, ceramic or aluminium)"",
+        ""purge gas supply (nitrogen; air or oxygen for burn-off of fillers)""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""To measure the melting behavior of your PCL, a Differential Scanning Calorimeter (DSC) is the standard instrument. It will provide the melting temperature and heat of fusion. It is also highly recommended to use a Thermogravimetric Analyzer (TGA) first to check the decomposition temperature, ensuring the sample does not degrade during the DSC run.""
+}",EQ18,EQ17,True,EQ18:medium;EQ17:low
+Q14,multi-step,draft,draft,,1,1,2,0.5,0,,0,,,,,0,0,1,2,False,True,,,,,,,,,1,1,2,2,1.0,4d7437c72c8b,2026-11-08T21:58:09+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,8.09,1442,361,553,0.013852,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ11 EQ16,json,,,,,I want to image the ultrastructure of collagen fibrils inside a tissue sample at nanometer resolution.,"{
+  ""measurement_needs"": [
+    ""Nanometer-resolution imaging of internal ultrastructure (collagen fibrils) in a tissue sample""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ11"",
+      ""role"": ""primary"",
+      ""technique"": ""Transmission Electron Microscopy (TEM)"",
+      ""why"": ""TEM provides the nanometer resolution required to visualize the internal ultrastructure and characteristic banding patterns of collagen fibrils within tissue."",
+      ""accessories_to_confirm"": [
+        ""TEM grids"",
+        ""Heavy metal stains (e.g., uranyl acetate, lead citrate)""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ16"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Ultramicrotomy"",
+      ""why"": ""TEM requires electrons to transmit through the sample, meaning the tissue must first be embedded in resin and cut into ultrathin sections (typically 50-100 nm thick)."",
+      ""accessories_to_confirm"": [
+        ""Diamond or glass knives"",
+        ""Embedding resin and molds""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""To image the internal ultrastructure of collagen fibrils at nanometer resolution, Transmission Electron Microscopy (TEM) is the ideal technique. You can use the Philips CM12 TEM for high-resolution imaging, but you will first need to prepare ultrathin sections of your embedded tissue sample using the Leica EM UC7 ultramicrotome.""
+}",EQ11,EQ16,True,
+Q14,multi-step,draft,draft,,1,1,2,0.5,0,,0,,,,,0,0,2,2,False,True,,,1,2,0,0,False,,1,1,2,2,1.0,46df199edc3a,2026-11-08T21:58:16+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,7.1,8701,376,480,0.027674,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ11 EQ16,json,,,,,I want to image the ultrastructure of collagen fibrils inside a tissue sample at nanometer resolution.,"{
+  ""measurement_needs"": [
+    ""ultrastructure of collagen fibrils at nanometer resolution""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ11"",
+      ""role"": ""primary"",
+      ""technique_id"": ""transmission_electron_microscopy"",
+      ""property_id"": ""ultrastructure"",
+      ""technique"": ""Transmission electron microscopy (TEM)"",
+      ""why"": ""TEM provides the nanometer-scale resolution required to visualize the internal ultrastructure of collagen fibrils."",
+      ""accessories_to_confirm"": [
+        ""digital camera"",
+        ""TEM grids and suitable sample holder""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ16"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""ultramicrotomy"",
+      ""property_id"": null,
+      ""technique"": ""Ultramicrotomy"",
+      ""why"": ""TEM requires the tissue sample to be fixed, embedded, and cut into ultrathin sections (typically less than 100 nm thick) before imaging."",
+      ""accessories_to_confirm"": [
+        ""diamond or glass knife""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""To image the ultrastructure of collagen fibrils at nanometer resolution, transmission electron microscopy (TEM) is the standard method. The Philips CM12 TEM can provide the required resolution, but the bulk tissue sample must first be fixed, embedded, and cut into ultrathin sections using an ultramicrotome.""
+}",EQ11,EQ16,True,EQ11:medium;EQ16:low
+Q15,multi-step,draft,draft,,1,2,2,1.0,0,,0,,,,,0,0,0,0,False,True,,,,,,,,,,,3,2,1.0,111997321005,2026-11-08T21:58:35+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,18.58,1446,469,1335,0.02454,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ02 EQ03 EQ10,json,,,,,I want to 3D print a resin scaffold and then examine the pore morphology of its surface at high magnification.,"{
+  ""measurement_needs"": [
+    ""Fabrication of a high-resolution resin scaffold"",
+    ""High-magnification imaging of surface pore morphology""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ02"",
+      ""role"": ""primary"",
+      ""technique"": ""Digital Light Processing (DLP) 3D printing"",
+      ""why"": ""This DLP printer can fabricate your resin scaffold with high resolution."",
+      ""accessories_to_confirm"": [
+        ""Appropriate photopolymer resin"",
+        ""Wash and cure stations""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ03"",
+      ""role"": ""primary"",
+      ""technique"": ""Masked Stereolithography (MSLA) 3D printing"",
+      ""why"": ""This MSLA printer provides an alternative option for high-resolution resin scaffold fabrication."",
+      ""accessories_to_confirm"": [
+        ""Appropriate photopolymer resin"",
+        ""Wash and cure stations""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ10"",
+      ""role"": ""primary"",
+      ""technique"": ""Scanning Electron Microscopy (SEM)"",
+      ""why"": ""The ESEM provides excellent high-magnification imaging of surface topography and pore morphology. Its environmental mode is particularly advantageous for imaging non-conductive resin samples without requiring a conductive sputter coating."",
+      ""accessories_to_confirm"": [
+        ""SEM sample stubs"",
+        ""Conductive carbon tape or paste""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""You can fabricate your resin scaffold using either the DLP 3D printer (EQ02) or the MSLA resin printer (EQ03). To examine the surface pore morphology at high magnification, the Environmental Scanning Electron Microscope (EQ10) is the ideal instrument, as its environmental mode allows for high-resolution imaging of non-conductive resin samples without the need for a conductive coating.""
+}",EQ02 EQ03 EQ10,,True,
+Q15,multi-step,draft,draft,,1,1,2,0.5,0,,0,,,,,0,0,0,0,False,True,,,1,2,0,0,False,,,,3,2,1.0,bbf8d951c41a,2026-11-08T21:58:48+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,13.13,8705,645,999,0.037138,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ10 EQ02 EQ03,json,,,X-ray micro-computed tomography (micro-CT),,I want to 3D print a resin scaffold and then examine the pore morphology of its surface at high magnification.,"{
+  ""measurement_needs"": [
+    ""Fabricate a resin scaffold"",
+    ""Examine surface pore morphology at high magnification""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ10"",
+      ""role"": ""primary"",
+      ""technique_id"": ""environmental_sem"",
+      ""property_id"": ""surface_morphology"",
+      ""technique"": ""Scanning electron microscopy (environmental / ESEM mode)"",
+      ""why"": ""ESEM provides high-resolution imaging of surface morphology and can often image non-conductive polymer scaffolds without requiring a conductive coating."",
+      ""accessories_to_confirm"": [
+        ""gaseous / environmental secondary-electron detector for uncoated samples"",
+        ""Peltier cooling stage for hydrated samples"",
+        ""sample stubs and conductive tape""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ02"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""vat_photopolymerization_printing"",
+      ""property_id"": null,
+      ""technique"": ""Vat photopolymerization 3D printing (DLP / MSLA)"",
+      ""why"": ""This DLP printer can be used to fabricate the resin scaffold prior to imaging."",
+      ""accessories_to_confirm"": [
+        ""resin compatible with the printer"",
+        ""wash and UV post-curing unit""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ03"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""vat_photopolymerization_printing"",
+      ""property_id"": null,
+      ""technique"": ""Vat photopolymerization 3D printing (DLP / MSLA)"",
+      ""why"": ""This MSLA printer provides an alternative option for fabricating the high-resolution resin scaffold."",
+      ""accessories_to_confirm"": [
+        ""resin compatible with the printer"",
+        ""wash and UV post-curing station""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique_id"": ""micro_computed_tomography"",
+      ""technique"": ""X-ray micro-computed tomography (micro-CT)"",
+      ""why_useful"": ""While ESEM is excellent for surface morphology, micro-CT would be necessary if you later wish to non-destructively analyze the internal 3D pore structure and overall porosity of the printed scaffold.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""Your objective can be met using the listed equipment. You can fabricate your resin scaffold using one of the available vat photopolymerization 3D printers. Once printed, the environmental scanning electron microscope (ESEM) can be used to examine the surface pore morphology of the scaffold at high magnification.""
+}",EQ10,EQ02 EQ03,True,EQ10:medium;EQ02:low;EQ03:low
+Q16,vague,draft,draft,,1,0,0,,0,,0,,,,,0,0,0,0,True,True,,,,,,,,,,,0,0,,ccb146c13acc,2026-11-08T21:58:53+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,5.45,1432,122,462,0.009872,live,gemini-3.1-pro-preview,1,False,True,False,,"Materials testing is a broad category. Could you specify what properties you need to measure? For example, are you looking for mechanical testing (like tensile or compression strength), thermal analysis (like melting point or degradation temperature), rheology (viscosity), or structural characterization?",,json,,,,,What equipment do you have for materials testing?,"{
+  ""measurement_needs"": [],
+  ""objective_met"": false,
+  ""recommendations"": [],
+  ""not_available"": [],
+  ""clarifying_question"": ""Materials testing is a broad category. Could you specify what properties you need to measure? For example, are you looking for mechanical testing (like tensile or compression strength), thermal analysis (like melting point or degradation temperature), rheology (viscosity), or structural characterization?"",
+  ""summary"": ""Please provide more details about your specific materials testing needs so I can recommend the appropriate equipment.""
+}",,,False,
+Q16,vague,draft,draft,,1,0,0,,0,,0,,,,,0,0,0,0,True,True,,,0,0,0,0,False,,,,0,0,,b1b6c42ef509,2026-11-08T21:58:58+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,5.01,8691,133,252,0.022002,live,gemini-3.1-pro-preview,1,False,True,False,,"What specific properties are you looking to test? For example, are you interested in mechanical properties (like tensile or compressive strength), thermal properties (like melting point or degradation temperature), rheological behavior, or something else?",,json,,,,,What equipment do you have for materials testing?,"{
+  ""measurement_needs"": [],
+  ""objective_met"": false,
+  ""recommendations"": [],
+  ""not_available"": [],
+  ""clarifying_question"": ""What specific properties are you looking to test? For example, are you interested in mechanical properties (like tensile or compressive strength), thermal properties (like melting point or degradation temperature), rheological behavior, or something else?"",
+  ""summary"": ""Your request for materials testing equipment is very broad. Please provide more details about the specific properties you need to measure or the type of materials you are working with so I can recommend the most appropriate instruments.""
+}",,,False,
+Q17,vague,draft,draft,,1,0,0,,0,,0,,,,,0,0,0,0,True,True,,,,,,,,,,,0,0,,bf323d0dbc60,2026-11-08T21:59:04+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,5.94,1430,124,446,0.0097,live,gemini-3.1-pro-preview,1,False,True,False,,"What type of sample do you have, and what specific properties (e.g., mechanical strength, thermal stability, surface structure, chemical composition, or biological activity) do you need to analyze?",,json,,,,,I need to analyze my sample.,"{
+  ""measurement_needs"": [],
+  ""objective_met"": false,
+  ""recommendations"": [],
+  ""not_available"": [],
+  ""clarifying_question"": ""What type of sample do you have, and what specific properties (e.g., mechanical strength, thermal stability, surface structure, chemical composition, or biological activity) do you need to analyze?"",
+  ""summary"": ""Your request is too broad to recommend specific equipment. Please provide more details about your sample and the specific properties you want to measure so I can identify the appropriate techniques and instruments.""
+}",,,False,
+Q17,vague,draft,draft,,1,0,0,,0,,0,,,,,0,0,0,0,True,True,,,0,0,0,0,False,,,,0,0,,0a0d34c63017,2026-11-08T21:59:09+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,4.99,8689,123,291,0.022346,live,gemini-3.1-pro-preview,1,False,True,False,,"Could you please provide more details about your sample and what specific properties or characteristics you need to analyze (e.g., mechanical strength, chemical composition, thermal stability, microscopic structure, or particle size)?",,json,,,,,I need to analyze my sample.,"{
+  ""measurement_needs"": [],
+  ""objective_met"": false,
+  ""recommendations"": [],
+  ""not_available"": [],
+  ""clarifying_question"": ""Could you please provide more details about your sample and what specific properties or characteristics you need to analyze (e.g., mechanical strength, chemical composition, thermal stability, microscopic structure, or particle size)?"",
+  ""summary"": ""Your request is too broad to recommend specific equipment. Please provide more details about your sample and what you are trying to measure so I can suggest the right instruments.""
+}",,,False,
+Q18,model-specific,draft,stefan,,1,1,1,1.0,0,,1,EQ19,,,,0,0,1,1,False,True,,,,,,,,,,,2,1,1.0,bf434389e6be,2026-11-08T21:59:19+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,9.5,1452,373,545,0.01392,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ21 EQ19,json,,,,,I need to measure the melt viscosity of a polymer at 280 °C. Which equipment at UMKC can perform this measurement?,"{
+  ""measurement_needs"": [
+    ""Melt viscosity of a polymer at 280 °C""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ21"",
+      ""role"": ""primary"",
+      ""technique"": ""Rotational rheometry"",
+      ""why"": ""This rheometer is confirmed to have an Environmental Test Chamber (ETC) installed, which is designed for high-temperature testing of polymer melts up to and beyond 280 °C."",
+      ""accessories_to_confirm"": [
+        ""Parallel plate or cone-and-plate geometry suitable for polymer melts""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ19"",
+      ""role"": ""primary"",
+      ""technique"": ""Rotational rheometry"",
+      ""why"": ""This is an identical rheometer model that can also perform the measurement, provided it has a suitable heating system installed."",
+      ""accessories_to_confirm"": [
+        ""High-temperature environmental chamber or heating system capable of reaching 280 °C"",
+        ""Parallel plate or cone-and-plate geometry suitable for polymer melts""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""UMKC has two hybrid rheometers capable of measuring polymer melt viscosity. The instrument in the Polymer Processing Lab (EQ21) is highly recommended because it is already equipped with an Environmental Test Chamber for high-temperature testing. You will just need to confirm that the appropriate measuring geometries, such as parallel plates, are available for your specific polymer.""
+}",EQ21 EQ19,,True,
+Q18,model-specific,draft,stefan,,1,1,1,1.0,0,,0,,,,,0,0,1,1,False,True,,,1,1,0,0,False,,,,1,1,1.0,c3abd52ae03b,2026-11-08T21:59:34+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,15.51,8711,337,1588,0.040522,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ21,json,,,Capillary rheometry,,I need to measure the melt viscosity of a polymer at 280 °C. Which equipment at UMKC can perform this measurement?,"{
+  ""measurement_needs"": [
+    ""melt viscosity at 280 °C""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ21"",
+      ""role"": ""primary"",
+      ""technique_id"": ""rotational_rheometry"",
+      ""property_id"": ""viscosity_vs_temperature"",
+      ""technique"": ""Rotational rheometry"",
+      ""why"": ""This rheometer is equipped with an Environmental Test Chamber capable of heating polymer melts to 280 °C to measure their viscosity."",
+      ""accessories_to_confirm"": [
+        ""Parallel plate or cone-and-plate measuring geometries""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique_id"": ""capillary_rheometry"",
+      ""technique"": ""Capillary rheometry"",
+      ""why_useful"": ""Would be necessary if you need to measure the melt viscosity at the high shear rates typical of extrusion or injection molding.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""The TA Instruments Discovery HR20 hybrid rheometer (EQ21) is equipped with an Environmental Test Chamber and can measure the melt viscosity of your polymer at 280 °C. If you need to measure viscosity at very high shear rates typical of industrial processing, a capillary rheometer would be required, which is not available on the equipment list.""
+}",EQ21,,True,EQ21:high
+Q19,model-specific,draft,stefan,,1,2,2,1.0,0,,0,,,,,0,0,0,1,False,True,,,,,,,,,,,4,2,1.0,de7cfc2290d8,2026-11-08T21:59:54+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,19.88,1449,682,1356,0.027354,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ13 EQ23 EQ09 EQ07,json,,,,,I want to observe living cells growing in a standard tissue-culture well plate. Which microscope at UMKC should I use?,"{
+  ""measurement_needs"": [
+    ""Optical imaging of living cells through the bottom of a tissue-culture well plate""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ13"",
+      ""role"": ""primary"",
+      ""technique"": ""Inverted optical microscopy"",
+      ""why"": ""Inverted microscopes have their objectives located below the stage, allowing you to focus on cells attached to the bottom of the well plate without interference from the culture media or the plate lid."",
+      ""accessories_to_confirm"": [
+        ""Well-plate stage insert/holder"",
+        ""Phase contrast objectives and condenser annuli (necessary for viewing unstained, transparent living cells)""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ23"",
+      ""role"": ""primary"",
+      ""technique"": ""Inverted optical microscopy"",
+      ""why"": ""This is another inverted microscope platform perfectly suited for viewing cells at the bottom of standard culture vessels."",
+      ""accessories_to_confirm"": [
+        ""Well-plate stage insert"",
+        ""Phase contrast or DIC optics for unstained cells""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ09"",
+      ""role"": ""primary"",
+      ""technique"": ""High-content epifluorescence imaging"",
+      ""why"": ""This system utilizes an inverted architecture specifically designed for automated imaging of multi-well plates, making it ideal if you need to screen multiple wells or use fluorescence."",
+      ""accessories_to_confirm"": [
+        ""Stage adapter for well plates"",
+        ""Stage-top environmental incubation chamber (if you plan to do long-term time-lapse imaging of the living cells)""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ07"",
+      ""role"": ""primary"",
+      ""technique"": ""Inverted confocal microscopy"",
+      ""why"": ""If your observation requires high-resolution 3D optical sectioning or advanced fluorescence of your live cells, this inverted confocal system will work with well plates."",
+      ""accessories_to_confirm"": [
+        ""Well-plate stage insert"",
+        ""Environmental control chamber (temperature/CO2) for live-cell imaging""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""To observe living cells in a standard well plate, you must use an inverted microscope. Because cells grow on the bottom of the wells and are covered by liquid media, an inverted microscope's bottom-up optical path allows you to focus directly through the thin plastic base of the plate. The Nikon TE300 and Olympus IX83 are standard inverted microscopes ideal for this routine task, while the Keyence BZ-X810 and Leica SP8 STELLARIS offer advanced automated or high-resolution imaging on an inverted platform. You will need to confirm that the chosen microscope has phase-contrast optics to see transparent cells and the correct stage holder for your specific well plate.""
+}",EQ13 EQ23 EQ09 EQ07,,True,
+Q19,model-specific,draft,stefan,,1,2,2,1.0,0,,0,,,,,0,0,1,1,False,True,,,2,2,0,0,False,,,,3,2,1.0,e00f53a64b8e,2026-11-08T22:00:10+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,15.87,8708,612,1593,0.043876,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ09 EQ23 EQ13,json,,,,,I want to observe living cells growing in a standard tissue-culture well plate. Which microscope at UMKC should I use?,"{
+  ""measurement_needs"": [
+    ""observation of living cells in multiwell plates"",
+    ""cell morphology""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ09"",
+      ""role"": ""primary"",
+      ""technique_id"": ""phase_contrast_microscopy"",
+      ""property_id"": ""cell_morphology"",
+      ""technique"": ""Phase-contrast microscopy"",
+      ""why"": ""This high-content imaging system is specifically designed to accommodate multiwell plates and uses phase contrast to visualize unstained living cells."",
+      ""accessories_to_confirm"": [
+        ""phase-contrast objectives"",
+        ""stage-top incubator for live cells (if observing continuously over time)""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ23"",
+      ""role"": ""primary"",
+      ""technique_id"": ""phase_contrast_microscopy"",
+      ""property_id"": ""cell_morphology"",
+      ""technique"": ""Phase-contrast microscopy"",
+      ""why"": ""As an inverted microscope, it looks up through the bottom of the well plate, which is necessary for standard cell culture vessels."",
+      ""accessories_to_confirm"": [
+        ""Phase contrast condenser rings and phase-compatible objectives"",
+        ""Stage-top environmental incubation chamber (CO2, temperature, and humidity control) (if observing continuously over time)""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ13"",
+      ""role"": ""primary"",
+      ""technique_id"": ""phase_contrast_microscopy"",
+      ""property_id"": ""cell_morphology"",
+      ""technique"": ""Phase-contrast microscopy"",
+      ""why"": ""This is another inverted microscope capable of viewing cells on the bottom of a well plate using phase contrast."",
+      ""accessories_to_confirm"": [
+        ""phase-contrast objectives and condenser"",
+        ""stage-top incubator for live-cell time-lapse (if observing continuously over time)""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""To observe living cells in a standard well plate, you must use an inverted microscope, which looks up through the bottom of the plate where the cells grow. The Keyence high-content imager (EQ09) and the inverted optical microscopes (EQ23, EQ13) are all suitable for this using phase contrast to see unstained cells. If you need to observe the cells continuously over time rather than just taking a quick look, you will need to confirm that a stage-top incubator is available to maintain temperature and CO2.""
+}",EQ09 EQ23 EQ13,,True,EQ09:medium;EQ23:medium;EQ13:medium
+Q20,no-suitable-equipment,reviewed,reviewed,,1,0,0,,0,,0,,True,EQ08,,1,1,0,0,False,True,,,,,,,,,,,2,0,,208ee3a28a0a,2026-11-08T22:00:23+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,12.49,1482,490,955,0.020304,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ10 EQ08,json,,,Atomic Force Microscopy (AFM); Optical Profilometry / White Light Interferometry,,"I have a polymer scaffold with a smooth-looking surface, but I suspect there are nanoscale differences in surface roughness between samples. I want to quantify the surface topography and determine the RMS roughness over areas of approximately 5 × 5 µm. What equipment at UMKC should I use?","{
+  ""measurement_needs"": [
+    ""Quantitative 3D surface topography"",
+    ""Nanoscale RMS roughness over 5x5 µm areas""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ10"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Scanning Electron Microscopy (SEM)"",
+      ""why"": ""Provides high-resolution 2D images to qualitatively observe nanoscale surface features, though it cannot directly quantify 3D RMS roughness."",
+      ""accessories_to_confirm"": []
+    },
+    {
+      ""instrument_id"": ""EQ08"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Confocal microscopy"",
+      ""why"": ""Can measure 3D surface topography and calculate roughness, but its vertical (Z-axis) resolution is diffraction-limited (typically >200 nm) and likely insufficient for nanoscale differences."",
+      ""accessories_to_confirm"": [
+        ""High-magnification objective lenses"",
+        ""Topography/roughness analysis software module""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique"": ""Atomic Force Microscopy (AFM)"",
+      ""why_useful"": ""AFM is the standard technique for directly measuring quantitative 3D topography and calculating RMS roughness with sub-nanometer vertical resolution over small areas like 5x5 µm.""
+    },
+    {
+      ""technique"": ""Optical Profilometry / White Light Interferometry"",
+      ""why_useful"": ""Provides non-contact, quantitative 3D surface topography and roughness measurements, though AFM is generally preferred for very small (5x5 µm) areas with nanoscale features.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""No listed instrument can perform quantitative nanoscale surface roughness measurements. You would need an Atomic Force Microscope (AFM) to accurately determine RMS roughness at the nanoscale over a 5x5 µm area. The available ESEM can provide qualitative high-resolution images of your surface, and the confocal microscopes can measure topography but lack the vertical resolution needed to resolve nanoscale differences.""
+}",,EQ10 EQ08,False,
+Q20,no-suitable-equipment,reviewed,reviewed,,1,0,0,,0,,0,,True,,,1,1,0,0,False,True,,,0,0,1,1,False,,,,1,0,,72c01fea01d5,2026-11-08T22:00:35+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,12.48,8741,422,1172,0.03661,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ10,json,,,Atomic force microscopy (AFM); Optical profilometry / White light interferometry,,"I have a polymer scaffold with a smooth-looking surface, but I suspect there are nanoscale differences in surface roughness between samples. I want to quantify the surface topography and determine the RMS roughness over areas of approximately 5 × 5 µm. What equipment at UMKC should I use?","{
+  ""measurement_needs"": [
+    ""nanoscale surface topography"",
+    ""RMS surface roughness""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ10"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""environmental_sem"",
+      ""property_id"": ""surface_morphology"",
+      ""technique"": ""Scanning electron microscopy (environmental / ESEM mode)"",
+      ""why"": ""ESEM can provide qualitative, high-resolution images of the surface to visually compare nanoscale features, although it cannot directly calculate quantitative RMS roughness."",
+      ""accessories_to_confirm"": [
+        ""gaseous / environmental secondary-electron detector for uncoated samples"",
+        ""sample stubs and conductive tape""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique_id"": ""atomic_force_microscopy"",
+      ""technique"": ""Atomic force microscopy (AFM)"",
+      ""why_useful"": ""AFM is the standard technique for quantitatively measuring nanoscale surface topography and calculating RMS roughness over small areas like 5x5 µm.""
+    },
+    {
+      ""technique_id"": null,
+      ""technique"": ""Optical profilometry / White light interferometry"",
+      ""why_useful"": ""Optical profilometry is another standard method for quantifying surface roughness and topography without contacting the sample, though AFM provides better lateral resolution at the nanoscale.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""No listed instrument can quantitatively measure nanoscale RMS surface roughness. Atomic force microscopy (AFM) is the standard technique for this measurement but is not available on the equipment list. However, you can use the environmental SEM to obtain qualitative, high-resolution images of the surface morphology to visually compare the nanoscale differences between your samples.""
+}",,EQ10,False,EQ10:low
+Q21,problem-only,reviewed,reviewed,,1,1,1,1.0,0,,0,,,,,0,0,1,2,False,True,,,,,,,,,,,3,1,1.0,c4f30f775100,2026-11-08T22:00:49+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,13.59,1456,508,1059,0.021716,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ21 EQ15 EQ18,json,,,,,I have shape memory polymers of which I need to determine the force they can act when activated to go back to their original shape. How do I best do that?,"{
+  ""measurement_needs"": [
+    ""Force exerted by the polymer during shape recovery"",
+    ""Controlled heating to activate the shape memory effect""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ21"",
+      ""role"": ""primary"",
+      ""technique"": ""Thermomechanical testing / Dynamic Mechanical Analysis (DMA)"",
+      ""why"": ""This rheometer is equipped with an Environmental Test Chamber for controlled heating to activate the shape memory effect, and can measure the resulting axial force or torque as the sample tries to recover its shape."",
+      ""accessories_to_confirm"": [
+        ""Solid sample fixtures (e.g., tension, torsion, or cantilever clamps)""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ15"",
+      ""role"": ""primary"",
+      ""technique"": ""Mechanical testing with temperature control"",
+      ""why"": ""Can measure the recovery force by holding the polymer sample at a fixed strain while it is heated, provided a compatible heating chamber is available."",
+      ""accessories_to_confirm"": [
+        ""Environmental/heating chamber"",
+        ""Appropriate grips for the polymer samples""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ18"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Differential Scanning Calorimetry (DSC)"",
+      ""why"": ""Useful for determining the exact thermal transition temperature (e.g., glass transition or melting temperature) required to activate your shape memory polymers."",
+      ""accessories_to_confirm"": [
+        ""Standard DSC sample pans and lids""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""To measure the recovery force of your shape memory polymers, you need an instrument that can hold the sample at a fixed displacement and measure the generated force while heating it through its activation temperature. The hybrid rheometer (EQ21) is a strong candidate because it already has an environmental chamber installed for heating, though it requires solid testing fixtures. The universal mechanical testing system (EQ15) can also perform this test if a heating chamber is available. Additionally, you can use DSC to precisely determine the activation temperature of your materials.""
+}",EQ21 EQ15,EQ18,True,
+Q21,problem-only,reviewed,reviewed,,1,1,1,1.0,0,,0,,,,,0,0,2,2,False,True,,,1,1,1,1,False,,,,3,1,1.0,e1b323f11e8b,2026-11-08T22:01:04+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,15.5,8715,612,1353,0.04101,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ15 EQ21 EQ18,json,,,,,I have shape memory polymers of which I need to determine the force they can act when activated to go back to their original shape. How do I best do that?,"{
+  ""measurement_needs"": [
+    ""recovery force of shape memory polymers upon activation"",
+    ""thermal activation temperature (glass transition or melting)""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ15"",
+      ""role"": ""primary"",
+      ""technique_id"": ""tensile_testing"",
+      ""property_id"": null,
+      ""technique"": ""Uniaxial tensile testing"",
+      ""why"": ""By clamping the polymer in fixed grips and heating it inside an environmental chamber, this system can directly measure the macroscopic recovery force the polymer exerts as it tries to return to its original shape."",
+      ""accessories_to_confirm"": [
+        ""fluid bath or environmental chamber for testing at 37 °C or hydrated"",
+        ""load cell with a capacity suited to the expected forces (low capacity for soft or porous samples)"",
+        ""tensile grips suited to the specimen""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ21"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""dynamic_mechanical_analysis"",
+      ""property_id"": ""solid_viscoelastic_properties"",
+      ""technique"": ""Dynamic mechanical analysis (DMA)"",
+      ""why"": ""Equipped with an environmental test chamber and solid clamps, this rheometer can perform dynamic mechanical analysis to measure the recovery force and viscoelastic changes of small polymer samples during heating."",
+      ""accessories_to_confirm"": [
+        ""Solid torsion / tension DMA clamps for ETC""
+      ]
+    },
+    {
+      ""instrument_id"": ""EQ18"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""differential_scanning_calorimetry"",
+      ""property_id"": ""glass_transition_temperature"",
+      ""technique"": ""Differential scanning calorimetry (DSC)"",
+      ""why"": ""DSC measures the thermal transitions (like the glass transition or melting temperature) of your polymer, which is essential for knowing the exact temperature required to activate the shape memory effect."",
+      ""accessories_to_confirm"": [
+        ""suitable pans and lids (e.g. hermetic for volatile or wet samples)"",
+        ""pan press""
+      ]
+    }
+  ],
+  ""not_available"": [],
+  ""clarifying_question"": null,
+  ""summary"": ""To measure the recovery force of your shape memory polymers, you can use a universal mechanical testing system equipped with an environmental chamber to heat the sample while measuring the force it exerts against fixed grips. A hybrid rheometer with solid clamps can also perform similar measurements on smaller samples. Additionally, a differential scanning calorimeter is recommended to precisely determine the thermal activation temperatures of your polymers prior to mechanical testing.""
+}",EQ15,EQ21 EQ18,True,EQ15:medium;EQ21:low;EQ18:low
+Q23,multi-step,draft,draft,,1,0,0,,0,,0,,True,,,1,1,0,0,False,True,,,,,,,True,True,,,1,0,,250e51d62738,2026-11-08T22:01:16+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,12.24,1448,306,1290,0.022048,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ05,json,,,X-ray Diffraction (XRD),,I want to grind my bone samples into a fine powder and then identify the crystalline mineral phases. What equipment can I use?,"{
+  ""measurement_needs"": [
+    ""Grinding bone samples into a fine powder"",
+    ""Identifying crystalline mineral phases in the bulk powder""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ05"",
+      ""role"": ""supplementary"",
+      ""technique"": ""Milling / Grinding"",
+      ""why"": ""This mill can be used to grind your bone samples into a fine powder, serving as the necessary sample preparation step."",
+      ""accessories_to_confirm"": [
+        ""Grinding chamber and beater suitable for hard materials like bone""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique"": ""X-ray Diffraction (XRD)"",
+      ""why_useful"": ""XRD is the standard and most effective technique for identifying and quantifying crystalline mineral phases, such as hydroxyapatite, in bulk powder samples.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""Currently, no listed instrument can perform bulk crystalline phase identification, as X-ray Diffraction (XRD) is not available. You can use the analytical mill to prepare your samples by grinding the bone into a fine powder. However, you will need to find an unlisted or off-site XRD facility to actually identify the mineral phases in your powder.""
+}",,EQ05,False,
+Q23,multi-step,draft,draft,,1,0,0,,0,,0,,True,,,1,1,0,0,False,True,,,0,0,1,1,True,True,,,1,0,,7cc9869b73d1,2026-11-08T22:01:28+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,11.71,8707,319,1178,0.035378,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ05,json,,,X-ray diffraction (XRD),,I want to grind my bone samples into a fine powder and then identify the crystalline mineral phases. What equipment can I use?,"{
+  ""measurement_needs"": [
+    ""Grinding bone samples into a fine powder"",
+    ""Identifying crystalline mineral phases""
+  ],
+  ""objective_met"": false,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ05"",
+      ""role"": ""supplementary"",
+      ""technique_id"": ""milling"",
+      ""property_id"": null,
+      ""technique"": ""Milling / grinding to powder"",
+      ""why"": ""The analytical mill can grind your bone samples into a fine powder, which is the necessary sample preparation step for phase analysis."",
+      ""accessories_to_confirm"": [
+        ""grinding chamber and blade suited to the material"",
+        ""cooling with liquid nitrogen or dry ice for soft or heat-sensitive samples""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique_id"": ""x_ray_diffraction"",
+      ""technique"": ""X-ray diffraction (XRD)"",
+      ""why_useful"": ""XRD is the standard method to identify and quantify crystalline mineral phases in powdered bone samples.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""Currently, no listed instrument can identify crystalline mineral phases, which requires X-ray diffraction (XRD). However, you can use the analytical mill to grind your bone samples into the fine powder needed for this analysis.""
+}",,EQ05,False,EQ05:low
+Q24,multi-step,draft,draft,,1,1,1,1.0,0,,0,,,,,1,1,0,0,False,True,,,,,,,,,,,1,1,1.0,48dbfd57eb0d,2026-11-08T22:01:40+00:00,eval,,,False,structured,gemini,gemini-3.1-pro-preview,ca824b2c,daf3072c,f75ab2b,11.39,1452,330,1064,0.019632,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ10,json,,,Sputter coating,,I want to gold-coat my non-conductive polymer sample and image it in high vacuum at high magnification. What equipment can I use?,"{
+  ""measurement_needs"": [
+    ""High-magnification surface imaging in high vacuum"",
+    ""Gold sputter coating for conductivity""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ10"",
+      ""role"": ""primary"",
+      ""technique"": ""Scanning Electron Microscopy (SEM)"",
+      ""why"": ""Provides high-magnification surface imaging in high vacuum. Because it is an ESEM, it also offers the alternative of imaging your non-conductive polymer without a coating in environmental (low vacuum) mode."",
+      ""accessories_to_confirm"": [
+        ""SEM sample stubs"",
+        ""Conductive carbon tape or paint""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique"": ""Sputter coating"",
+      ""why_useful"": ""Necessary to deposit a thin layer of gold on non-conductive samples to prevent electron charging during high-vacuum SEM imaging.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""The Philips XL30 ESEM can perform the high-vacuum, high-magnification imaging you need. However, a sputter coater to apply the gold coating is not currently listed in the equipment database. If you cannot find a way to coat your sample, you might consider using the ESEM's environmental mode, which allows imaging of non-conductive samples without a gold coating.""
+}",EQ10,,True,
+Q24,multi-step,draft,draft,,1,1,1,1.0,0,,0,,,,,1,1,0,0,False,True,,,1,1,0,0,False,True,,,1,1,1.0,a52b9a51db87,2026-11-08T22:01:52+00:00,eval,,,False,annotated,gemini,gemini-3.1-pro-preview,41bd073d,daf3072c,f75ab2b,11.93,8711,327,1090,0.034426,live,gemini-3.1-pro-preview,1,False,True,False,,,EQ10,json,,,Sputter coating,,I want to gold-coat my non-conductive polymer sample and image it in high vacuum at high magnification. What equipment can I use?,"{
+  ""measurement_needs"": [
+    ""surface morphology at high magnification""
+  ],
+  ""objective_met"": true,
+  ""recommendations"": [
+    {
+      ""instrument_id"": ""EQ10"",
+      ""role"": ""primary"",
+      ""technique_id"": ""environmental_sem"",
+      ""property_id"": ""surface_morphology"",
+      ""technique"": ""Scanning electron microscopy"",
+      ""why"": ""This scanning electron microscope can image the surface morphology of your sample at high magnification. While it features an environmental mode for uncoated samples, it can also operate in standard high-vacuum mode for your gold-coated sample."",
+      ""accessories_to_confirm"": [
+        ""sample stubs and conductive tape""
+      ]
+    }
+  ],
+  ""not_available"": [
+    {
+      ""technique_id"": null,
+      ""technique"": ""Sputter coating"",
+      ""why_useful"": ""A sputter coater is needed to apply the gold coating to your non-conductive polymer sample prior to high-vacuum imaging, but one is not included on the equipment list.""
+    }
+  ],
+  ""clarifying_question"": null,
+  ""summary"": ""The listed Philips XL30 scanning electron microscope can image your sample's surface morphology at high magnification in high vacuum. However, you will need to find a sputter coater elsewhere to apply the gold coating to your non-conductive sample before imaging.""
+}",EQ10,,True,EQ10:medium

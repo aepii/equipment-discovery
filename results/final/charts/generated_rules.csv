@@ -1,0 +1,10 @@
+﻿group,Structured score,Structured answers,Structured + annotations score,Structured + annotations answers,Naive (baseline) score,Naive (baseline) answers
+available-property,0.865,36,0.912,36,0.907,36
+distractor,0.781,8,0.781,8,0.875,8
+model-specific,0.938,4,0.938,4,1.000,4
+named,1.000,5,1.000,5,1.000,5
+no-match-property,1.000,22,1.000,22,0.909,22
+non-destructive,0.750,4,0.875,4,0.875,4
+optional-hardware,0.889,9,0.917,9,0.861,9
+vague,1.000,4,1.000,4,0.000,4
+workflow,0.733,6,0.900,6,0.733,6

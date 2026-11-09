@@ -1,0 +1,4 @@
+﻿group,Structured score,Structured answers,Structured + annotations score,Structured + annotations answers,Naive (baseline) score,Naive (baseline) answers
+draft,0.868,57,0.874,57,0.746,57
+reviewed,0.833,6,1.000,6,1.000,6
+stefan,0.917,6,1.000,6,0.750,6
