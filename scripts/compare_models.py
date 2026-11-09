@@ -47,7 +47,7 @@ MODELS = {
 }
 PRICE_NOTE = "Gemini API list prices of 2026-11-08; structured + annotated mode, 1 run."
 MAX_ERROR_SHARE = 0.1  # a model run with more failed answers than this is not charted
-LABEL_BELOW = {"gemini-3-flash-preview", "gemini-3.5-flash-lite"}
+LABEL_BELOW = {"gemini-3-flash-preview", "gemini-3.1-flash-lite"}
 CHART_DIR = run_eval.RESULTS_DIR / "charts"
 
 
