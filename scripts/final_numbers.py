@@ -54,7 +54,8 @@ FLAGGED = {
     "G063": "fixed by removal: no listed technique measures heat of cure non-destructively once FTIR is corrected",
     "G076": "remains: TGA as a supplementary check counts as an unacceptable pick",
 }
-POSTER_CURATED = RESULTS / "graph_matching" / "curated_poster_g0.csv"  # poster full-system answers, final scoring
+MODEL_RERUNS = RESULTS / "final_runs"  # annotated mode per model with the final version (compare_models --results-dir)
+POSTER_CURATED =RESULTS / "graph_matching" / "curated_poster_g0.csv"  # poster full-system answers, final scoring
 
 
 def read(path: Path) -> list[dict]:
@@ -85,13 +86,20 @@ def rescore_set(name: str) -> list[dict]:
 
 
 def rescore_models() -> None:
+    """Per model: structured answers from the Nov 8 comparison (that prompt is unchanged), annotated answers
+    from the re-run with the final version (MODEL_RERUNS); both rescored."""
     for name, question_file in (("curated", run_eval.QUESTIONS_PATH), ("generated", run_eval.GENERATED_PATH)):
         questions = run_eval.load_questions(question_file)
-        source, target = cm.out_dir(name), cm.out_dir(name, FINAL)
+        source, rerun, target = cm.out_dir(name), cm.out_dir(name, MODEL_RERUNS), cm.out_dir(name, FINAL)
         target.mkdir(parents=True, exist_ok=True)
         for path in sorted(source.glob("*.csv")):
-            if not path.stem.endswith(("_summary", "_errors")):
-                run_eval.write_outputs(run_eval.rescore(path, questions), target / path.name)
+            if path.stem.endswith(("_summary", "_errors")):
+                continue
+            if not (rerun / path.name).exists():
+                raise SystemExit(f"No annotated re-run for {path.stem} in {rerun}")
+            rows = [r for r in run_eval.rescore(path, questions) if r["mode"] == "structured"]
+            rows += [r for r in run_eval.rescore(rerun / path.name, questions) if r["mode"] == "annotated"]
+            run_eval.write_outputs(rows, target / path.name)
 
 
 # --- step 3: numbers ---
@@ -212,7 +220,7 @@ def q20(rows: list[dict]) -> list[str]:
 
 
 def model_table() -> list[str]:
-    note = "Answers recorded before the knowledge fixes, rescored with the final keys. "
+    note = "Final version: annotated answers re-run with the knowledge fixes. "
     table = cm.write_charts("all", FINAL, CHARTS, prefix="models", note=note)
     header, rows = table[0], table[1:]
     keep = [0, 1, 2, 3, 4, 5, 6]
@@ -267,9 +275,10 @@ def main() -> None:
            "## Q20 roughness example (final full-system answers)", ""]
     md += q20(rows["curated"]) + [""]
     md += ["## Model comparison (23 curated + 98 generated questions, structured + annotated, 1 run)", "",
-           "**These answers were recorded before the knowledge fixes** (annotated mode used the old knowledge "
-           "files and prompt); they are rescored with the final code and keys. Main score as in "
-           "`make_charts.py`. Chart: `results/final/charts/models_cost_vs_score.png`.", ""]
+           "Matches the app today. Annotated answers were re-run with the final version for every model "
+           "(`results/final_runs/`); structured answers come from the Nov 8 comparison (`results/models*/`), "
+           "whose structured prompt is unchanged (`ca824b2c`). All are scored with the final code and keys. "
+           "Main score as in `make_charts.py`. Chart: `results/final/charts/models_cost_vs_score.png`.", ""]
     md += model_table() + [""]
     (FINAL / "FINAL_NUMBERS.md").write_text("\n".join(md), encoding="utf-8")
     print(f"\nSaved {FINAL / 'FINAL_NUMBERS.md'}")

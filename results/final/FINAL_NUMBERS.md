@@ -108,13 +108,13 @@ Run 1, summary: "No listed instrument can perform quantitative nanoscale surface
 
 ## Model comparison (23 curated + 98 generated questions, structured + annotated, 1 run)
 
-**These answers were recorded before the knowledge fixes** (annotated mode used the old knowledge files and prompt); they are rescored with the final code and keys. Main score as in `make_charts.py`. Chart: `results/final/charts/models_cost_vs_score.png`.
+Matches the app today. Annotated answers were re-run with the final version for every model (`results/final_runs/`); structured answers come from the Nov 8 comparison (`results/models*/`), whose structured prompt is unchanged (`ca824b2c`). All are scored with the final code and keys. Main score as in `make_charts.py`. Chart: `results/final/charts/models_cost_vs_score.png`.
 
 | model | answers | errors | main score | wrong main picks | cost per answer (USD) | total cost (USD) |
 |---|---|---|---|---|---|---|
-| gemini-3.1-flash-lite | 242 | 0 | 81.8% | 2.5% | 0.00179 | 0.4341 |
-| gemini-3.5-flash-lite | 242 | 0 | 79.8% | 5.0% | 0.00252 | 0.6108 |
-| gemini-3-flash-preview | 242 | 0 | 90.7% | 3.7% | 0.00805 | 1.9473 |
-| gemini-3.8-flash | 242 | 0 | 90.0% | 2.1% | 0.00935 | 2.2619 |
-| gemini-4-argon | 242 | 0 | 96.1% | 5.4% | 0.01783 | 4.3137 |
-| gemini-3.1-pro-preview | 242 | 0 | 93.8% | 2.1% | 0.026 | 6.2914 |
+| gemini-3.1-flash-lite | 242 | 0 | 81.5% | 2.9% | 0.00201 | 0.4853 |
+| gemini-3.5-flash-lite | 242 | 0 | 82.9% | 4.1% | 0.00276 | 0.6688 |
+| gemini-3-flash-preview | 242 | 0 | 90.1% | 3.3% | 0.00868 | 2.1001 |
+| gemini-3.8-flash | 242 | 0 | 90.0% | 2.1% | 0.00972 | 2.3517 |
+| gemini-4-argon | 242 | 0 | 97.0% | 5.0% | 0.01955 | 4.7314 |
+| gemini-3.1-pro-preview | 242 | 0 | 93.9% | 2.9% | 0.0272 | 6.5814 |
