@@ -258,10 +258,12 @@ python scripts/make_charts.py                     # newest curated run -> result
 python scripts/make_charts.py --set generated     # newest generated run -> results/charts/generated_*.png
 python scripts/make_charts.py --summary results/run_<time>_rescored_summary.csv
 python scripts/before_after.py --before rows.json --question-id Q20   # results/before_afm.json, after_afm.json
+python scripts/final_numbers.py                   # the final poster numbers and charts -> results/final/
 ```
 
-`make_charts.py` draws one grouped bar chart per mode (expected instruments found, wrong main picks,
-unavailable techniques flagged, accessories named), a table of median response time and cost, and the
+`make_charts.py` draws one grouped bar chart per mode (expected instruments found as main picks and as
+main + supporting, accessories named, unavailable techniques flagged, said so when nothing fits, wrong
+main picks), a table of median response time and cost, and the
 main score per question category, plus per source group (curated set) or per generation rule (generated
 set). It writes the same numbers as CSV next to them. `before_after.py` saves logged answers of an older version
 (rows exported from the answers tab) next to fresh answers from the current code, for a before/after
@@ -277,7 +279,19 @@ python scripts/compare_models.py --question-file test_questions_generated.json  
 python scripts/compare_models.py --all            # charts over both sets together: results/charts/models_all_*
 ```
 
-A short write-up of the latest run is in `results/FINDINGS.md` (not committed, like all of `results/`).
+A short write-up of the latest run is in `results/FINDINGS.md` (not committed, like the rest of `results/`).
+
+**Final version (poster, Nov 9).** The poster presents the system with the knowledge fixes and without
+graph matching (tag `poster-final`; `poster-v1` is the earlier poster version). Its numbers come from
+`python scripts/final_numbers.py`, which makes no model calls: it rescores the saved answers with the final
+code and keys. Naive and structured answers come from the poster runs (`run_20261107_144209`, curated, 3
+runs; `run_generated_20261108_100132`, generated, 1 run), whose prompts do not include the knowledge files;
+full-system (annotated) answers come from the runs made with the knowledge fixes (`run_20261109_090405`,
+`run_generated_20261109_092656`). It writes `results/final/` (committed): `curated.csv`, `generated.csv`
+with summaries, the rescored model runs, `FINAL_NUMBERS.md` (the poster tables, remaining faulty generated
+keys, before/after of the knowledge fixes, the Q20 example, the model table) and `charts/` (300 dpi;
+`modes.png` is the curated mode chart, `models_cost_vs_score.png` the model comparison over 23 + 98
+questions, whose answers were recorded before the knowledge fixes).
 
 Use `LLM_PROVIDER=mock` to try it without spending API credits. Rate-limit and server errors are
 retried inside each call (see "Speed, cost and resilience"), then the whole answer is retried twice more
@@ -380,7 +394,7 @@ python scripts/generate_questions.py compare       # results/key_comparison.md
 python scripts/generate_questions.py facts         # results/knowledge_facts.md
 python run_eval.py --question-file test_questions_generated.json --review-sheet --sample 20   # spot-check sheet
 python run_eval.py --question-file test_questions_generated.json --sample 15 --runs 1 --yes   # a fixed subset first
-python run_eval.py --question-file test_questions_generated.json --runs 1 --yes               # all 99 (~300 calls)
+python run_eval.py --question-file test_questions_generated.json --runs 1 --yes               # all 98 (~300 calls)
 python scripts/make_charts.py --set generated
 ```
 
@@ -452,8 +466,9 @@ The tests always use the mock model, so they need no API key and cost nothing. T
 | `store.py` | Answer and feedback rows; saves them to the Google Sheet or `results/log.jsonl` |
 | `run_eval.py` | Batch evaluation: scores, consistency summary, re-scoring, review sheet, recording saved demo answers; `--question-file`, `--sample`, call budget |
 | `scripts/generate_questions.py` | Generated questions: `plan` (answer keys from the knowledge layer), `check` (questions vs. plan) |
-| `data/generated/question_plan.json`, `test_questions_generated.json` | The generated-question plan and the 99 worded questions |
+| `data/generated/question_plan.json`, `test_questions_generated.json` | The generated-question plan and the 98 worded questions |
 | `scripts/make_charts.py`, `scripts/before_after.py` | Poster charts and the before/after example from evaluation results |
+| `scripts/final_numbers.py`, `results/final/` | Final poster numbers and charts, rescored from saved answers |
 | `test_questions.json` | Test questions with expected, acceptable and unacceptable instruments |
 | `tests/` | Unit tests (pytest, mock model) |
 | `api/main.py`, `api/service.py` | Web API: ask (also streamed with progress stages), feedback, examples, equipment |

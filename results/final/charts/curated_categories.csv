@@ -1,0 +1,9 @@
+﻿group,Structured score,Structured answers,Structured + annotations score,Structured + annotations answers,Naive (baseline) score,Naive (baseline) answers
+accessory-trap,1.000,6,1.000,6,1.000,6
+misleading-keyword,0.750,6,0.750,6,0.500,6
+model-specific,0.917,6,1.000,6,0.750,6
+multi-step,0.750,12,0.750,12,0.625,12
+named-instrument,1.000,6,1.000,6,1.000,6
+no-suitable-equipment,1.000,12,1.000,12,0.667,12
+problem-only,0.733,15,0.822,15,1.000,15
+vague,1.000,6,1.000,6,0.500,6

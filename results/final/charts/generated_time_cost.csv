@@ -1,0 +1,4 @@
+﻿Mode,Answers,Errors,Median time,Median tokens out,Cost / answer,Total cost
+Structured,98,0,10.7 s,434,$0.0059,$0.5734
+Structured + annotations,98,0,13.2 s,429,$0.0135,$1.3225
+Naive (baseline),98,0,9.2 s,170,$0.0072,$0.7036

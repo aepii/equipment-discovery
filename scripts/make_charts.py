@@ -6,8 +6,9 @@ Usage (from the project folder):
 Without --summary the newest summary of the set is used (curated: results/run_<time>_summary.csv,
 generated: results/run_generated_<time>_summary.csv). The run CSV next to it gives the per-answer
 numbers. Writes to results/charts/ at 300 dpi, each file prefixed with the set (curated_, generated_):
-  modes.png         grouped bars per mode: expected instruments found, wrong main picks,
-                    unavailable techniques flagged, accessories named
+  modes.png         grouped bars per mode: expected instruments found (main picks; main + supporting),
+                    accessories named, unavailable techniques flagged, said so when nothing fits,
+                    wrong main picks
   time_cost.png     table: answers, errors, median response time, output tokens, cost
   categories.png    main score per question category and mode
   groups.png        main score per source group (reviewed, stefan, draft) - curated set
@@ -34,7 +35,7 @@ RESULTS = ROOT / "results"
 MODES = {"structured": "Structured", "annotated": "Structured + annotations", "naive": "Naive (baseline)"}
 SETS = {"curated": "run_[0-9]*_summary.csv", "generated": "run_generated_*_summary.csv"}
 FOOTNOTES = {
-    "curated": "Expected answers are drafts except Q20-Q21 (reviewed by Stefan).",
+    "curated": "Expected answers written by the team.",
     "generated": "Expected answers come from the draft knowledge layer, which annotated mode also reads "
                  "(a built-in advantage).",
 }
@@ -72,10 +73,12 @@ def mode_metrics(summary: list[dict], answers: list[dict]) -> dict[str, dict]:
         tokens = [num(r["output_tokens"]) for r in scored if num(r["output_tokens"]) is not None]
         costs = [num(r["cost_usd"]) for r in rows if num(r["cost_usd"]) is not None]
         metrics[mode] = {
-            "Expected instruments found": num(s["mean_recall"]),
-            "Wrong main picks": mean(wrong),
-            "Unavailable techniques flagged": num(s["na_rate"]),
+            "Found (main picks)": num(s["mean_recall"]),
+            "Found (main + supporting)": num(s.get("mean_recall_any")),
             "Accessories to confirm named": num(s["accessory_rate"]),
+            "Unavailable techniques flagged": num(s["na_rate"]),
+            "Said so when nothing fits": num(s["objective_met_ok_rate"]),
+            "Wrong main picks": mean(wrong),
             "answers": len(rows), "errors": len(rows) - len(scored),
             "median_seconds": median(seconds) if seconds else None,
             "median_output_tokens": median(tokens) if tokens else None,
@@ -85,13 +88,26 @@ def mode_metrics(summary: list[dict], answers: list[dict]) -> dict[str, dict]:
     return metrics
 
 
-BARS = [("Expected instruments found", "higher is better"), ("Wrong main picks", "lower is better"),
-        ("Unavailable techniques flagged", "higher is better"), ("Accessories to confirm named", "higher is better")]
+# (metric, tick label); higher is better except the last
+BARS = [("Found (main picks)", "Expected instruments\nfound (main picks)"),
+        ("Found (main + supporting)", "Expected instruments found\n(main + supporting)"),
+        ("Accessories to confirm named", "Accessories to\nconfirm named"),
+        ("Unavailable techniques flagged", "Unavailable\ntechniques flagged"),
+        ("Said so when nothing fits", "Said so when\nnothing fits"),
+        ("Wrong main picks", "Wrong main picks\n(lower is better)")]
 
 
-def bar_chart(metrics: dict[str, dict], n_questions: int, out: Path, question_set: str = "curated") -> None:
+def run_note(answers: list[dict]) -> str:
+    """'Averages over 3 runs (207 answers, gemini-3.8-flash). ' for the chart footnote."""
+    runs = len({r["run"] for r in answers})
+    models = ", ".join(sorted({r["model"] for r in answers if r.get("model")})) or "model unknown"
+    return f"Averages over {runs} run{'s' if runs != 1 else ''} ({len(answers)} answers, {models}). "
+
+
+def bar_chart(metrics: dict[str, dict], n_questions: int, out: Path, question_set: str = "curated",
+              note: str = "Averages over all runs. ") -> None:
     modes = list(metrics)
-    fig, ax = plt.subplots(figsize=(10, 5.2), facecolor=SURFACE)
+    fig, ax = plt.subplots(figsize=(12, 5.4), facecolor=SURFACE)
     ax.set_facecolor(SURFACE)
     group, gap = 0.78, 0.03  # each metric's band; the leftover is air between groups
     width = group / len(modes) - gap
@@ -101,7 +117,7 @@ def bar_chart(metrics: dict[str, dict], n_questions: int, out: Path, question_se
         ax.bar(xs, values, width=width, color=SERIES[mode], label=MODES[mode], zorder=3)
         for x, v in zip(xs, values):
             ax.text(x, v + 0.015, f"{v:.0%}", ha="center", va="bottom", fontsize=9, color=INK_2)
-    ax.set_xticks(range(len(BARS)), [f"{name}\n({hint})" for name, hint in BARS], color=INK_2)
+    ax.set_xticks(range(len(BARS)), [tick for _, tick in BARS], color=INK_2, fontsize=10)
     ax.set_ylim(0, 1.1)
     ax.set_yticks([0, 0.25, 0.5, 0.75, 1], ["0%", "25%", "50%", "75%", "100%"], color=MUTED)
     ax.tick_params(length=0)
@@ -113,7 +129,7 @@ def bar_chart(metrics: dict[str, dict], n_questions: int, out: Path, question_se
                  fontsize=14, fontweight="bold", pad=34)
     ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=len(modes), frameon=False,
               labelcolor=INK_2, handlelength=1.2, borderaxespad=0.2)
-    fig.text(0.01, 0.01, "Averages over all runs. " + FOOTNOTES[question_set], color=MUTED, fontsize=8.5)
+    fig.text(0.01, 0.01, note + FOOTNOTES[question_set], color=MUTED, fontsize=8.5)
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     fig.savefig(out, dpi=300, facecolor=SURFACE)
     plt.close(fig)
@@ -227,7 +243,7 @@ def write_charts(summary: list[dict], answers: list[dict], question_set: str, ou
         return out / f"{question_set}_{stem}"
 
     n_questions = len({r["question_id"] for r in answers})
-    bar_chart(metrics, n_questions, path("modes.png"), question_set)
+    bar_chart(metrics, n_questions, path("modes.png"), question_set, run_note(answers))
     write_rows(path("modes.csv"), [["metric"] + [MODES[m] for m in metrics]]
                + [[metric] + ["" if metrics[m][metric] is None else f"{metrics[m][metric]:.3f}" for m in metrics]
                   for metric, _ in BARS])

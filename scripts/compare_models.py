@@ -3,7 +3,7 @@
 Usage (from the project folder, LLM_PROVIDER=gemini in .env):
   python scripts/compare_models.py                       all models in MODELS, curated questions, 1 run
   python scripts/compare_models.py --models gemini-3.8-flash gemini-3.1-flash-lite --questions Q1 Q2
-  python scripts/compare_models.py --question-file test_questions_generated.json     the 99 generated questions
+  python scripts/compare_models.py --question-file test_questions_generated.json     the 98 generated questions
   python scripts/compare_models.py --charts-only [--question-file ...]   only redraw the charts from saved runs
   python scripts/compare_models.py --all                 charts over curated + generated together (models_all_*)
 
@@ -56,8 +56,8 @@ def use_model(model: str) -> None:
                        "PRICE_IN_PER_M": str(price_in), "PRICE_OUT_PER_M": str(price_out)})
 
 
-def out_dir(question_set: str) -> Path:
-    return run_eval.RESULTS_DIR / ("models" if question_set == "curated" else f"models_{question_set}")
+def out_dir(question_set: str, results_dir: Path = run_eval.RESULTS_DIR) -> Path:
+    return results_dir / ("models" if question_set == "curated" else f"models_{question_set}")
 
 
 def run_models(models: list[str], questions: list[dict], modes: list[str], runs: int, max_usd: float,
@@ -138,10 +138,13 @@ def scatter(metrics: list[dict], x_key: str, x_label: str, title: str, out: Path
     plt.close(fig)
 
 
-def write_charts(question_set: str = "curated") -> None:
-    """Charts for one question set, or for "all": curated + generated, only models run on both."""
-    dirs = [out_dir("curated"), out_dir("generated")] if question_set == "all" else [out_dir(question_set)]
-    prefix = "models_all" if question_set == "all" else dirs[0].name
+def write_charts(question_set: str = "curated", results_dir: Path = run_eval.RESULTS_DIR,
+                 chart_dir: Path = CHART_DIR, prefix: str | None = None, note: str = "") -> list[list]:
+    """Charts for one question set, or for "all": curated + generated, only models run on both.
+    results_dir holds the models*/ folders; prefix names the files (default models_all / models_<set>)."""
+    dirs = ([out_dir("curated", results_dir), out_dir("generated", results_dir)] if question_set == "all"
+            else [out_dir(question_set, results_dir)])
+    prefix = prefix or ("models_all" if question_set == "all" else dirs[0].name)
     per_dir = [{p.stem: p for p in d.glob("*.csv") if not p.stem.endswith(("_summary", "_errors"))} for d in dirs]
     models = sorted(set.intersection(*(set(found) for found in per_dir)))
     metrics = [m for m in (model_metrics([found[mo] for found in per_dir]) for mo in models) if m["score"] is not None]
@@ -149,12 +152,12 @@ def write_charts(question_set: str = "curated") -> None:
         raise SystemExit(f"No model runs in {', '.join(map(str, dirs))}")
     metrics.sort(key=lambda m: m["cost_per_answer"])
     n = sum(len({r["question_id"] for r in mc.read_csv(found[models[0]])}) for found in per_dir)
-    note = f"{n} questions ({'curated + generated' if question_set == 'all' else question_set}). "
-    CHART_DIR.mkdir(parents=True, exist_ok=True)
+    note = f"{n} questions ({'curated + generated' if question_set == 'all' else question_set}). " + note
+    chart_dir.mkdir(parents=True, exist_ok=True)
     scatter(metrics, "cost_per_answer", "Cost per answer (USD, log scale)",
-            "Gemini models: answer quality vs. cost", CHART_DIR / f"{prefix}_cost_vs_score.png", note, log_x=True)
+            "Gemini models: answer quality vs. cost", chart_dir / f"{prefix}_cost_vs_score.png", note, log_x=True)
     scatter(metrics, "median_seconds", "Median response time (s)",
-            "Gemini models: answer quality vs. speed", CHART_DIR / f"{prefix}_speed_vs_score.png", note, log_x=False)
+            "Gemini models: answer quality vs. speed", chart_dir / f"{prefix}_speed_vs_score.png", note, log_x=False)
     table = [["model", "answers", "errors", "main score", "wrong main picks", "cost per answer (USD)",
               "total cost (USD)", "median seconds", "score per cent"]]
     for m in metrics:
@@ -162,10 +165,11 @@ def write_charts(question_set: str = "curated") -> None:
         table.append([m["model"], m["answers"], m["errors"], round(m["score"], 3), round(m["wrong_rate"], 3),
                       round(m["cost_per_answer"], 5), round(m["total_cost"], 4), m["median_seconds"],
                       round(per_cent, 2) if per_cent != "" else ""])
-    mc.write_rows(CHART_DIR / f"{prefix}_table.csv", table)
+    mc.write_rows(chart_dir / f"{prefix}_table.csv", table)
     for row in table:
         print("  ".join(str(c).ljust(14) for c in row))
-    print(f"\nSaved charts and table in {CHART_DIR}")
+    print(f"\nSaved charts and table in {chart_dir}")
+    return table
 
 
 def main() -> None:
