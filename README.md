@@ -263,7 +263,19 @@ unavailable techniques flagged, accessories named), a table of median response t
 main score per question category, plus per source group (curated set) or per generation rule (generated
 set). It writes the same numbers as CSV next to them. `before_after.py` saves logged answers of an older version
 (rows exported from the answers tab) next to fresh answers from the current code, for a before/after
-example. A short write-up of the latest run is in `results/FINDINGS.md` (not committed, like all of `results/`).
+example.
+
+Cost effectiveness across Gemini models (prices per model are in the script's `MODELS` table;
+about $5 for all six models on the curated set in structured and annotated mode, one run each):
+
+```
+python scripts/compare_models.py                  # results/models/<model>.csv, resumes if interrupted
+python scripts/compare_models.py --charts-only    # results/charts/models_cost_vs_score.png, models_speed_vs_score.png, models_table.csv
+python scripts/compare_models.py --question-file test_questions_generated.json   # ~$13, results/models_generated/
+python scripts/compare_models.py --all            # charts over both sets together: results/charts/models_all_*
+```
+
+A short write-up of the latest run is in `results/FINDINGS.md` (not committed, like all of `results/`).
 
 Use `LLM_PROVIDER=mock` to try it without spending API credits. Rate-limit and server errors are
 retried inside each call (see "Speed, cost and resilience"), then the whole answer is retried twice more
