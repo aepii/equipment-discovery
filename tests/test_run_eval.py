@@ -273,3 +273,11 @@ def test_review_sheet_shows_how_a_generated_key_was_derived():
     text = run_eval.review_sheet(q)
     assert "rule distractor" in text and "property: yield stress" in text
     assert "distractor: Extrusion-based 3D bioprinter" in text and "correct / wrong / unsure" in text
+
+
+def test_found_in_any_role_and_instruments_shown():
+    result = core.read_answer("structured", json.dumps({"recommendations": [
+        {"instrument_id": "EQ15", "role": "primary"}, {"instrument_id": "EQ19", "role": "supplementary"}]}))
+    scores = run_eval.score(QUESTION, result)
+    assert scores["recall"] == 0.5 and scores["found_any_hits"] == 2 and scores["recall_any"] == 1.0
+    assert scores["n_instruments"] == 2

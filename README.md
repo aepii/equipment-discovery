@@ -241,6 +241,8 @@ python run_eval.py --questions Q1 Q4 --runs 1     # a few questions
 python run_eval.py --category vague               # one category
 python run_eval.py --runs 3 --log                 # also log answers to the sheet (source "eval")
 python run_eval.py --rescore results/run_<time>.csv   # re-score saved answers, no model calls
+python run_eval.py --rescore results/run_<time>.csv --out results/<name>.csv   # choose the output file
+python scripts/graph_decision.py --poster P.csv --task1 A.csv --task2 B.csv --both C.csv   # PLAN.md decision rule
 python run_eval.py --review-sheet                 # results/expected_answers_review.md for Stefan
 ```
 
@@ -282,7 +284,9 @@ retried inside each call (see "Speed, cost and resilience"), then the whole answ
 after 10 and 20 s; other errors are kept and counted separately (they are left out of the averages).
 The summary also has `repaired_rate` (structured answers that needed the repair call),
 `false_primary_rate` (answers with at least one false primary), `objective_met_ok_rate` and
-`total_cost_usd` (when prices are set). In the printed table these are `falseP` and `no-obj`, and each
+`total_cost_usd` (when prices are set), `mean_recall_any` (expected instruments found in any role,
+printed as `found`; per answer `found_any_hits` / `recall_any`) and `mean_instruments` (instruments shown
+per answer, any role; per answer `n_instruments`, printed as `n-inst`). In the printed table these are `falseP` and `no-obj`, and each
 printed answer line shows the primary IDs, then `+supplementary [...]` if there are any.
 
 Recall changed meaning with the roles (it now counts primary instruments only), so runs from before
@@ -409,6 +413,18 @@ python scripts/draft_annotations.py draft --ids EQ05   # LLM draft -> data/annot
 are made in the JSON files and committed as data changes; then run `check` and `export`. Changing a
 knowledge file changes annotated mode's `prompt_version`, so cached and saved demo answers for that
 mode are not reused.
+
+Links that depend on the sample (opaque samples, beads above ~50 µm) carry `conditions`, and a
+technique's destructiveness can be `aliquot` (only a small separate piece is used, e.g. DSC) or set per
+property (`destructive_by_property`, e.g. TEM). Annotated mode asks the model for the question's
+`sample_conditions` and code applies them in the fit level; see [`data/README.md`](data/README.md).
+
+**Graph matching was tried and dropped (Nov 9).** Adding up to two "also capable" instruments per
+property from the graph (supplementary only, behind a `GRAPH_MATCH` flag) raised expected instruments
+found in any role (0.94 -> 0.99 curated) but added wrong picks: upright microscopes for well-plate
+questions (Q19, G094, G095), which the graph cannot tell apart. It failed the pre-set decision rule, so
+the code was removed; it is kept at the local tag `graph-matching-dropped`. Details and how to reproduce:
+`results/FINDINGS_graph_matching.md`.
 
 ## Tests
 
