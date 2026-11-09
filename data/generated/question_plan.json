@@ -1,6 +1,6 @@
 {
-  "knowledge_version": "4e9a2f2f",
-  "generated_at": "2026-11-08T16:22:07+00:00",
+  "knowledge_version": "40fef56f",
+  "generated_at": "2026-11-09T14:39:51+00:00",
   "items": [
     {
       "id": "G001",
@@ -89,15 +89,16 @@
       "id": "G003",
       "category": "problem-only",
       "expected_ids": [
-        "EQ07",
         "EQ08",
+        "EQ12"
+      ],
+      "acceptable_ids": [
+        "EQ07",
         "EQ09",
-        "EQ12",
         "EQ13",
         "EQ22",
         "EQ23"
       ],
-      "acceptable_ids": [],
       "unacceptable_ids": [],
       "supplementary_only_ids": [],
       "expected_not_available": [],
@@ -109,43 +110,26 @@
         "rule": "available-property",
         "property": "cell_morphology",
         "techniques": [
-          "brightfield_microscopy",
           "confocal_microscopy",
           "multiphoton_microscopy",
-          "phase_contrast_microscopy",
           "widefield_fluorescence_microscopy"
         ]
       },
       "brief": "cell morphology; sample: osteoblasts spreading on a titanium disc",
       "forbidden_terms": [
         "2-photon",
-        "brightfield",
-        "Brightfield light microscopy",
-        "BX53",
-        "BZ-X810",
         "CLSM",
         "confocal",
         "Confocal laser scanning microscopy",
         "Eclipse E800",
-        "Eclipse TE300",
         "epifluorescence",
         "fluorescence microscopy",
-        "High-content epifluorescence imaging system",
-        "histology imaging",
         "immunofluorescence imaging",
-        "Inverted confocal microscope",
-        "Inverted optical microscope",
-        "IX83",
-        "light microscopy",
         "Multiphoton microscopy",
         "optical sectioning",
-        "phase contrast",
-        "Phase-contrast microscopy",
         "second harmonic generation",
         "SHG",
         "SP8",
-        "SP8 STELLARIS",
-        "transmitted light",
         "two-photon microscopy",
         "Upright confocal / multiphoton microscope",
         "Upright optical microscope",
@@ -671,10 +655,10 @@
       "id": "G019",
       "category": "problem-only",
       "expected_ids": [
-        "EQ10"
+        "EQ14"
       ],
       "acceptable_ids": [
-        "EQ14"
+        "EQ10"
       ],
       "unacceptable_ids": [],
       "supplementary_only_ids": [],
@@ -687,20 +671,17 @@
         "rule": "available-property",
         "property": "microparticle_size_distribution",
         "techniques": [
-          "environmental_sem"
+          "stereomicroscopy"
         ]
       },
       "brief": "size distribution of particles from micrometres to millimetres; sample: alginate microbeads",
       "forbidden_terms": [
-        "environmental",
-        "Environmental scanning electron microscope",
-        "ESEM",
-        "ESEM mode",
-        "Scanning electron microscopy",
-        "scanning electron microscopy",
-        "secondary electron imaging",
-        "SEM",
-        "XL30"
+        "dissecting microscope",
+        "low-magnification inspection",
+        "SMZ 445",
+        "stereo microscope",
+        "Stereomicroscope",
+        "Stereomicroscopy"
       ]
     },
     {
@@ -1494,10 +1475,11 @@
       "category": "no-suitable-equipment",
       "expected_ids": [],
       "acceptable_ids": [],
-      "unacceptable_ids": [],
-      "supplementary_only_ids": [
+      "unacceptable_ids": [
         "EQ07",
-        "EQ08",
+        "EQ08"
+      ],
+      "supplementary_only_ids": [
         "EQ10",
         "EQ11"
       ],
@@ -1530,10 +1512,11 @@
       "category": "no-suitable-equipment",
       "expected_ids": [],
       "acceptable_ids": [],
-      "unacceptable_ids": [],
-      "supplementary_only_ids": [
+      "unacceptable_ids": [
         "EQ07",
-        "EQ08",
+        "EQ08"
+      ],
+      "supplementary_only_ids": [
         "EQ10",
         "EQ11"
       ],
@@ -1727,10 +1710,11 @@
       "category": "no-suitable-equipment",
       "expected_ids": [],
       "acceptable_ids": [],
-      "unacceptable_ids": [],
-      "supplementary_only_ids": [
+      "unacceptable_ids": [
         "EQ07",
-        "EQ08",
+        "EQ08"
+      ],
+      "supplementary_only_ids": [
         "EQ10"
       ],
       "expected_not_available": [
@@ -1999,10 +1983,10 @@
       "id": "G059",
       "category": "no-suitable-equipment",
       "expected_ids": [],
-      "acceptable_ids": [],
-      "unacceptable_ids": [
+      "acceptable_ids": [
         "EQ18"
       ],
+      "unacceptable_ids": [],
       "supplementary_only_ids": [],
       "expected_not_available": [
         "\\bX.?ray.?diffraction\\b|\\bXRD\\b|\\bpowder.?diffraction\\b"
@@ -2032,10 +2016,10 @@
         "EQ19",
         "EQ21"
       ],
-      "acceptable_ids": [],
-      "unacceptable_ids": [
+      "acceptable_ids": [
         "EQ18"
       ],
+      "unacceptable_ids": [],
       "supplementary_only_ids": [],
       "expected_not_available": [],
       "expected_accessories": {
@@ -2072,11 +2056,11 @@
       "expected_ids": [],
       "acceptable_ids": [],
       "unacceptable_ids": [
+        "EQ07",
+        "EQ08",
         "EQ11"
       ],
       "supplementary_only_ids": [
-        "EQ07",
-        "EQ08",
         "EQ10"
       ],
       "expected_not_available": [
@@ -2109,10 +2093,10 @@
       "expected_ids": [
         "EQ10"
       ],
-      "acceptable_ids": [],
-      "unacceptable_ids": [
+      "acceptable_ids": [
         "EQ11"
       ],
+      "unacceptable_ids": [],
       "supplementary_only_ids": [],
       "expected_not_available": [],
       "expected_accessories": {},
@@ -2137,38 +2121,6 @@
         "secondary electron imaging",
         "SEM",
         "XL30"
-      ]
-    },
-    {
-      "id": "G063",
-      "category": "no-suitable-equipment",
-      "expected_ids": [],
-      "acceptable_ids": [],
-      "unacceptable_ids": [
-        "EQ18"
-      ],
-      "supplementary_only_ids": [],
-      "expected_not_available": [
-        "\\bFourier.?transform.?infrared.?spectroscopy\\b|\\bFTIR\\b|\\binfrared.?spectroscopy\\b|\\bATR.?FTIR\\b|\\bIR\\b"
-      ],
-      "expected_accessories": {},
-      "expect_clarifying": false,
-      "expect_dead_end": false,
-      "workflow_ids": [],
-      "derived_from": {
-        "rule": "non-destructive",
-        "property": "reaction_enthalpy",
-        "techniques": [
-          "ftir_spectroscopy"
-        ]
-      },
-      "brief": "how much heat a curing or reacting material releases, without damaging or using up the sample; sample: an epoxy resin system",
-      "forbidden_terms": [
-        "ATR-FTIR",
-        "Fourier-transform infrared spectroscopy",
-        "FTIR",
-        "infrared spectroscopy",
-        "IR"
       ]
     },
     {
@@ -2963,10 +2915,10 @@
       "id": "G084",
       "category": "multi-step",
       "expected_ids": [
-        "EQ10"
+        "EQ14"
       ],
       "acceptable_ids": [
-        "EQ14"
+        "EQ10"
       ],
       "unacceptable_ids": [],
       "supplementary_only_ids": [],
@@ -2986,15 +2938,12 @@
       },
       "brief": "first vibrating-nozzle encapsulation (they plan to do this step), then size distribution of particles from micrometres to millimetres; sample: cell-loaded alginate capsules",
       "forbidden_terms": [
-        "environmental",
-        "Environmental scanning electron microscope",
-        "ESEM",
-        "ESEM mode",
-        "Scanning electron microscopy",
-        "scanning electron microscopy",
-        "secondary electron imaging",
-        "SEM",
-        "XL30"
+        "dissecting microscope",
+        "low-magnification inspection",
+        "SMZ 445",
+        "stereo microscope",
+        "Stereomicroscope",
+        "Stereomicroscopy"
       ]
     },
     {

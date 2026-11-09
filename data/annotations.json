@@ -112,8 +112,8 @@
       "id": "EQ07",
       "instrument": "Inverted confocal microscope",
       "techniques": [
-        {"technique": "confocal_microscopy", "source": "dataset", "confidence": "high"},
-        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low"}
+        {"technique": "confocal_microscopy", "source": "dataset", "confidence": "high", "conditions": [{"when": "opaque_sample", "effect": "partial", "why": "an inverted stand images from below, through the dish or plate bottom; cells on an opaque disc are seen only if the disc can be turned cell-side down onto a glass-bottom dish"}]},
+        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low", "conditions": [{"when": "opaque_sample", "effect": "partial", "why": "an inverted stand images from below, through the dish or plate bottom; cells on an opaque disc are seen only if the disc can be turned cell-side down onto a glass-bottom dish"}]}
       ],
       "typical_samples": ["fixed or live cells in dishes", "thin tissue sections", "fluorescently labeled hydrogels and scaffolds"],
       "limitations": [
@@ -126,6 +126,7 @@
         {"item": "objectives of suitable magnification and working distance", "for": ["confocal_microscopy"], "status": "to_confirm", "source": "llm_draft"},
         {"item": "stage-top incubator (temperature, CO2) for live cells", "for": ["live_cell_time_lapse_imaging"], "status": "to_confirm", "source": "llm_draft"}
       ],
+      "corrections": [{"change": "imaging techniques on this inverted stand are now only partial for opaque samples or substrates (a condition the rules test)", "source": "D. B. Murphy, M. W. Davidson, Fundamentals of Light Microscopy and Electronic Imaging, 2nd ed., Wiley-Blackwell, 2012 (upright vs. inverted stands). Exact chapter not checked. Whether the Keyence BZ-X810 counts as inverted is from general knowledge of the BZ-X series, not a checked manufacturer page.", "needs_confirmation": true}],
       "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
     },
     {
@@ -152,10 +153,10 @@
       "id": "EQ09",
       "instrument": "High-content epifluorescence imaging system",
       "techniques": [
-        {"technique": "widefield_fluorescence_microscopy", "source": "dataset", "confidence": "high"},
+        {"technique": "widefield_fluorescence_microscopy", "source": "dataset", "confidence": "high", "conditions": [{"when": "opaque_sample", "effect": "partial", "why": "an inverted stand images from below, through the dish or plate bottom; cells on an opaque disc are seen only if the disc can be turned cell-side down onto a glass-bottom dish"}]},
         {"technique": "brightfield_microscopy", "source": "llm_draft", "confidence": "high"},
         {"technique": "phase_contrast_microscopy", "source": "llm_draft", "confidence": "medium"},
-        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low"}
+        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low", "conditions": [{"when": "opaque_sample", "effect": "partial", "why": "an inverted stand images from below, through the dish or plate bottom; cells on an opaque disc are seen only if the disc can be turned cell-side down onto a glass-bottom dish"}]}
       ],
       "typical_samples": ["cell cultures in multiwell plates", "tissue sections on slides", "whole-slide scans"],
       "limitations": [
@@ -168,6 +169,7 @@
         {"item": "stage-top incubator for live cells", "for": ["live_cell_time_lapse_imaging"], "status": "to_confirm", "source": "llm_draft"},
         {"item": "image analysis / cell counting software module", "for": ["widefield_fluorescence_microscopy"], "status": "to_confirm", "source": "llm_draft"}
       ],
+      "corrections": [{"change": "imaging techniques on this inverted stand are now only partial for opaque samples or substrates (a condition the rules test)", "source": "D. B. Murphy, M. W. Davidson, Fundamentals of Light Microscopy and Electronic Imaging, 2nd ed., Wiley-Blackwell, 2012 (upright vs. inverted stands). Exact chapter not checked. Whether the Keyence BZ-X810 counts as inverted is from general knowledge of the BZ-X series, not a checked manufacturer page.", "needs_confirmation": true}],
       "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
     },
     {
@@ -236,8 +238,8 @@
       "techniques": [
         {"technique": "brightfield_microscopy", "source": "llm_draft", "confidence": "high"},
         {"technique": "phase_contrast_microscopy", "source": "llm_draft", "confidence": "medium"},
-        {"technique": "widefield_fluorescence_microscopy", "source": "llm_draft", "confidence": "low"},
-        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low"}
+        {"technique": "widefield_fluorescence_microscopy", "source": "llm_draft", "confidence": "low", "conditions": [{"when": "opaque_sample", "effect": "partial", "why": "an inverted stand images from below, through the dish or plate bottom; cells on an opaque disc are seen only if the disc can be turned cell-side down onto a glass-bottom dish"}]},
+        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low", "conditions": [{"when": "opaque_sample", "effect": "partial", "why": "an inverted stand images from below, through the dish or plate bottom; cells on an opaque disc are seen only if the disc can be turned cell-side down onto a glass-bottom dish"}]}
       ],
       "typical_samples": ["live cell cultures in flasks, dishes and plates"],
       "limitations": [
@@ -250,6 +252,7 @@
         {"item": "stage-top incubator for live-cell time-lapse", "for": ["live_cell_time_lapse_imaging"], "status": "to_confirm", "source": "llm_draft"},
         {"item": "digital camera", "for": ["brightfield_microscopy", "phase_contrast_microscopy"], "status": "to_confirm", "source": "llm_draft"}
       ],
+      "corrections": [{"change": "imaging techniques on this inverted stand are now only partial for opaque samples or substrates (a condition the rules test)", "source": "D. B. Murphy, M. W. Davidson, Fundamentals of Light Microscopy and Electronic Imaging, 2nd ed., Wiley-Blackwell, 2012 (upright vs. inverted stands). Exact chapter not checked. Whether the Keyence BZ-X810 counts as inverted is from general knowledge of the BZ-X series, not a checked manufacturer page.", "needs_confirmation": true}],
       "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": ""}
     },
     {
@@ -440,8 +443,8 @@
       "techniques": [
         {"technique": "brightfield_microscopy", "source": "llm_draft", "confidence": "high"},
         {"technique": "phase_contrast_microscopy", "source": "llm_draft", "confidence": "medium"},
-        {"technique": "widefield_fluorescence_microscopy", "source": "llm_draft", "confidence": "low"},
-        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low"}
+        {"technique": "widefield_fluorescence_microscopy", "source": "llm_draft", "confidence": "low", "conditions": [{"when": "opaque_sample", "effect": "partial", "why": "an inverted stand images from below, through the dish or plate bottom; cells on an opaque disc are seen only if the disc can be turned cell-side down onto a glass-bottom dish"}]},
+        {"technique": "live_cell_time_lapse_imaging", "source": "llm_draft", "confidence": "low", "conditions": [{"when": "opaque_sample", "effect": "partial", "why": "an inverted stand images from below, through the dish or plate bottom; cells on an opaque disc are seen only if the disc can be turned cell-side down onto a glass-bottom dish"}]}
       ],
       "typical_samples": ["Adherent or suspension cell cultures in culture flasks, dishes, or multi-well plates", "Histological tissue sections mounted on glass slides", "Transparent hydrogels, biomaterial films, or microfluidic chips containing cells"],
       "limitations": [
@@ -456,6 +459,7 @@
         {"item": "Phase contrast condenser rings and phase-compatible objectives", "for": ["phase_contrast_microscopy"], "status": "to_confirm", "source": "llm_draft"},
         {"item": "Stage-top environmental incubation chamber (CO2, temperature, and humidity control)", "for": ["live_cell_time_lapse_imaging"], "status": "to_confirm", "source": "llm_draft"}
       ],
+      "corrections": [{"change": "imaging techniques on this inverted stand are now only partial for opaque samples or substrates (a condition the rules test)", "source": "D. B. Murphy, M. W. Davidson, Fundamentals of Light Microscopy and Electronic Imaging, 2nd ed., Wiley-Blackwell, 2012 (upright vs. inverted stands). Exact chapter not checked. Whether the Keyence BZ-X810 counts as inverted is from general knowledge of the BZ-X series, not a checked manufacturer page.", "needs_confirmation": true}],
       "review": {"status": "draft", "reviewed_by": null, "reviewed_on": null, "comments": "Drafted by the LLM from manufacturer, model and installed accessories only (fictional test instrument)."}
     }
   ]

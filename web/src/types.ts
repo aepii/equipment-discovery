@@ -16,7 +16,7 @@ export interface Card {
   why: string;
   fit: Fit | null;
   fit_reason: string;
-  destructive_level: "yes" | "no" | "depends" | null;
+  destructive_level: "yes" | "no" | "depends" | "aliquot" | null;
   destructive: string;
   dead_end: string;
   installed: string[];

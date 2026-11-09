@@ -51,6 +51,36 @@ A technique that no instrument performs is "not available in the dataset". Prope
 gives only under a condition go in `partial` with the condition (e.g. confocal microscopy gives internal
 3D structure only for transparent or fluorescent samples).
 
+**Conditions the rules can test.** Where a link depends on the sample, a `conditions` entry names a
+sample condition from `vocabulary.json` (`opaque_sample`, `particles_above_50um`) and its effect on that
+link: `excluded`, `partial` or `full`. It sits on the technique (any instrument; optionally for one
+`property`) or on one instrument's link in `annotations.json` (e.g. an inverted stand). Annotated mode
+asks the model for the question's `sample_conditions`; `knowledge.link_level` combines them with the
+links (excluded before partial before full). The generated-question rules use the same function with the
+conditions of each sample (`SAMPLE_CONDITIONS` in `scripts/generate_questions.py`).
+
+**Destructive per property.** `destructive` can be `aliquot`: only a small separate portion (a few mg,
+a drop) is used up, so the specimen itself stays intact (DSC). A `depends` technique can settle it per
+property in `destructive_by_property` (TEM: `yes` for ultrastructure, `aliquot` for nanoparticles on a
+grid). The non-destructive rule treats `aliquot` as acceptable, not unacceptable.
+
+## Corrections after the generated-question spot-check (Nov 9, 2026)
+
+From `results/FINDINGS.md`. Each one has a `corrections` entry (`change`, `source`,
+`needs_confirmation: true`) on the technique or instrument it changes, for Stefan to confirm. The
+sources are textbooks and standards named from general knowledge; the exact chapters and clauses were not
+checked, and no manufacturer page was found for the size ranges or for the BZ-X810 being inverted.
+
+- **FTIR:** reaction enthalpy removed from `measures` (kept as partial: degree of cure, not heat).
+- **TEM and STEM:** `destructive` `yes` -> `depends` (`yes` when sectioned, `aliquot` for dispersed particles).
+- **DSC:** `destructive` `yes` -> `aliquot`.
+- **Opaque samples:** brightfield and phase contrast excluded; confocal and multiphoton views inside the
+  sample (internal structure, porosity) excluded; the inverted stands (EQ07, EQ09, EQ13, EQ23) partial.
+- **Large particles (> ~50 µm):** the stereomicroscope gives a full size distribution, the ESEM a partial one.
+
+Not changed: the ESEM's full link to nanoparticle morphology (the findings suggest TEM should be the
+only expected tool for nanoparticles); this needs Stefan's judgement on the XL30's resolution.
+
 ## Sources and confidence
 
 Each technique an instrument performs, and each accessory, has a `source`:

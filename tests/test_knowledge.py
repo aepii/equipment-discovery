@@ -49,9 +49,63 @@ def test_instruments_that_make_or_prepare_samples_measure_nothing(eq_id):
 
 def test_electron_microscopy_and_ultramicrotomy_are_destructive():
     techs = knowledge.techniques()
-    assert techs["transmission_electron_microscopy"]["destructive"] == "yes"
+    assert techs["transmission_electron_microscopy"]["destructive"] == "depends"
+    assert knowledge.destructive_for("transmission_electron_microscopy", "ultrastructure") == "yes"
     assert techs["ultramicrotomy"]["destructive"] == "yes"
     assert techs["micro_computed_tomography"]["destructive"] == "no"
+
+
+def test_tem_of_dispersed_nanoparticles_and_dsc_use_only_a_small_portion():
+    assert knowledge.destructive_for("transmission_electron_microscopy", "nanoparticle_morphology") == "aliquot"
+    assert knowledge.destructive_for("differential_scanning_calorimetry", "melting_temperature") == "aliquot"
+    assert knowledge.destructive_text("aliquot") == "only a small separate portion is used up"
+
+
+def test_ftir_does_not_measure_reaction_enthalpy():
+    ftir = knowledge.techniques()["ftir_spectroscopy"]
+    assert "reaction_enthalpy" not in ftir["measures"] and "reaction_enthalpy" in ftir["partial"]
+
+
+def test_every_correction_has_a_source_and_waits_for_the_expert():
+    entries = list(knowledge.techniques().values()) + list(knowledge.annotations().values())
+    corrections = [c for e in entries for c in e.get("corrections", [])]
+    assert len(corrections) >= 9
+    assert all(c["source"] and c["needs_confirmation"] is True for c in corrections)
+
+
+def test_link_level_without_conditions_is_measures_or_partial():
+    assert knowledge.link_level("EQ15", "compression_testing", "compressive_modulus") == ("full", "")
+    level, why = knowledge.link_level("EQ08", "confocal_microscopy", "internal_3d_structure")
+    assert level == "partial" and "transparent" in why
+    assert knowledge.link_level("EQ15", "compression_testing", "viscosity_vs_shear_rate") == (None, "")
+
+
+def test_opaque_sample_rules_out_transmitted_light_and_makes_inverted_stands_partial():
+    opaque = ["opaque_sample"]
+    assert knowledge.link_level("EQ13", "brightfield_microscopy", "cell_morphology", opaque)[0] == "excluded"
+    assert knowledge.link_level("EQ08", "confocal_microscopy", "internal_3d_structure", opaque)[0] == "excluded"
+    assert knowledge.link_level("EQ07", "confocal_microscopy", "cell_morphology", opaque)[0] == "partial"
+    assert knowledge.link_level("EQ08", "confocal_microscopy", "cell_morphology", opaque) == ("full", "")
+    assert knowledge.link_level("EQ12", "widefield_fluorescence_microscopy", "cell_morphology", opaque) == ("full", "")
+
+
+def test_large_particles_make_the_stereo_microscope_full_and_the_esem_partial():
+    large = ["particles_above_50um"]
+    assert knowledge.link_level("EQ14", "stereomicroscopy", "microparticle_size_distribution")[0] == "partial"
+    assert knowledge.link_level("EQ14", "stereomicroscopy", "microparticle_size_distribution", large)[0] == "full"
+    assert knowledge.link_level("EQ10", "environmental_sem", "microparticle_size_distribution")[0] == "full"
+    assert knowledge.link_level("EQ10", "environmental_sem", "microparticle_size_distribution", large)[0] == "partial"
+
+
+def test_sample_condition_ids_drop_unknown_values():
+    assert knowledge.sample_condition_ids(["opaque_sample", "glowing", "opaque_sample"]) == ["opaque_sample"]
+
+
+def test_validate_reports_bad_conditions():
+    techs = {k: dict(v) for k, v in knowledge.techniques().items()}
+    techs["stereomicroscopy"]["conditions"] = [{"when": "wet", "property": "ultrastructure", "effect": "maybe"}]
+    problems = " ".join(knowledge.validate(list(core.load_equipment()), techs=techs))
+    assert "'wet'" in problems and "'maybe'" in problems and "neither measures" in problems and "no 'why'" in problems
 
 
 def test_instron_compression_needs_load_cell_and_platens_to_confirm():
@@ -260,6 +314,39 @@ def test_fit_high_when_nothing_needs_confirming_and_low_for_dead_ends():
     assert core.assign_fit(dict(rec))["fit_reason"] == "Standard technique; no accessories to confirm."
     dead = core.assign_fit({**rec, "dead_end": "Dead end: X-ray diffraction is not available."})
     assert dead["fit"] == "low" and dead["fit_reason"].startswith("Dead end")
+
+
+def test_sample_conditions_from_the_answer_change_the_fit():
+    def rec(eq, tid, prop):
+        return {"instrument_id": eq, "role": "primary", "technique_id": tid, "property_id": prop,
+                "technique": "t", "why": "w", "accessories_to_confirm": ["x"]}
+    result = annotated([rec("EQ13", "brightfield_microscopy", "cell_morphology"),
+                        rec("EQ07", "confocal_microscopy", "cell_morphology"),
+                        rec("EQ08", "confocal_microscopy", "cell_morphology")],
+                       sample_conditions=["opaque_sample", "unknown_condition"])
+    assert result["sample_conditions"] == ["opaque_sample"]
+    brightfield, inverted, upright = result["recommendations"]
+    assert brightfield["fit"] == "low" and brightfield["fit_reason"].startswith("Not for this sample: transmitted light")
+    assert inverted["fit"] == "low" and inverted["fit_reason"].startswith("Partial: an inverted stand")
+    assert upright["fit"] == "medium"
+    beads = annotated([rec("EQ14", "stereomicroscopy", "microparticle_size_distribution")],
+                      sample_conditions=["particles_above_50um"])["recommendations"][0]
+    assert beads["fit"] == "medium"  # partial without the condition
+
+
+def test_destructive_level_follows_the_property():
+    def tem(prop):
+        return fitted("EQ11", "transmission_electron_microscopy", property_id=prop)
+    assert tem("nanoparticle_morphology")["destructive_level"] == "aliquot"
+    assert tem("ultrastructure")["destructive_level"] == "yes"
+    assert tem(None)["destructive_level"] == "depends"
+
+
+def test_annotated_prompt_lists_sample_conditions_and_conditional_links():
+    prompt = core.build_user_prompt("q", "annotated")
+    assert "Sample conditions:\n- opaque_sample:" in prompt
+    assert "if opaque_sample: not possible" in prompt and "if particles_above_50um: fully" in prompt
+    assert '"sample_conditions": []' in core.ANNOTATED_SYSTEM
 
 
 def test_a_measured_property_is_not_partial():

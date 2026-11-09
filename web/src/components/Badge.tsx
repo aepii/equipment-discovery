@@ -17,6 +17,7 @@ const DESTRUCTIVE: Record<string, [string, Tone]> = {
   yes: ["Destroys sample", "neutral"],
   no: ["Non-destructive", "neutral"],
   depends: ["Depends on sample", "neutral"],
+  aliquot: ["Uses a small piece", "neutral"],
 };
 
 /** Up to three badges: role, fit level (or dead end) and destructiveness. */
