@@ -11,7 +11,6 @@ export interface Card {
   contact: string;
   demo_instrument: boolean;
   role: "primary" | "supplementary";
-  source: "model" | "graph";
   technique: string;
   property: string;
   why: string;
@@ -55,7 +54,6 @@ export interface AnswerResult {
   complementary?: Card[];
   not_available?: NotAvailable[];
   removed_count?: number;
-  graph_notices?: string[];
   // General AI answers
   text?: string;
   gaps?: string[];

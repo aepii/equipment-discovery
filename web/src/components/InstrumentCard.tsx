@@ -156,7 +156,6 @@ export function CompactCard({ card }: { card: Card }) {
         <h4 className="card__title card__title--sm">{card.name}</h4>
         <p className="mono card__model">{makeModel(card)}</p>
         <p className="card__purpose">{card.dead_end || card.why || card.fit_reason}</p>
-        {card.source === "graph" && <p className="card__source">Added from the knowledge graph</p>}
         <p className="card__where">
           {card.location} · {card.contact}
         </p>

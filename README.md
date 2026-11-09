@@ -410,36 +410,6 @@ are made in the JSON files and committed as data changes; then run `check` and `
 knowledge file changes annotated mode's `prompt_version`, so cached and saved demo answers for that
 mode are not reused.
 
-Links that depend on the sample (opaque samples, beads above ~50 µm) carry `conditions`, and a
-technique's destructiveness can be `aliquot` (only a small separate piece is used, e.g. DSC) or set per
-property (`destructive_by_property`, e.g. TEM). Annotated mode asks the model for the question's
-`sample_conditions` and code applies them in the fit level; see [`data/README.md`](data/README.md).
-
-### Graph matching (`GRAPH_MATCH=1`, off by default)
-
-With `GRAPH_MATCH=1` in `.env`, annotated mode walks the graph after its checks: for every property the
-answer used (the recommendations' `property_id`s and measurement needs that name a property), it finds the
-techniques that fully measure it and the listed instruments that perform them with high or medium
-confidence. Instruments not already in the answer, and not ruled out by the sample's conditions, are added
-as **supplementary** recommendations with `source: "graph"`, the fixed reason "Also capable according to
-the knowledge graph; not chosen by the model", accessories from their annotation and a fit level from
-the usual rules. At most two are added per property; for the rest, a one-line notice ("N more
-instruments can also measure X") lists their IDs. Added instruments are never primary, so
-`objective_met` and recall are unchanged by construction. The cards say "Added from the knowledge graph",
-and the reasoning graph draws them in violet with an "added by graph" edge.
-
-`run_eval.py` adds `n_instruments` (instruments shown, any role), `graph_added` and `graph_added_ids`
-per answer, and `mean_instruments` / `mean_graph_added` per mode (printed as `n-inst` and `graph+`).
-Graph matching only changes how saved answers are read, so it can be compared without model calls:
-
-```
-GRAPH_MATCH=0 python run_eval.py --rescore results/run_<time>.csv --out results/<name>_g0.csv
-GRAPH_MATCH=1 python run_eval.py --rescore results/run_<time>.csv --out results/<name>_g1.csv
-```
-
-(add `--question-file test_questions_generated.json` for a generated run). The comparison with the poster
-version and the decision for each change are in `results/FINDINGS_graph_matching.md`.
-
 ## Tests
 
 ```

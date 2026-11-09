@@ -81,12 +81,8 @@ def _technique(g: _Graph, tid: str, origin: str) -> str:
     return node
 
 
-GRAPH_ADDED = ("#f3eefb", "#7a5bd0")  # instruments added by graph matching, not chosen by the model
-
-
 def _instrument_label(rec: dict) -> str:
-    role = ("Also capable (added by graph)" if rec.get("source") == "graph"
-            else "Can perform this" if rec.get("role", "primary") == "primary" else "Complementary only")
+    role = "Can perform this" if rec.get("role", "primary") == "primary" else "Complementary only"
     state = "DEAD END" if rec.get("dead_end") else f"{rec['fit']} fit" if rec.get("fit") else ""
     return f"{rec['instrument']} ({rec['id']})\n{rec['contact']}\n{role}" + (f" · {state}" if state else "")
 
@@ -142,12 +138,11 @@ def _build(result: dict) -> _Graph | None:
         if tid:
             _steps_before(g, tid, tech)
             _follow_ups(g, tid, tech)
-        added = rec.get("source") == "graph"
-        style = DEAD_END if rec.get("dead_end") else GRAPH_ADDED if added else FIT_STYLE.get(rec.get("fit"), NEUTRAL)
+        style = DEAD_END if rec.get("dead_end") else FIT_STYLE.get(rec.get("fit"), NEUTRAL)
         inst = f"i:{rec['id']}"
         g.node(inst, _instrument_label(rec), style,
                **({} if rec.get("role", "primary") == "primary" else {"style": "rounded,filled,dashed"}))
-        g.edge(tech, inst, "added by graph" if added else "performed on", **({"style": "dashed"} if added else {}))
+        g.edge(tech, inst, "performed on")
         installed = knowledge.installed_for(rec["id"], tid) if tid else []
         items = ([f"Installed: {'; '.join(installed)}"] if installed else []) + (
             ["Confirm with contact:"] + [f"- {a}" for a in rec["accessories_to_confirm"]]

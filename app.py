@@ -158,8 +158,6 @@ def render_recommendation(rec: dict) -> None:
     with st.container(border=True):
         st.markdown(f"**{rec['instrument']}** · {rec['manufacturer']} {rec['model']} · `{rec['id']}`")
         st.markdown(" ".join(card_badges(rec)))
-        if rec.get("source") == "graph":
-            st.caption(":violet[**Added from the knowledge graph**] (not chosen by the model)")
         if rec.get("fit_reason"):
             st.caption(rec["fit_reason"])
         elif rec["accessories_to_confirm"]:  # structured mode has no fit level
@@ -204,8 +202,6 @@ def render_structured(result: dict) -> None:
         if result.get("measurement_needs"):
             st.markdown("**What needs to be measured**")
             st.markdown("\n".join(f"- {need}" for need in result["measurement_needs"]))
-        for line in result.get("graph_notices", []):
-            st.caption(line)
         if result["removed"]:
             st.error("Removed recommendation(s) naming an instrument not in the dataset: "
                      + ", ".join(result["removed"]))

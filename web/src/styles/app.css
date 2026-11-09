@@ -715,12 +715,6 @@ a:hover {
   color: var(--muted);
 }
 
-.card__source {
-  font-size: 13px;
-  font-style: italic;
-  color: var(--muted);
-}
-
 .id-tag {
   display: inline-block;
   font-family: var(--font-mono);
