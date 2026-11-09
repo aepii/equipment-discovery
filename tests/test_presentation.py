@@ -50,7 +50,7 @@ def test_card_fields_are_an_allowlist():
     result = core.demo_answer("annotated", presentation.EXAMPLES[0]["question"])
     card = presentation.sanitize(result)["primary"][0]
     assert set(card) == {"id", "name", "manufacturer", "model", "location", "contact", "demo_instrument", "role",
-                         "technique", "property", "why", "fit", "fit_reason", "destructive_level", "destructive",
+                         "source", "technique", "property", "why", "fit", "fit_reason", "destructive_level", "destructive",
                          "dead_end", "installed", "to_confirm", "workflow", "cautions", "capabilities_note"}
     assert "notes" not in card and "notes_status" not in card
 

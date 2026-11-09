@@ -111,6 +111,12 @@ export function FinderBody({ answer, actions }: { answer: AskResponse; actions?:
           </ul>
         </Reveal>
       )}
+      {(r.graph_notices ?? []).map((line) => (
+        <Reveal key={line} className="notice notice--muted">
+          <Info size={18} aria-hidden="true" />
+          <p>{line}</p>
+        </Reveal>
+      ))}
       {(r.removed_count ?? 0) > 0 && (
         <Reveal className="notice notice--muted">
           <Info size={18} aria-hidden="true" />

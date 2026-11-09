@@ -72,6 +72,7 @@ def _card(rec: dict) -> dict:
         "contact": rec["contact"],
         "demo_instrument": bool(rec.get("fictional_test_instrument")),
         "role": rec.get("role", "primary"),
+        "source": rec.get("source", "model"),  # "graph": added from the knowledge graph, not chosen by the model
         "technique": clean_text(rec.get("technique")),
         "property": knowledge.property_label(rec["property_id"]) if rec.get("property_id") else "",
         "why": clean_text(rec.get("why")),
@@ -118,6 +119,7 @@ def _structured(result: dict) -> dict:
         "not_available": [{"technique": clean_text(n.get("technique")), "why_useful": clean_text(n.get("why_useful"))}
                           for n in result.get("not_available", []) if not n.get("available_on")],
         "removed_count": len(result.get("removed", [])),
+        "graph_notices": _clean_list(result.get("graph_notices")),
     }
 
 

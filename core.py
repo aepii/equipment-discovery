@@ -11,6 +11,7 @@ from typing import Callable, Iterator
 import openpyxl
 
 import knowledge
+import runtime
 from llm import complete, complete_with_meta, stream_with_meta
 
 DATA_PATH = Path(__file__).parent / "data" / "dataset.xlsx"
@@ -500,6 +501,85 @@ def check_not_available(items: list) -> list[dict]:
     return checked
 
 
+# --- graph matching: instruments the knowledge graph says can also measure what the answer asks about ---
+
+GRAPH_REASON = "Also capable according to the knowledge graph; not chosen by the model."
+GRAPH_CAP = 2  # added instruments per property; the rest are listed in a notice
+GRAPH_CONFIDENCE = ("high", "medium")  # "low" needs optional hardware the dataset does not list
+
+
+def graph_match_on() -> bool:
+    """GRAPH_MATCH=1 in .env turns graph matching on (default off), so runs can be scored with and without it."""
+    return runtime.flag("GRAPH_MATCH")
+
+
+def _plain(text: str) -> str:
+    return " ".join(re.sub(r"\(.*?\)|[^\w\s]", " ", str(text).lower().replace("_", " ")).split())
+
+
+def answer_properties(result: dict) -> list[str]:
+    """Vocabulary property IDs the answer used: the recommendations' property_ids, then measurement needs
+    that are a property's ID or label (e.g. "Compressive modulus"). In order, without repeats."""
+    vocab = knowledge.vocabulary()["properties"]
+    by_name = {_plain(pid): pid for pid in vocab} | {_plain(p.get("label", "")): pid for pid, p in vocab.items()}
+    props = [r.get("property_id", "") for r in result["recommendations"]]
+    props += [by_name.get(_plain(need), "") for need in result.get("measurement_needs", [])]
+    return [p for p in dict.fromkeys(props) if p in vocab]
+
+
+def graph_candidates(prop: str, sample_conditions=()) -> list[tuple[str, str]]:
+    """(instrument, technique) pairs that fully measure a property: techniques that measure it, then the
+    instruments that perform them with high or medium confidence, high first. Preparation-only techniques
+    measure nothing and never appear; a link the sample's conditions make partial or exclude is left out."""
+    best: dict[str, tuple[int, str]] = {}  # one technique per instrument: the most confident, then file order
+    for tid, t in knowledge.techniques().items():
+        if t["kind"] not in knowledge.MEASURING_KINDS:
+            continue
+        for eq_id in knowledge.instruments_for(tid):
+            confidence = knowledge.techniques_of(eq_id)[tid]["confidence"]
+            if confidence in GRAPH_CONFIDENCE and knowledge.link_level(eq_id, tid, prop, sample_conditions)[0] == "full":
+                rank = GRAPH_CONFIDENCE.index(confidence)
+                if eq_id not in best or rank < best[eq_id][0]:
+                    best[eq_id] = (rank, tid)
+    order = list(equipment_by_id())
+    return [(eq_id, tid) for eq_id, (_, tid) in sorted(best.items(), key=lambda x: (x[1][0], order.index(x[0])))]
+
+
+def graph_recommendation(eq_id: str, tid: str, prop: str, recommendations: list[dict], sample_conditions=()) -> dict:
+    """A supplementary recommendation added by code. Accessories, destructiveness and workflow come from the
+    notes; the fit level from assign_fit, rated as if it were the main pick (it can perform the measurement),
+    then the role is set to supplementary: added instruments are never primary."""
+    rec = {**equipment_by_id()[eq_id], "role": "primary", "source": "graph", "technique": knowledge.technique_name(tid),
+           "why": GRAPH_REASON, "accessories_to_confirm": [], "property_id": prop}
+    check_against_annotations(rec, tid)
+    check_workflow(rec, recommendations + [rec])
+    assign_fit(rec, sample_conditions)
+    rec["role"] = "supplementary"
+    return rec
+
+
+def add_graph_matches(result: dict) -> dict:
+    """Annotated mode, after the other checks: for each property the answer used, add up to GRAPH_CAP
+    instruments that can also measure it but were not chosen by the model. More than that: a notice instead
+    ("N more instruments can also measure X"), with their IDs in result["graph_more"]."""
+    result.update(graph_added=[], graph_more={}, graph_notices=[])
+    recs = result["recommendations"]
+    conditions = result.get("sample_conditions", [])
+    for prop in answer_properties(result):
+        shown = {r["id"] for r in recs}
+        new = [(eq_id, tid) for eq_id, tid in graph_candidates(prop, conditions) if eq_id not in shown]
+        for eq_id, tid in new[:GRAPH_CAP]:
+            recs.append(graph_recommendation(eq_id, tid, prop, recs, conditions))
+            result["graph_added"].append(eq_id)
+        more = [eq_id for eq_id, _ in new[GRAPH_CAP:]]
+        if more:
+            result["graph_more"][prop] = more
+            result["graph_notices"].append(
+                f"{len(more)} more instrument{'s' if len(more) > 1 else ''} can also measure "
+                f"{knowledge.property_label(prop).lower()}: {', '.join(more)}.")
+    return result
+
+
 # --- read an answer (also used to re-score saved answers without calling the model) ---
 
 def new_result(mode: str, raw: str = "") -> dict:
@@ -507,6 +587,7 @@ def new_result(mode: str, raw: str = "") -> dict:
             "recommendations": [], "removed": [], "instrument_ids": [], "mentioned_ids": [],
             "primary_ids": [], "supplementary_ids": [], "objective_met": None,
             "ids_source": "", "not_available": [], "clarifying_question": None, "sample_conditions": [],
+            "graph_added": [], "graph_more": {}, "graph_notices": [],
             "repaired": False, "first_raw": "", "schema_problems": [], "source": "live", "demo": None}
 
 
@@ -538,6 +619,11 @@ def read_structured(result: dict) -> dict:
             check_workflow(rec, result["recommendations"])
             assign_fit(rec, result["sample_conditions"])
         result["not_available"] = check_not_available(result["not_available"])
+        for rec in result["recommendations"]:
+            rec["source"] = "model"
+        if graph_match_on():
+            add_graph_matches(result)
+            result["instrument_ids"] = [rec["id"] for rec in result["recommendations"]]
     # Roles are read last: the workflow check can turn a dead end into a supplementary recommendation.
     result["primary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "primary"]
     result["supplementary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "supplementary"]
