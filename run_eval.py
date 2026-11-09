@@ -51,7 +51,9 @@ SCORE_COLUMNS = ["expected_hits", "expected_total", "recall", "unacceptable_hits
                  "unclassified_ids", "expected_only_mentioned", "na_hits", "na_total", "accessory_hits", "accessory_total",
                  "asked_clarifying", "clarifying_ok", "contacts_ok", "contacts_total",
                  "fit_expected_good", "fit_expected_total", "fit_bad_low", "fit_bad_total",
-                 "dead_end_flagged", "dead_end_ok", "workflow_hits", "workflow_total"]
+                 "dead_end_flagged", "dead_end_ok", "workflow_hits", "workflow_total",
+                 # Added later; appended so earlier columns keep their place and meaning.
+                 "n_instruments", "found_any_hits", "recall_any"]
 COLUMNS = ["question_id", "category", "status", "source_group", "rule", "run"] + SCORE_COLUMNS + store.ANSWER_COLUMNS
 TRANSIENT = re.compile(r"\b(429|500|502|503|504)\b|rate.?limit|quota|unavailable|overloaded|timed? ?out",
                        re.IGNORECASE)
@@ -199,6 +201,10 @@ def score(question: dict, result: dict) -> dict:
         "contacts_total": len(found) if naive else None,
         **fit_scores(question, result),
         **workflow_scores(question, result),
+        "n_instruments": len(result["instrument_ids"]),  # instruments shown, any role
+        # Expected instruments recommended in any role (main + supporting); recall counts primary ones only.
+        "found_any_hits": len(found & expected),
+        "recall_any": round(len(found & expected) / len(expected), 3) if expected else None,
     }
 
 
@@ -228,7 +234,7 @@ SUMMARY_COLUMNS = ["scope", "question_id", "mode", "answers", "errors", "json_ok
                    "unacceptable_rate", "false_primary_rate", "objective_met_ok_rate", "fit_expected_good_rate",
                    "fit_bad_low_rate", "dead_end_ok_rate", "workflow_rate", "na_rate", "accessory_rate", "clarifying_ok_rate", "contacts_rate",
                    "mean_seconds", "mean_output_tokens", "total_cost_usd", "stable_runs", "mean_jaccard",
-                   "id_frequency"]
+                   "id_frequency", "mean_instruments", "mean_recall_any"]
 
 
 def _num(value):
@@ -281,6 +287,8 @@ def summarize_group(rows: list[dict]) -> dict:
         "mean_output_tokens": _mean(r["output_tokens"] for r in scored),
         # All answers, failed ones too: a failed call can still cost money. None if no prices are set.
         "total_cost_usd": _total(r.get("cost_usd") for r in rows),
+        "mean_instruments": _mean(r.get("n_instruments") for r in scored),
+        "mean_recall_any": _mean(r.get("recall_any") for r in scored),
     }
 
 
@@ -305,11 +313,11 @@ def summarize(rows: list[dict]) -> list[dict]:
     return summary
 
 
-PRINTED = [("mean_recall", "recall"), ("unacceptable_rate", "unacc"), ("false_primary_rate", "falseP"),
+PRINTED = [("mean_recall", "recall"), ("mean_recall_any", "found"), ("unacceptable_rate", "unacc"), ("false_primary_rate", "falseP"),
            ("objective_met_ok_rate", "no-obj"), ("fit_expected_good_rate", "fit+"),
            ("fit_bad_low_rate", "fit-"), ("na_rate", "n/a"),
            ("accessory_rate", "acc"), ("clarifying_ok_rate", "clar"), ("contacts_rate", "contact"),
-           ("mean_seconds", "sec")]
+           ("mean_seconds", "sec"), ("mean_instruments", "n-inst")]
 
 
 def print_summary(summary: list[dict]) -> None:
@@ -528,6 +536,7 @@ def main() -> None:
     parser.add_argument("--category", choices=CATEGORIES, help="only questions in this category")
     parser.add_argument("--log", action="store_true", help="also log answers to the sheet / log file")
     parser.add_argument("--rescore", type=Path, metavar="CSV", help="re-score a saved run, no model calls")
+    parser.add_argument("--out", type=Path, metavar="CSV", help="with --rescore: where to write (default <run>_rescored.csv)")
     parser.add_argument("--review-sheet", action="store_true", help="write the expected answers as Markdown")
     parser.add_argument("--record-demo", action="store_true", help="save answers as the app's demo backup")
     parser.add_argument("--no-repair", action="store_true", help="no repair call for unusable structured JSON")
@@ -549,7 +558,7 @@ def main() -> None:
         check_budget(len(questions), args.modes, 1, args.yes)
         record_demo(questions, args.modes)
     elif args.rescore:
-        write_outputs(rescore(args.rescore, questions), args.rescore.with_name(args.rescore.stem + "_rescored.csv"))
+        write_outputs(rescore(args.rescore, questions), args.out or args.rescore.with_name(args.rescore.stem + "_rescored.csv"))
     else:
         check_budget(len(questions), args.modes, args.runs, args.yes)
         rows = run(questions, args.modes, args.runs, args.log)

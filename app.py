@@ -114,7 +114,7 @@ def render_sidebar() -> str:
 # red only for dead ends.
 FIT_COLORS = {"high": "green", "medium": "orange", "low": "gray"}
 DESTRUCTIVE_BADGES = {"yes": ("Destroys sample", "violet"), "no": ("Non-destructive", "blue"),
-                      "depends": ("Depends", "gray")}
+                      "depends": ("Depends", "gray"), "aliquot": ("Uses a small piece", "blue")}
 
 
 def badge(text: str, color: str) -> str:

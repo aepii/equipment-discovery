@@ -61,15 +61,16 @@
     "status": "generated",
     "question": "I'd like to see whether osteoblasts flatten out and spread on our titanium discs or stay rounded. What equipment would show me their shape?",
     "expected_ids": [
-      "EQ07",
       "EQ08",
+      "EQ12"
+    ],
+    "acceptable_ids": [
+      "EQ07",
       "EQ09",
-      "EQ12",
       "EQ13",
       "EQ22",
       "EQ23"
     ],
-    "acceptable_ids": [],
     "unacceptable_ids": [],
     "supplementary_only_ids": [],
     "expected_not_available": [],
@@ -81,10 +82,8 @@
       "rule": "available-property",
       "property": "cell_morphology",
       "techniques": [
-        "brightfield_microscopy",
         "confocal_microscopy",
         "multiphoton_microscopy",
-        "phase_contrast_microscopy",
         "widefield_fluorescence_microscopy"
       ]
     },
@@ -492,10 +491,10 @@
     "status": "generated",
     "question": "I make alginate microbeads and need their size distribution, roughly from 50 µm up to 1 mm. How can I measure the bead sizes?",
     "expected_ids": [
-      "EQ10"
+      "EQ14"
     ],
     "acceptable_ids": [
-      "EQ14"
+      "EQ10"
     ],
     "unacceptable_ids": [],
     "supplementary_only_ids": [],
@@ -508,7 +507,7 @@
       "rule": "available-property",
       "property": "microparticle_size_distribution",
       "techniques": [
-        "environmental_sem"
+        "stereomicroscopy"
       ]
     },
     "notes": "Generated: answer key from available-property; wording by Claude."
@@ -1115,10 +1114,11 @@
     "question": "We cast ceramic parts and I need to see inside them in 3D: voids, cracks and density variations. What can I use?",
     "expected_ids": [],
     "acceptable_ids": [],
-    "unacceptable_ids": [],
-    "supplementary_only_ids": [
+    "unacceptable_ids": [
       "EQ07",
-      "EQ08",
+      "EQ08"
+    ],
+    "supplementary_only_ids": [
       "EQ10",
       "EQ11"
     ],
@@ -1145,10 +1145,11 @@
     "question": "I need to check the struts and internal geometry throughout the whole volume of a printed titanium lattice.",
     "expected_ids": [],
     "acceptable_ids": [],
-    "unacceptable_ids": [],
-    "supplementary_only_ids": [
+    "unacceptable_ids": [
       "EQ07",
-      "EQ08",
+      "EQ08"
+    ],
+    "supplementary_only_ids": [
       "EQ10",
       "EQ11"
     ],
@@ -1305,10 +1306,11 @@
     "question": "I need to quantify how porous a sintered ceramic bone graft is and how large its pores are.",
     "expected_ids": [],
     "acceptable_ids": [],
-    "unacceptable_ids": [],
-    "supplementary_only_ids": [
+    "unacceptable_ids": [
       "EQ07",
-      "EQ08",
+      "EQ08"
+    ],
+    "supplementary_only_ids": [
       "EQ10"
     ],
     "expected_not_available": [
@@ -1540,10 +1542,10 @@
     "status": "generated",
     "question": "I need the degree of crystallinity of a PLLA suture, but I can't cut or melt it, because the same suture goes into a degradation study afterwards.",
     "expected_ids": [],
-    "acceptable_ids": [],
-    "unacceptable_ids": [
+    "acceptable_ids": [
       "EQ18"
     ],
+    "unacceptable_ids": [],
     "supplementary_only_ids": [],
     "expected_not_available": [
       "\\bX.?ray.?diffraction\\b|\\bXRD\\b|\\bpowder.?diffraction\\b"
@@ -1570,10 +1572,10 @@
       "EQ19",
       "EQ21"
     ],
-    "acceptable_ids": [],
-    "unacceptable_ids": [
+    "acceptable_ids": [
       "EQ18"
     ],
+    "unacceptable_ids": [],
     "supplementary_only_ids": [],
     "expected_not_available": [],
     "expected_accessories": {
@@ -1604,11 +1606,11 @@
     "expected_ids": [],
     "acceptable_ids": [],
     "unacceptable_ids": [
+      "EQ07",
+      "EQ08",
       "EQ11"
     ],
     "supplementary_only_ids": [
-      "EQ07",
-      "EQ08",
       "EQ10"
     ],
     "expected_not_available": [
@@ -1635,10 +1637,10 @@
     "expected_ids": [
       "EQ10"
     ],
-    "acceptable_ids": [],
-    "unacceptable_ids": [
+    "acceptable_ids": [
       "EQ11"
     ],
+    "unacceptable_ids": [],
     "supplementary_only_ids": [],
     "expected_not_available": [],
     "expected_accessories": {},
@@ -1650,33 +1652,6 @@
       "property": "nanoparticle_morphology",
       "techniques": [
         "environmental_sem"
-      ]
-    },
-    "notes": "Generated: answer key from non-destructive; wording by Claude."
-  },
-  {
-    "id": "G063",
-    "category": "no-suitable-equipment",
-    "status": "generated",
-    "question": "How much heat does our epoxy resin system release as it cures? The sample has to stay intact for later tests, so I can't seal it in a pan and heat it.",
-    "expected_ids": [],
-    "acceptable_ids": [],
-    "unacceptable_ids": [
-      "EQ18"
-    ],
-    "supplementary_only_ids": [],
-    "expected_not_available": [
-      "\\bFourier.?transform.?infrared.?spectroscopy\\b|\\bFTIR\\b|\\binfrared.?spectroscopy\\b|\\bATR.?FTIR\\b|\\bIR\\b"
-    ],
-    "expected_accessories": {},
-    "expect_clarifying": false,
-    "expect_dead_end": false,
-    "workflow_ids": [],
-    "derived_from": {
-      "rule": "non-destructive",
-      "property": "reaction_enthalpy",
-      "techniques": [
-        "ftir_spectroscopy"
       ]
     },
     "notes": "Generated: answer key from non-destructive; wording by Claude."
@@ -2307,10 +2282,10 @@
     "status": "generated",
     "question": "We will make cell-loaded alginate capsules with the encapsulator and then need to measure their size distribution. What do you have for that?",
     "expected_ids": [
-      "EQ10"
+      "EQ14"
     ],
     "acceptable_ids": [
-      "EQ14"
+      "EQ10"
     ],
     "unacceptable_ids": [],
     "supplementary_only_ids": [],

@@ -81,11 +81,16 @@
       "kind": "measurement",
       "measures": ["glass_transition_temperature", "melting_temperature", "crystallization_temperature", "degree_of_crystallinity", "reaction_enthalpy"],
       "partial": {},
-      "destructive": "yes",
-      "destructive_note": "the tested milligram aliquot is sealed in a pan and heated",
+      "destructive": "aliquot",
+      "destructive_note": "only a separate piece of a few milligrams is sealed in a pan and heated; the rest of the sample is not touched",
       "requires_before": [{"technique": "thermogravimetric_analysis", "when": "recommended first, to keep the DSC below the decomposition temperature"}],
       "leads_to": [],
-      "source": "llm_draft", "confidence": "high"
+      "source": "llm_draft", "confidence": "high",
+      "corrections": [
+        {"change": "destructive 'yes' -> 'aliquot': only the few milligrams in the pan are used; a small separate piece of the same material can be tested while the specimen itself stays intact",
+         "source": "ASTM D3418 (transition temperatures and enthalpies of fusion and crystallization of polymers by DSC), which uses specimens of a few milligrams; G. W. H. Höhne, W. F. Hemminger, H.-J. Flammersheim, Differential Scanning Calorimetry, 2nd ed., Springer, 2003. Exact clause and chapter not checked.",
+         "needs_confirmation": true}
+      ]
     },
     "gel_permeation_chromatography": {
       "name": "Gel permeation / size-exclusion chromatography (GPC/SEC)",
@@ -103,13 +108,18 @@
       "name": "Fourier-transform infrared spectroscopy (FTIR)",
       "aliases": ["FTIR", "infrared spectroscopy", "ATR-FTIR", "IR"],
       "kind": "measurement",
-      "measures": ["chemical_functional_groups", "reaction_enthalpy"],
+      "measures": ["chemical_functional_groups"],
       "partial": {"reaction_enthalpy": "degree of cure from band intensities, not a heat measurement"},
       "destructive": "no",
       "destructive_note": "",
       "requires_before": [],
       "leads_to": [],
-      "source": "llm_draft", "confidence": "high"
+      "source": "llm_draft", "confidence": "high",
+      "corrections": [
+        {"change": "reaction_enthalpy removed from 'measures' (kept as partial): FTIR follows the degree of cure from band intensities but does not measure heat",
+         "source": "ASTM E2160 (heat of reaction of thermally reactive materials by DSC): the heat of reaction is a calorimetric quantity; P. R. Griffiths, J. A. de Haseth, Fourier Transform Infrared Spectrometry, 2nd ed., Wiley, 2007. Exact clause and chapter not checked.",
+         "needs_confirmation": true}
+      ]
     },
     "x_ray_diffraction": {
       "name": "X-ray diffraction (XRD)",
@@ -271,7 +281,16 @@
       "destructive_note": "imaging itself does not damage the sample, but labeling, fixation or clearing may",
       "requires_before": [{"technique": "fluorescent_labeling", "when": "if the sample is not fluorescent itself"}],
       "leads_to": [],
-      "source": "llm_draft", "confidence": "high"
+      "source": "llm_draft", "confidence": "high",
+      "conditions": [
+        {"when": "opaque_sample", "property": "internal_3d_structure", "effect": "excluded", "why": "light does not get into an opaque material, so there is no view inside it"},
+        {"when": "opaque_sample", "property": "porosity_and_pore_size", "effect": "excluded", "why": "light does not get into an opaque material, so there is no view inside it"}
+      ],
+      "corrections": [
+        {"change": "the partial links to internal 3D structure and porosity now depend on the sample: excluded for opaque samples (metal, ceramic, a tooth)",
+         "source": "D. B. Murphy, M. W. Davidson, Fundamentals of Light Microscopy and Electronic Imaging, 2nd ed., Wiley-Blackwell, 2012; J. B. Pawley (ed.), Handbook of Biological Confocal Microscopy, 3rd ed., Springer, 2006. Exact chapters not checked.",
+         "needs_confirmation": true}
+      ]
     },
     "multiphoton_microscopy": {
       "name": "Multiphoton microscopy",
@@ -286,7 +305,16 @@
       "destructive_note": "imaging itself does not damage the sample, but labeling may",
       "requires_before": [{"technique": "fluorescent_labeling", "when": "if the sample is neither fluorescent nor SHG-active"}],
       "leads_to": [],
-      "source": "llm_draft", "confidence": "high"
+      "source": "llm_draft", "confidence": "high",
+      "conditions": [
+        {"when": "opaque_sample", "property": "internal_3d_structure", "effect": "excluded", "why": "light does not get into an opaque material, so there is no view inside it"},
+        {"when": "opaque_sample", "property": "porosity_and_pore_size", "effect": "excluded", "why": "light does not get into an opaque material, so there is no view inside it"}
+      ],
+      "corrections": [
+        {"change": "the partial links to internal 3D structure and porosity now depend on the sample: excluded for opaque samples (metal, ceramic, a tooth)",
+         "source": "D. B. Murphy, M. W. Davidson, Fundamentals of Light Microscopy and Electronic Imaging, 2nd ed., Wiley-Blackwell, 2012; J. B. Pawley (ed.), Handbook of Biological Confocal Microscopy, 3rd ed., Springer, 2006. Exact chapters not checked.",
+         "needs_confirmation": true}
+      ]
     },
     "widefield_fluorescence_microscopy": {
       "name": "Widefield (epi)fluorescence microscopy",
@@ -310,7 +338,15 @@
       "destructive_note": "tissue samples are usually sectioned and stained first",
       "requires_before": [],
       "leads_to": [],
-      "source": "llm_draft", "confidence": "high"
+      "source": "llm_draft", "confidence": "high",
+      "conditions": [
+        {"when": "opaque_sample", "effect": "excluded", "why": "transmitted light has to pass through the sample, and an opaque sample or substrate (e.g. a titanium disc) blocks it"}
+      ],
+      "corrections": [
+        {"change": "now excluded for opaque samples or substrates (a transmitted-light technique)",
+         "source": "D. B. Murphy, M. W. Davidson, Fundamentals of Light Microscopy and Electronic Imaging, 2nd ed., Wiley-Blackwell, 2012; J. B. Pawley (ed.), Handbook of Biological Confocal Microscopy, 3rd ed., Springer, 2006. Exact chapters not checked.",
+         "needs_confirmation": true}
+      ]
     },
     "phase_contrast_microscopy": {
       "name": "Phase-contrast microscopy",
@@ -322,7 +358,15 @@
       "destructive_note": "",
       "requires_before": [],
       "leads_to": [],
-      "source": "llm_draft", "confidence": "high"
+      "source": "llm_draft", "confidence": "high",
+      "conditions": [
+        {"when": "opaque_sample", "effect": "excluded", "why": "transmitted light has to pass through the sample, and an opaque sample or substrate (e.g. a titanium disc) blocks it"}
+      ],
+      "corrections": [
+        {"change": "now excluded for opaque samples or substrates (a transmitted-light technique)",
+         "source": "D. B. Murphy, M. W. Davidson, Fundamentals of Light Microscopy and Electronic Imaging, 2nd ed., Wiley-Blackwell, 2012; J. B. Pawley (ed.), Handbook of Biological Confocal Microscopy, 3rd ed., Springer, 2006. Exact chapters not checked.",
+         "needs_confirmation": true}
+      ]
     },
     "live_cell_time_lapse_imaging": {
       "name": "Live-cell time-lapse imaging",
@@ -346,7 +390,15 @@
       "destructive_note": "",
       "requires_before": [],
       "leads_to": [],
-      "source": "llm_draft", "confidence": "high"
+      "source": "llm_draft", "confidence": "high",
+      "conditions": [
+        {"when": "particles_above_50um", "property": "microparticle_size_distribution", "effect": "full", "why": "beads or capsules above about 50 µm are measured routinely at low magnification with a calibrated camera"}
+      ],
+      "corrections": [
+        {"change": "microparticle size distribution becomes a full measurement for particles above about 50 µm (still partial otherwise)",
+         "source": "J. I. Goldstein et al., Scanning Electron Microscopy and X-Ray Microanalysis, 4th ed., Springer, 2018 (field of view and magnification); ISO 13322-1 (particle size analysis, static image analysis methods). Exact chapters and clauses not checked; no manufacturer page found that states a useful size range for the Nikon SMZ 445 or Philips XL30.",
+         "needs_confirmation": true}
+      ]
     },
     "environmental_sem": {
       "name": "Scanning electron microscopy (environmental / ESEM mode)",
@@ -361,7 +413,15 @@
       "destructive_note": "ESEM mode can image uncoated, hydrated samples; the sample must fit the chamber, and internal views need cutting",
       "requires_before": [{"technique": "sputter_coating", "when": "only for high-vacuum imaging of non-conductive samples; ESEM mode can avoid it"}],
       "leads_to": [],
-      "source": "llm_draft", "confidence": "high"
+      "source": "llm_draft", "confidence": "high",
+      "conditions": [
+        {"when": "particles_above_50um", "property": "microparticle_size_distribution", "effect": "partial", "why": "possible, but at a useful magnification only a few beads above about 50 µm fit in the field of view, so a size distribution is slow to build; a stereo or light microscope is the usual tool"}
+      ],
+      "corrections": [
+        {"change": "microparticle size distribution becomes partial for particles above about 50 µm (still full otherwise)",
+         "source": "J. I. Goldstein et al., Scanning Electron Microscopy and X-Ray Microanalysis, 4th ed., Springer, 2018 (field of view and magnification); ISO 13322-1 (particle size analysis, static image analysis methods). Exact chapters and clauses not checked; no manufacturer page found that states a useful size range for the Nikon SMZ 445 or Philips XL30.",
+         "needs_confirmation": true}
+      ]
     },
     "energy_dispersive_xray_spectroscopy": {
       "name": "Energy-dispersive X-ray spectroscopy (EDS / EDX)",
@@ -381,14 +441,20 @@
       "kind": "imaging",
       "measures": ["ultrastructure", "nanoparticle_morphology"],
       "partial": {"internal_3d_structure": "2D views of ultrathin sections only; needs the sample to be sectioned"},
-      "destructive": "yes",
-      "destructive_note": "bulk samples must be fixed, embedded and cut into ultrathin sections; the beam can damage sensitive samples",
+      "destructive": "depends",
+      "destructive_note": "bulk samples (tissue, cells, polymers) must be fixed, embedded and cut into ultrathin sections; dispersed particles only need a drop on a grid, so the rest of the batch is not touched; the beam can damage sensitive samples",
+      "destructive_by_property": {"ultrastructure": "yes", "internal_3d_structure": "yes", "nanoparticle_morphology": "aliquot"},
       "requires_before": [
         {"technique": "ultramicrotomy", "when": "for tissue, cells or bulk polymer samples"},
         {"technique": "negative_staining", "when": "for nanoparticles or macromolecules dispersed on a grid"}
       ],
       "leads_to": [],
-      "source": "llm_draft", "confidence": "high"
+      "source": "llm_draft", "confidence": "high",
+      "corrections": [
+        {"change": "destructive 'yes' -> 'depends': 'yes' for ultrastructure and internal structure (sectioned), 'aliquot' for nanoparticle morphology (a drop on a grid)",
+         "source": "D. B. Williams, C. B. Carter, Transmission Electron Microscopy: A Textbook for Materials Science, 2nd ed., Springer, 2009 (specimen preparation: bulk samples are thinned or sectioned, particles are dispersed on a support film). Exact chapter not checked.",
+         "needs_confirmation": true}
+      ]
     },
     "scanning_transmission_electron_microscopy": {
       "name": "Scanning transmission electron microscopy (STEM)",
@@ -396,13 +462,19 @@
       "kind": "imaging",
       "measures": ["ultrastructure", "nanoparticle_morphology"],
       "partial": {},
-      "destructive": "yes",
-      "destructive_note": "same sample preparation as TEM",
+      "destructive": "depends",
+      "destructive_note": "same sample preparation as TEM: bulk samples are sectioned, dispersed particles only need a drop on a grid",
+      "destructive_by_property": {"ultrastructure": "yes", "nanoparticle_morphology": "aliquot"},
       "requires_before": [
         {"technique": "ultramicrotomy", "when": "for tissue, cells or bulk polymer samples"}
       ],
       "leads_to": [],
-      "source": "llm_draft", "confidence": "high"
+      "source": "llm_draft", "confidence": "high",
+      "corrections": [
+        {"change": "destructive 'yes' -> 'depends', as for TEM (same instrument and sample preparation)",
+         "source": "D. B. Williams, C. B. Carter, Transmission Electron Microscopy: A Textbook for Materials Science, 2nd ed., Springer, 2009 (specimen preparation: bulk samples are thinned or sectioned, particles are dispersed on a support film). Exact chapter not checked.",
+         "needs_confirmation": true}
+      ]
     },
 
     "dynamic_light_scattering": {

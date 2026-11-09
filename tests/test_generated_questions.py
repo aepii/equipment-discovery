@@ -122,3 +122,40 @@ def test_check_rejects_a_paraphrase_of_a_curated_question_with_the_same_inputs()
     assert gq.SAME_INPUTS_PARAPHRASE <= gq.similarity(text, CURATED[15]["question"]) < gq.CURATED_PARAPHRASE
     problems = gq.question_problems(_with(vague, question=text), PLAN, CURATED)
     assert any("same rule inputs" in p for p in problems)
+
+
+def test_a_small_separate_piece_is_acceptable_not_unacceptable():
+    key = gq.key_non_destructive("glass_transition_temperature")
+    assert "EQ18" in key["acceptable_ids"] and "EQ18" not in key["unacceptable_ids"]
+    key = gq.key_non_destructive("nanoparticle_morphology")  # TEM: a drop of the batch on a grid
+    assert key["expected_ids"] == ["EQ10"] and "EQ11" in key["acceptable_ids"]
+
+
+def test_sectioned_samples_stay_unacceptable_when_the_sample_must_stay_intact():
+    key = gq.key_non_destructive("internal_3d_structure")
+    assert "EQ11" in key["unacceptable_ids"]
+
+
+def test_opaque_sample_changes_the_key():
+    plain = gq.property_key("cell_morphology")
+    opaque = gq.property_key("cell_morphology", ["opaque_sample"])
+    assert "EQ13" in plain["expected_ids"]
+    assert opaque["expected_ids"] == ["EQ08", "EQ12"] and "EQ13" in opaque["acceptable_ids"]
+    no_match = gq.key_no_match("internal_3d_structure", ["opaque_sample"])
+    assert {"EQ07", "EQ08"} <= set(no_match["unacceptable_ids"])
+    assert not {"EQ07", "EQ08"} & set(no_match["supplementary_only_ids"])
+
+
+def test_large_beads_expect_the_stereo_microscope():
+    key = gq.property_key("microparticle_size_distribution", ["particles_above_50um"])
+    assert key["expected_ids"] == ["EQ14"] and "EQ10" in key["acceptable_ids"]
+    assert gq.property_key("microparticle_size_distribution")["expected_ids"] == ["EQ10"]
+
+
+def test_ids_stay_stable_when_an_item_is_dropped(tmp_path):
+    saved = [{"id": f"G00{i}", "derived_from": {"rule": "r"}, "brief": b} for i, b in enumerate("abc", start=1)]
+    path = tmp_path / "plan.json"
+    path.write_text(json.dumps({"items": saved}), encoding="utf-8")
+    items = [{"derived_from": {"rule": "r"}, "brief": b} for b in ("a", "c", "d")]
+    assert gq.stable_ids(items, path) == ["G001", "G003", "G004"]
+    assert gq.stable_ids(items, tmp_path / "none.json") == ["G001", "G002", "G003"]

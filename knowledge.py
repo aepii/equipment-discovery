@@ -80,6 +80,51 @@ def unavailable_techniques() -> list[str]:
     return [tid for tid, t in techniques().items() if t["kind"] in MEASURING_KINDS and not instruments_for(tid)]
 
 
+def destructive_for(tech_id: str, prop: str = "") -> str:
+    """How destructive a technique is when it is used for one property: yes / no / depends / aliquot / ...
+    destructive_by_property settles a 'depends' per property (TEM: 'yes' for sectioned tissue, 'aliquot' for
+    a drop of nanoparticles on a grid)."""
+    t = techniques().get(tech_id, {})
+    return t.get("destructive_by_property", {}).get(prop, t.get("destructive", ""))
+
+
+def _conditions(eq_id: str, tech_id: str, prop: str) -> list[dict]:
+    """Conditions on the technique (any instrument) and on this instrument's link to it, for one property."""
+    found = techniques().get(tech_id, {}).get("conditions", []) + techniques_of(eq_id).get(tech_id, {}).get("conditions", [])
+    return [c for c in found if c.get("property", "*") in ("*", prop)]
+
+
+EFFECT_ORDER = ("excluded", "partial", "full")  # the first one that applies wins
+
+
+def link_level(eq_id: str, tech_id: str, prop: str, sample_conditions=()) -> tuple[str | None, str]:
+    """How a technique on an instrument gives a property for a sample with these conditions.
+
+    Returns (level, why): level is "full", "partial", "excluded" (a condition rules it out) or None (the
+    technique does not give the property at all); why is the partial or condition reason ("" for full).
+    Without conditions this is just measures (full) or partial.
+    """
+    t = techniques().get(tech_id, {})
+    if prop in t.get("measures", []):
+        level, why = "full", ""
+    elif prop in t.get("partial", {}):
+        level, why = "partial", t["partial"][prop]
+    else:
+        return None, ""
+    applying = [c for c in _conditions(eq_id, tech_id, prop) if c["when"] in sample_conditions]
+    for effect in EFFECT_ORDER:
+        hit = next((c for c in applying if c["effect"] == effect), None)
+        if hit:
+            return effect, hit.get("why", "") if effect != "full" else ""
+    return level, why
+
+
+def sample_condition_ids(values) -> list[str]:
+    """The known sample-condition IDs among values (unknown ones are dropped)."""
+    known = vocabulary().get("sample_conditions", {})
+    return [v for v in dict.fromkeys(str(x).strip() for x in values or []) if v in known]
+
+
 def accessories_for(eq_id: str, tech_id: str) -> list[str]:
     """Accessories still to confirm for one instrument and technique."""
     return [a["item"] for a in annotations().get(eq_id, {}).get("accessories", [])
@@ -122,6 +167,28 @@ def _check_enum(problems: list, where: str, field: str, value, allowed) -> None:
         problems.append(f"{where}: {field} '{value}' is not one of {sorted(allowed)}")
 
 
+def _check_conditions(problems: list, where: str, conditions, vocab: dict, linked: set | None = None) -> None:
+    """Conditions name a known sample condition and effect, and a property the technique links to (or '*')."""
+    for c in conditions or []:
+        _check_enum(problems, where, "condition", c.get("when"), vocab.get("sample_conditions", {}))
+        _check_enum(problems, where, "condition effect", c.get("effect"), vocab.get("condition_effects", {}))
+        prop = c.get("property", "*")
+        if prop != "*" and linked is not None and prop not in linked:
+            problems.append(f"{where}: condition for '{prop}', which the technique neither measures nor partly measures")
+        if not c.get("why"):
+            problems.append(f"{where}: condition '{c.get('when')}' has no 'why'")
+
+
+def _check_corrections(problems: list, where: str, corrections) -> None:
+    """Each correction says what changed, where it comes from, and that the expert still has to confirm it."""
+    for c in corrections or []:
+        for field in ("change", "source"):
+            if not str(c.get(field, "")).strip():
+                problems.append(f"{where}: correction without '{field}'")
+        if not isinstance(c.get("needs_confirmation"), bool):
+            problems.append(f"{where}: correction needs 'needs_confirmation' true or false")
+
+
 def validate(equipment: list[dict], vocab: dict | None = None, techs: dict | None = None,
              annots: list[dict] | None = None) -> list[str]:
     """Problems in the knowledge files (empty list if none). Pass the parts to check other data, e.g. a draft."""
@@ -140,9 +207,16 @@ def validate(equipment: list[dict], vocab: dict | None = None, techs: dict | Non
         _check_enum(problems, where, "destructive", t.get("destructive"), vocab["destructive"])
         _check_enum(problems, where, "source", t.get("source"), sources)
         _check_enum(problems, where, "confidence", t.get("confidence"), levels)
+        linked = set(t.get("measures", [])) | set(t.get("partial", {}))
         for prop in list(t.get("measures", [])) + list(t.get("partial", {})):
             if prop not in props:
                 problems.append(f"{where}: property '{prop}' is not in the vocabulary")
+        for prop, level in t.get("destructive_by_property", {}).items():
+            if prop not in linked:
+                problems.append(f"{where}: destructive_by_property for '{prop}', which it does not measure")
+            _check_enum(problems, where, f"destructive for {prop}", level, vocab["destructive"])
+        _check_conditions(problems, where, t.get("conditions"), vocab, linked)
+        _check_corrections(problems, where, t.get("corrections"))
         steps = [s["technique"] for s in t.get("requires_before", [])] + list(t.get("leads_to", []))
         for step in steps:
             if step not in techs:
@@ -172,6 +246,10 @@ def validate(equipment: list[dict], vocab: dict | None = None, techs: dict | Non
                 problems.append(f"{where}: technique '{t.get('technique')}' is not in techniques.json")
             _check_enum(problems, where, "source", t.get("source"), sources)
             _check_enum(problems, where, "confidence", t.get("confidence"), levels)
+            tech = techs.get(t.get("technique"), {})
+            _check_conditions(problems, where, t.get("conditions"), vocab,
+                              set(tech.get("measures", [])) | set(tech.get("partial", {})))
+        _check_corrections(problems, where, a.get("corrections"))
         for acc in a.get("accessories", []):
             _check_enum(problems, where, "accessory status", acc.get("status"), vocab["accessory_status"])
             _check_enum(problems, where, "source", acc.get("source"), sources)
@@ -190,6 +268,21 @@ def validate(equipment: list[dict], vocab: dict | None = None, techs: dict | Non
 
 # --- text for the prompt ---
 
+DESTRUCTIVE_TEXT = {"aliquot": "only a small separate portion is used up", "not_applicable": "not applicable"}
+
+
+def destructive_text(level: str) -> str:
+    return DESTRUCTIVE_TEXT.get(level, level.replace("_", " "))
+
+
+def _condition_text(c: dict) -> str:
+    """"if opaque_sample: not possible for Internal 3D structure (why)"."""
+    effect = {"excluded": "not possible", "partial": "only partly", "full": "fully"}[c["effect"]]
+    prop = c.get("property", "*")
+    target = f" for {property_label(prop)} [{prop}]" if prop != "*" else ""
+    return f"if {c['when']}: {effect}{target} ({c['why']})"
+
+
 def _technique_line(tid: str, entry: dict | None = None) -> str:
     """One technique for the annotated prompt; property IDs in square brackets (the model names one per
     recommendation as "property_id", so code can tell a full measurement from a partial one)."""
@@ -199,8 +292,15 @@ def _technique_line(tid: str, entry: dict | None = None) -> str:
     line = f"{tid} = {t['name']}. Measures: {measures}"
     if partial:
         line += f". Partly: {partial}"
-    destructive = t["destructive"].replace("_", " ")
-    line += f". Destructive: {destructive}" + (f" ({t['destructive_note']})" if t.get("destructive_note") else "")
+    line += f". Destructive: {destructive_text(t['destructive'])}" + (
+        f" ({t['destructive_note']})" if t.get("destructive_note") else "")
+    by_property = "; ".join(f"for {property_label(p)} [{p}]: {destructive_text(level)}"
+                            for p, level in t.get("destructive_by_property", {}).items())
+    if by_property:
+        line += f" ({by_property})"
+    conditions = t.get("conditions", []) + (entry or {}).get("conditions", [])
+    if conditions:
+        line += ". Depends on the sample: " + "; ".join(_condition_text(c) for c in conditions)
     if entry and entry["confidence"] == "low":
         line += ". [Only with optional hardware not listed in the dataset]"
     return line
@@ -237,3 +337,8 @@ def format_annotated_equipment(equipment: list[dict]) -> str:
 def format_unavailable_techniques() -> str:
     """Techniques no listed instrument performs, so the model can name them in not_available."""
     return "\n".join(f"- {_technique_line(tid)}" for tid in unavailable_techniques())
+
+
+def format_sample_conditions() -> str:
+    """The sample conditions the model may report, so code can test the conditional links."""
+    return "\n".join(f"- {cid}: {text}" for cid, text in vocabulary().get("sample_conditions", {}).items())

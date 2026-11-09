@@ -218,10 +218,14 @@ ANNOTATED_SYSTEM = STRUCTURED_SYSTEM.split("\n\nReturn ONLY")[0] + """
    technique that is not on the list, with "technique_id": null.
 12. For each recommendation give "property_id": the ID (in square brackets in the notes) of the main
    property this technique would measure for the question, or null if none fits.
+13. Some techniques "depend on the sample" (see the notes). Set "sample_conditions" to the IDs from
+   "Sample conditions" that the question states or clearly implies about the sample (e.g. cells on a
+   titanium disc: opaque_sample), or [] if none applies or the question does not say.
 
 Return ONLY a JSON object with exactly this shape:
 {
   "measurement_needs": ["what needs to be measured"],
+  "sample_conditions": [],
   "objective_met": true,
   "recommendations": [
     {"instrument_id": "EQ17", "role": "primary", "technique_id": "thermogravimetric_analysis",
@@ -240,6 +244,7 @@ def build_user_prompt(question: str, mode: str = "structured") -> str:
     if mode == "annotated":
         return (f"Equipment list with draft notes:\n\n{knowledge.format_annotated_equipment(load_equipment())}"
                 f"\n\nTechniques not available on any listed instrument:\n{knowledge.format_unavailable_techniques()}"
+                f"\n\nSample conditions:\n{knowledge.format_sample_conditions()}"
                 f"\n\nQuestion: {question.strip()}")
     naive = mode == "naive"
     prompt = f"Equipment list:\n{format_equipment_list(include_contacts=naive)}\n\nQuestion: {question.strip()}"
@@ -282,8 +287,9 @@ def validate_structured(parsed: dict) -> list[str]:
         problems.append('"summary" must be a string')
     if parsed.get("clarifying_question") is not None and not isinstance(parsed["clarifying_question"], str):
         problems.append('"clarifying_question" must be a string or null')
-    if "measurement_needs" in parsed and not _is_str_list(parsed["measurement_needs"]):
-        problems.append('"measurement_needs" must be a list of strings')
+    for key in ("measurement_needs", "sample_conditions"):
+        if key in parsed and not _is_str_list(parsed[key]):
+            problems.append(f'"{key}" must be a list of strings')
     for key in ("recommendations", "not_available"):
         if key in parsed and not isinstance(parsed[key], list):
             problems.append(f'"{key}" must be a list')
@@ -346,7 +352,7 @@ def check_recommendations(recommendations: list) -> tuple[list[dict], list[str]]
 def check_against_annotations(rec: dict, technique_id) -> dict:
     """Annotated mode: compare a checked recommendation with the instrument's notes.
 
-    Adds technique_id, the technique's destructiveness, the notes' review status and cautions (e.g. a
+    Adds technique_id, the technique's destructiveness (for rec["property_id"] if set), the notes' review status and cautions (e.g. a
     technique the notes don't list for this instrument). If the model named no accessories, the notes'
     accessories to confirm for that technique are filled in.
     """
@@ -363,8 +369,9 @@ def check_against_annotations(rec: dict, technique_id) -> dict:
                                "techniques in the instrument notes; confirm with the contact that it can be done.")
     else:
         technique = knowledge.techniques()[tid]
-        rec["destructive_level"] = technique["destructive"]
-        rec["destructive"] = technique["destructive"].replace("_", " ") + (
+        # Set per property where the notes settle it (TEM: sectioned tissue vs. a drop of nanoparticles).
+        rec["destructive_level"] = knowledge.destructive_for(tid, rec.get("property_id", ""))
+        rec["destructive"] = knowledge.destructive_text(rec["destructive_level"]) + (
             f" ({technique['destructive_note']})" if technique.get("destructive_note") else "")
         if own[tid]["confidence"] == "low":
             rec["cautions"].append("This technique needs optional hardware that the dataset does not list.")
@@ -438,10 +445,11 @@ def _listing(items: list[str], limit: int = 3) -> str:
     return ", ".join(items[:limit]) + more
 
 
-def assign_fit(rec: dict) -> dict:
+def assign_fit(rec: dict, sample_conditions=()) -> dict:
     """Annotated mode: the fit level (high / medium / low) and a one-sentence reason, from facts in the
     knowledge files and the dataset, never from the model. Runs after check_against_annotations (and the
-    workflow check). The first rule that matches wins."""
+    workflow check). sample_conditions (from the answer) can make a link partial, full or excluded.
+    The first rule that matches wins."""
     def fit(level: str, reason: str) -> dict:
         rec.update(fit=level, fit_reason=reason)
         return rec
@@ -462,10 +470,12 @@ def assign_fit(rec: dict) -> dict:
     if own[tid]["confidence"] == "low":
         hardware = _listing(knowledge.accessories_for(eq_id, tid)) or "extra hardware"
         return fit("low", f"Needs optional hardware ({hardware}) not listed in the dataset.")
-    technique = knowledge.techniques()[tid]
     prop = rec.get("property_id", "")
-    if prop in technique.get("partial", {}) and prop not in technique["measures"]:
-        return fit("low", f"Partial: {technique['partial'][prop]}.")
+    level, why = knowledge.link_level(eq_id, tid, prop, sample_conditions) if prop else (None, "")
+    if level == "excluded":
+        return fit("low", f"Not for this sample: {why}.")
+    if level == "partial":
+        return fit("low", f"Partial: {why}.")
     # An installed accessory for this technique settles the configuration question; smaller items
     # (e.g. geometries) are still listed to confirm in the card's details.
     installed = knowledge.installed_for(eq_id, tid)
@@ -496,7 +506,7 @@ def new_result(mode: str, raw: str = "") -> dict:
     return {"mode": mode, "raw": raw, "error": None, "usage": {}, "json_ok": None,
             "recommendations": [], "removed": [], "instrument_ids": [], "mentioned_ids": [],
             "primary_ids": [], "supplementary_ids": [], "objective_met": None,
-            "ids_source": "", "not_available": [], "clarifying_question": None,
+            "ids_source": "", "not_available": [], "clarifying_question": None, "sample_conditions": [],
             "repaired": False, "first_raw": "", "schema_problems": [], "source": "live", "demo": None}
 
 
@@ -519,12 +529,14 @@ def read_structured(result: dict) -> dict:
     if result["mode"] == "annotated":
         given = {str(r.get("instrument_id", "")).strip().upper(): r
                  for r in recommendations or [] if isinstance(r, dict)}
+        result["sample_conditions"] = knowledge.sample_condition_ids(
+            parsed.get("sample_conditions") if isinstance(parsed.get("sample_conditions"), list) else [])
         for rec in result["recommendations"]:
-            check_against_annotations(rec, given[rec["id"]].get("technique_id"))
             rec["property_id"] = str(given[rec["id"]].get("property_id") or "").strip()
+            check_against_annotations(rec, given[rec["id"]].get("technique_id"))
         for rec in result["recommendations"]:  # after all are checked: the workflow looks at the others
             check_workflow(rec, result["recommendations"])
-            assign_fit(rec)
+            assign_fit(rec, result["sample_conditions"])
         result["not_available"] = check_not_available(result["not_available"])
     # Roles are read last: the workflow check can turn a dead end into a supplementary recommendation.
     result["primary_ids"] = [r["id"] for r in result["recommendations"] if r["role"] == "primary"]

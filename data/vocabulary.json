@@ -70,8 +70,20 @@
   "destructive": {
     "no": "the sample is unchanged and can be used again",
     "yes": "the sample (or the tested aliquot) is consumed, cut or altered",
-    "depends": "depends on the sample or settings; see destructive_note",
+    "depends": "depends on the sample or settings; see destructive_note (and destructive_by_property, which settles it per property)",
+    "aliquot": "only a small separate portion (a few milligrams, a drop) is used up; the rest of the sample is unchanged",
     "not_applicable": "the technique makes or prepares samples"
+  },
+
+  "sample_conditions": {
+    "opaque_sample": "the sample or its substrate does not let light through (metal, ceramic, a tooth, a titanium disc)",
+    "particles_above_50um": "particles, beads or capsules larger than about 50 µm, visible at low magnification"
+  },
+
+  "condition_effects": {
+    "excluded": "under this condition the technique cannot give the property for this sample",
+    "partial": "under this condition the technique gives the property only partly",
+    "full": "under this condition the technique gives the property fully (a partial link becomes full)"
   },
 
   "sources": {
