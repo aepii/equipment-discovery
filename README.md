@@ -291,7 +291,9 @@ full-system (annotated) answers come from the runs made with the knowledge fixes
 with summaries, the rescored model runs, `FINAL_NUMBERS.md` (the poster tables, remaining faulty generated
 keys, before/after of the knowledge fixes, the Q20 example, the model table) and `charts/` (300 dpi;
 `modes.png` is the curated mode chart, `models_cost_vs_score.png` the model comparison over 23 + 98
-questions, whose answers were recorded before the knowledge fixes).
+questions). For the model comparison, annotated mode was re-run per model with the final version
+(`python scripts/compare_models.py --models <model> --modes annotated --results-dir results/final_runs`,
+once per question file); its structured answers come from the Nov 8 comparison, whose prompt is unchanged.
 
 Use `LLM_PROVIDER=mock` to try it without spending API credits. Rate-limit and server errors are
 retried inside each call (see "Speed, cost and resilience"), then the whole answer is retried twice more

@@ -6,6 +6,8 @@ Usage (from the project folder, LLM_PROVIDER=gemini in .env):
   python scripts/compare_models.py --question-file test_questions_generated.json     the 98 generated questions
   python scripts/compare_models.py --charts-only [--question-file ...]   only redraw the charts from saved runs
   python scripts/compare_models.py --all                 charts over curated + generated together (models_all_*)
+  python scripts/compare_models.py --modes annotated --results-dir results/final_runs
+                                                         runs and charts under another folder (its models*/, charts/)
 
 Each model's answers go to results/models/<model>.csv (+ _summary.csv), scored like run_eval.py; for another
 question file to results/models_<set>/ (e.g. models_generated), with charts prefixed models_<set>_.
@@ -182,15 +184,20 @@ def main() -> None:
     parser.add_argument("--max-usd", type=float, default=8.0, help="start no new model after this spend")
     parser.add_argument("--charts-only", action="store_true")
     parser.add_argument("--all", action="store_true", help="charts over curated + generated runs together")
+    parser.add_argument("--results-dir", type=Path, default=run_eval.RESULTS_DIR,
+                        help="folder for the models*/ run folders and charts/ (default results/)")
     args = parser.parse_args()
+    chart_dir = CHART_DIR if args.results_dir == run_eval.RESULTS_DIR else args.results_dir / "charts"
     if args.all:
-        return write_charts("all")
+        write_charts("all", args.results_dir, chart_dir)
+        return
     question_set = run_eval.question_set(args.question_file)
     if not args.charts_only:
         questions = run_eval.select_questions(run_eval.load_questions(args.question_file), args.questions, None)
         print(f"{len(args.models)} models x {len(questions)} questions x {len(args.modes)} modes x {args.runs} runs")
-        run_models(args.models, questions, args.modes, args.runs, args.max_usd, out_dir(question_set))
-    write_charts(question_set)
+        run_models(args.models, questions, args.modes, args.runs, args.max_usd,
+                   out_dir(question_set, args.results_dir))
+    write_charts(question_set, args.results_dir, chart_dir)
 
 
 if __name__ == "__main__":
